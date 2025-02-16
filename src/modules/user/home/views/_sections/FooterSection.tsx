@@ -3,7 +3,7 @@ export default function FooterSection() {
     <>
       <footer className="md:max-w-4xl md:px-0 px-8 w-full flex flex-col justify-center mx-auto pb-14">
         <div className="text-left border-t border-b border-gray-300 flex md:flex-row flex-col items-center justify-between py-6">
-          <p className="text-sm my-auto order-2 md:order-1">
+          <p className="text-sm my-auto order-2 md:order-1 text-gray-400">
             All content Copyright © {new Date().getFullYear()} Dhagrafis
           </p>
 
