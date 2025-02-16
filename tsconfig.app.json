@@ -5,7 +5,6 @@
     "useDefineForClassFields": true,
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
-    "esModuleInterop": true,
     "skipLibCheck": true,
     "baseUrl": "./src",
     "paths": {
@@ -26,7 +25,7 @@
     },
 
     /* Bundler mode */
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "isolatedModules": true,
     "moduleDetection": "force",
