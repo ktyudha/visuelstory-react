@@ -1,15 +1,21 @@
 import { Outlet } from "react-router-dom";
+import { HelmetProvider } from "react-helmet-async";
 
+import LandingHelmet from "./LandingHelmet";
 import LandingNavbar from "./LandingNavbar";
 
 export default function LandingLayout() {
   return (
-    <div className="w-full">
-      <LandingNavbar />
+    <HelmetProvider>
+      <LandingHelmet />
 
-      <main>
-        <Outlet />
-      </main>
-    </div>
+      <div className="w-full">
+        <LandingNavbar />
+
+        <main>
+          <Outlet />
+        </main>
+      </div>
+    </HelmetProvider>
   );
 }
