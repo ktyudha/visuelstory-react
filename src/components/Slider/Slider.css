@@ -1,0 +1,65 @@
+/* Styling untuk menyesuaikan posisi dots */
+.left .slick-dots {
+    width: auto !important;
+    bottom: 15px !important;
+    margin-left: 20px !important;
+  }
+  
+  .left .slick-dots li {
+    margin: 0px !important;
+    margin-left: 5px !important;
+  }
+  
+  /* Mengubah dot menjadi kotak */
+  .left .slick-dots li button:before {
+    position: relative !important;
+    font-size: 0; /* Menghilangkan font-size karena kita akan menggunakan elemen lainnya */
+    width: 8px !important; /* Lebar kotak */
+    height: 8px !important; /* Tinggi kotak */
+    background-color: white; /* Warna kotak */
+    border-radius: 2px; /* Agar sudut kotaknya sedikit melengkung */
+    opacity: 0.5 !important; /* Transparansi */
+    color: transparent; /* Menyembunyikan teks jika ada */
+    content: '' !important; /* Menghapus karakter bullet */
+    display: block; /* Menampilkan kotak */
+    transition: background-color 0.3s ease; /* Animasi perubahan warna saat aktif */
+  }
+  
+  /* Untuk dot yang aktif (terpilih), ganti warna kotaknya */
+  .left .slick-dots li.slick-active button:before {
+    background-color: #fff !important; /* Warna kotak saat aktif */
+    opacity: 100 !important; /* Tidak transparan saat aktif */
+    width: 20px !important;
+    height: 8px !important;
+    margin-left: -6px;
+  }
+  
+  /* CENTER */
+  .center .slick-dots li {
+    margin: 0px !important;
+    margin-left: 5px !important;
+  }
+  
+  /* Mengubah dot menjadi kotak */
+  .center .slick-dots li button:before {
+    position: relative !important;
+    font-size: 0; /* Menghilangkan font-size karena kita akan menggunakan elemen lainnya */
+    width: 8px !important; /* Lebar kotak */
+    height: 8px !important; /* Tinggi kotak */
+    background-color: white; /* Warna kotak */
+    border-radius: 2px; /* Agar sudut kotaknya sedikit melengkung */
+    opacity: 0.5 !important; /* Transparansi */
+    color: transparent; /* Menyembunyikan teks jika ada */
+    content: '' !important; /* Menghapus karakter bullet */
+    display: block; /* Menampilkan kotak */
+    transition: background-color 0.3s ease; /* Animasi perubahan warna saat aktif */
+  }
+  
+  /* Untuk dot yang aktif (terpilih), ganti warna kotaknya */
+  .center .slick-dots li.slick-active button:before {
+    background-color: #fff !important; /* Warna kotak saat aktif */
+    opacity: 100 !important; /* Tidak transparan saat aktif */
+    width: 20px !important;
+    height: 8px !important;
+    margin-left: -6px;
+  }
