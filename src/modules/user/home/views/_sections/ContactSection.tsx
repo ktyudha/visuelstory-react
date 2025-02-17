@@ -6,7 +6,7 @@ export default function ContactSection() {
         className="md:h-[45vh] h-[25vh] md:max-w-4xl w-full flex flex-col md:items-end justify-center mx-auto"
       >
         <a
-          href="https://m.instagram.com/dhagrafis/"
+          href="https://m.instagram.com/visuelstory/"
           target="_blank"
           className="text-center"
         >

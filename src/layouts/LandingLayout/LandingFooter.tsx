@@ -4,7 +4,7 @@ export default function LandingFooter() {
       <footer className="md:max-w-4xl md:px-0 px-8 w-full flex flex-col justify-center mx-auto py-14">
         <div className="text-left border-t border-b border-gray-300 flex md:flex-row flex-col items-center justify-between py-6">
           <p className="text-sm my-auto order-2 md:order-1 text-gray-400">
-            All content Copyright © {new Date().getFullYear()} Dhagrafis
+            All content Copyright © {new Date().getFullYear()} Visuelstory
           </p>
 
           <div className="flex gap-x-8 items-center my-auto md:order-2 order-1 md:mb-0 mb-4">
@@ -19,7 +19,7 @@ export default function LandingFooter() {
               </svg>
             </a>
 
-            <a href="https://m.instagram.com/dhagrafis/" target="_blank">
+            <a href="https://m.instagram.com/visuelstory/" target="_blank">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="currentColor"
