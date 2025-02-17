@@ -59,16 +59,18 @@ export default function Link() {
           <p className="text-md text-gray-500">Photography & Videography</p>
         </div>
 
-        <ul className="md:w-xl w-full px-6 text-center text-white flex flex-col gap-4">
+        <ul className="md:w-xl w-full  text-center text-white flex flex-col gap-4">
           {dummyLink.map((_link, idx) => (
-            <li
+            <NavLink
               key={idx}
-              className="bg-[#B9AA96] hover:bg-[#928763] cursor-pointer uppercase py-3 rounded-lg tracking-wider"
+              to={_link.url}
+              target="_blank"
+              className={
+                "bg-[#B9AA96] hover:bg-[#928763] cursor-pointer uppercase py-3 px-6 rounded-lg tracking-wider"
+              }
             >
-              <NavLink to={_link.url} target="_blank">
-                {_link.label}
-              </NavLink>
-            </li>
+              {_link.label}
+            </NavLink>
           ))}
         </ul>
       </section>
