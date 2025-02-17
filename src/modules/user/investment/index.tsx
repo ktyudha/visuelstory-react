@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { NavLink } from "react-router-dom";
 import Image from "@components/Image";
 
 export default function Investment() {
@@ -51,9 +52,9 @@ export default function Investment() {
         <div className="max-w-4xl mx-auto">
           <div className="grid md:grid-cols-3 grid-cols-1 gap-8 mx-auto justify-center">
             {dummyPricelist.map((_portfolio, idx) => (
-              <a
+              <NavLink
                 key={idx}
-                href={_portfolio.url}
+                to={_portfolio.url}
                 target="_blank"
                 className={`relative max-w-xs w-full aspect-square mx-auto cursor-pointer group transition-transform duration-700 ease-in ${
                   isVisible
@@ -74,7 +75,7 @@ export default function Investment() {
                     {_portfolio.client}
                   </p>
                 </div>
-              </a>
+              </NavLink>
             ))}
           </div>
         </div>
