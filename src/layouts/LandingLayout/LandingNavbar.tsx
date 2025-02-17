@@ -52,8 +52,7 @@ export default function LandingNavbar() {
               </li>
               <li className="hover:opacity-90 transition duration-150 ease-in-out">
                 <NavLink to={"/contact"} onClick={() => setIsOpen(false)}>
-                  {" "}
-                  Contact Us
+                  Contact
                 </NavLink>
               </li>
             </ul>
