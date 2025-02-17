@@ -3,6 +3,7 @@ import { HelmetProvider } from "react-helmet-async";
 
 import LandingHelmet from "./LandingHelmet";
 import LandingNavbar from "./LandingNavbar";
+import LandingFooter from "./LandingFooter";
 
 export default function LandingLayout() {
   return (
@@ -15,6 +16,8 @@ export default function LandingLayout() {
         <main>
           <Outlet />
         </main>
+
+        <LandingFooter />
       </div>
     </HelmetProvider>
   );

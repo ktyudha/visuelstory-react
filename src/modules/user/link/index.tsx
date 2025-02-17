@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useNavigate, NavLink } from "react-router-dom";
 
 import Image from "@components/Image";
-import Logo from "@/assets/logo/logo-circle.svg";
+import Logo from "@assets/logo/logo-circle.svg";
 
 export default function Link() {
   const navigate = useNavigate();
@@ -63,7 +63,7 @@ export default function Link() {
           {dummyLink.map((_link, idx) => (
             <li
               key={idx}
-              className="bg-[#B9AA96] uppercase py-3 rounded-lg tracking-wider"
+              className="bg-[#B9AA96] hover:bg-[#928763] cursor-pointer uppercase py-3 rounded-lg tracking-wider"
             >
               <NavLink to={_link.url} target="_blank">
                 {_link.label}
