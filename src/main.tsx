@@ -1,8 +1,9 @@
-import { StrictMode } from "react";
+import { StrictMode, Suspense } from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import GetBrowserRoutes from "./routes/index.routes";
 import { ToastContainer } from "react-toastify";
+import Loader from "@components/Reusable/Loader";
 import "./styles/index.css";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -13,6 +14,8 @@ const root = ReactDOM.createRoot(
 root.render(
   <StrictMode>
     <ToastContainer />
-    <RouterProvider router={router} />
+    <Suspense fallback={<Loader />}>
+      <RouterProvider router={router} />
+    </Suspense>
   </StrictMode>
 );

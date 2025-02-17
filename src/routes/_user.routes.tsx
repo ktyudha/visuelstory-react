@@ -1,5 +1,8 @@
+import { lazy } from "react";
 import LandingLayout from "@layouts/LandingLayout";
 import * as Landing from "@/pages/user";
+
+const LinkPage = lazy(() => import("@/pages/user/LinkPage"));
 
 // import LinkPage from "@pages/user/LinkPage";
 
@@ -17,6 +20,6 @@ export default [
   },
   {
     path: "/links",
-    element: <Landing.LinkPage />,
+    element: <LinkPage />,
   },
 ];

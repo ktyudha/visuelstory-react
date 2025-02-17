@@ -9,7 +9,6 @@ export default function Link() {
   useEffect(() => {
     setTimeout(() => {
       window.scrollTo({
-        left: 0,
         top: document.documentElement.scrollHeight,
         behavior: "smooth",
       });
