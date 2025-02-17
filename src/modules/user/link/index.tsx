@@ -59,7 +59,7 @@ export default function Link() {
           <p className="text-md text-gray-500">Photography & Videography</p>
         </div>
 
-        <ul className="md:w-xl w-full  text-center text-white flex flex-col gap-4">
+        <ul className="md:w-xl w-full px-8 text-center text-white flex flex-col gap-4">
           {dummyLink.map((_link, idx) => (
             <NavLink
               key={idx}
