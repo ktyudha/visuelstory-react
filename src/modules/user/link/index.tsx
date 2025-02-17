@@ -21,11 +21,11 @@ export default function Link() {
       label: "WhatsApp [Yudha]",
     },
     {
-      url: "https://dev-dhagrafis.web.app/contact",
+      url: "https://visuelstory.vercel.app/contact",
       label: "Pricelist",
     },
     {
-      url: "https://dev-dhagrafis.web.app/",
+      url: "https://visuelstory.vercel.app/",
       label: "Website",
     },
     {
