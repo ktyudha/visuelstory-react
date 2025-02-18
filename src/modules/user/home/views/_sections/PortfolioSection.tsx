@@ -1,7 +1,12 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import Image from "@components/Image";
 
+import { dummyPortfolio } from "@constants/dummy";
+
 export default function PortfolioSection() {
+  const navigate = useNavigate();
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -10,38 +15,6 @@ export default function PortfolioSection() {
     }, 200);
   }, []);
 
-  const dummyPortfolio = [
-    {
-      image: "portfolio-1",
-      category: "Couple Session",
-      client: "Aubry - Rendi",
-    },
-    {
-      image: "portfolio-2",
-      category: "Wedding",
-      client: "Anya - Arief",
-    },
-    {
-      image: "portfolio-3",
-      category: "Wedding",
-      client: "Nadia - Nain",
-    },
-    {
-      image: "portfolio-4",
-      category: "Couple Session",
-      client: "Shasa - Gio",
-    },
-    {
-      image: "portfolio-5",
-      category: "Engagement",
-      client: "Rhesma - Aldo",
-    },
-    {
-      image: "portfolio-6",
-      category: "Couple Session",
-      client: "Bella - Lukas",
-    },
-  ];
   return (
     <>
       <section
@@ -51,6 +24,7 @@ export default function PortfolioSection() {
         <div className="min-h-[22vh] flex items-center justify-center">
           <h2 className="text-4xl text-center">Hi, you've found us!</h2>
         </div>
+
         <div className="grid md:grid-cols-3 grid-cols-1 gap-8 mx-auto justify-center">
           {dummyPortfolio.map((_portfolio, idx) => (
             <div
@@ -60,6 +34,7 @@ export default function PortfolioSection() {
                   ? "scale-100 opacity-100"
                   : "md:scale-75 scale-95 opacity-95"
               }`}
+              onClick={() => navigate(`portfolio/${_portfolio.slug}`)}
             >
               <Image
                 name={_portfolio.image}
