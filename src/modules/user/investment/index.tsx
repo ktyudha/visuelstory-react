@@ -16,19 +16,19 @@ export default function Investment() {
       image: "pricelist-1",
       category: "Pricelist",
       client: "Short Event",
-      url: "https://drive.google.com/file/d/1lAukw02z_C2ek2jX9sVl_4xdjlk3PSgL/view?usp=sharing",
+      url: "whatsapp://send?phone=6285848250548&text=Halo Visuelstory, Saya Mau Pricelist Short Event.",
     },
     {
       image: "pricelist-1",
       category: "Pricelist",
       client: "Unduh Mantu",
-      url: "https://drive.google.com/file/d/1zbzRRAfVpXkGAESW5OrrDcOHijbXTMTe/view?usp=sharing",
+      url: "whatsapp://send?phone=6285848250548&text=Halo Visuelstory, Saya Mau Pricelist Unduh Mantu.",
     },
     {
       image: "pricelist-1",
       category: "Pricelist",
       client: "Wedding",
-      url: "https://drive.google.com/file/d/1PC5i9wak9tRxxjPu15VNJOZHzO3_Ssz4/view?usp=sharing",
+      url: "whatsapp://send?phone=6285848250548&text=Halo Visuelstory, Saya Mau Pricelist Wedding.",
     },
   ];
   return (
