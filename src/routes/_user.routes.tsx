@@ -14,6 +14,7 @@ export default [
     children: [
       { index: true, element: <Landing.LandingPage /> },
       { path: "portfolio", element: <Landing.PortfolioPage /> },
+      { path: "portfolio/:slug", element: <Landing.PortfolioDetailPage /> },
       { path: "about", element: <Landing.AboutPage /> },
       { path: "contact", element: <Landing.ContactPage /> },
       { path: "investment", element: <Landing.InvestmentPage /> },
