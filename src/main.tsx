@@ -5,6 +5,7 @@ import GetBrowserRoutes from "./routes/index.routes";
 import { ToastContainer } from "react-toastify";
 import Loader from "@components/Reusable/Loader";
 import "./styles/index.css";
+import "./styles/global.css";
 import "react-toastify/dist/ReactToastify.css";
 
 const router = createBrowserRouter(GetBrowserRoutes());
