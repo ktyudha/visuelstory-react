@@ -61,6 +61,23 @@ export default function Investment() {
                     ? "scale-100 opacity-100"
                     : "md:scale-75 scale-95 opacity-95"
                 }`}
+                onClick={(e) => {
+                  e.preventDefault();
+
+                  // Ukuran window baru
+                  const width = 800;
+                  const height = 600;
+
+                  // Hitung posisi supaya muncul di tengah
+                  const left = (window.screen.width - width) / 2;
+                  const top = (window.screen.height - height) / 2;
+
+                  window.open(
+                    _portfolio.url,
+                    "_blank",
+                    `width=${width},height=${height},top=${top},left=${left},resizable=yes,scrollbars=yes`
+                  );
+                }}
               >
                 <Image
                   name={_portfolio.image}
