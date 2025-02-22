@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { auth, signOut } from "@constants/firebase";
 import useGlobalStore from "@store/useStore";
 
@@ -30,6 +31,12 @@ export default function Dashboard() {
       >
         Logout
       </button>
+=======
+export default function Dashboard() {
+  return (
+    <div>
+      <h1>Dashboard</h1>
+>>>>>>> main
     </div>
   );
 }
