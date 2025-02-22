@@ -1,118 +1,49 @@
-// import { getMe } from "@modules/[common]/auth/login/hooks/useGetMe";
-// import { User } from "@modules/[common]/auth/login/interfaces/login.types";
-// import useGlobalStore from "@store/useStore";
-// import Cookies from "js-cookie";
-// import { useEffect, useState } from "react";
-// import { useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "@constants/firebase";
+import useGlobalStore from "@store/useStore";
 
-// type Props = {
-//   children: React.ReactNode;
-//   withoutRedirection?: boolean;
-// };
+type Props = {
+  children: React.ReactNode;
+  withoutRedirection?: boolean;
+};
 
-// export default function AuthMiddleware({
-//   children,
-//   withoutRedirection,
-// }: Props) {
-//   const [mounted, setMounted] = useState(false);
-//   const setMe = useGlobalStore((state) => state.setMe);
-//   const setRole = useGlobalStore((state) => state.setRole);
-//   const setIsLoggedIn = useGlobalStore((state) => state.setIsLoggedIn);
+export default function AuthMiddleware({
+  children,
+  withoutRedirection,
+}: Props) {
+  const [mounted, setMounted] = useState(false);
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
 
-//   // console.log("auth middleware");
+  const setMe = useGlobalStore((state) => state.setMe);
+  // const setRole = useGlobalStore((state) => state.setRole);
+  const setIsLoggedIn = useGlobalStore((state) => state.setIsLoggedIn);
 
-//   const token =
-//     Cookies.get("token-partner") ||
-//     Cookies.get("token-reader") ||
-//     Cookies.get("token-supplier") ||
-//     Cookies.get("token");
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        // Pengguna sudah login
+        setIsLoggedIn(true);
+        setMe(user);
 
-//   const isLoggedIn = !!token;
+        if (pathname.includes("login")) {
+          navigate("/admin/dashboard");
+        }
+      } else {
+        // Pengguna belum login
+        setIsLoggedIn(false);
 
-//   setIsLoggedIn(!!isLoggedIn);
+        if (!withoutRedirection) {
+          navigate("/admin/login");
+        }
+      }
+      setMounted(true);
+    });
 
-//   const role = Cookies.get("token")
-//     ? "admin"
-//     : Cookies.get("token-supplier")
-//     ? "supplier"
-//     : Cookies.get("token-partner")
-//     ? "partner"
-//     : "reader";
-//   const navigate = useNavigate();
-//   const { pathname } = useLocation();
+    return () => unsubscribe();
+  }, [auth, pathname, navigate, setIsLoggedIn]);
 
-//   useEffect(() => {
-//     if (role) {
-//       getMe(role).then(({ data }) => {
-//         setMe(data.data as User);
-//       });
-
-//       setRole(role);
-//     }
-//   }, [role, setMe, setRole]);
-
-//   const redirectToDashboard = () => {
-//     console.log("redirectToDashboard()");
-//     console.log("isLoggedIn", isLoggedIn);
-
-//     switch (role) {
-//       case "admin":
-//         navigate("/admin/dashboard");
-//         break;
-//       case "supplier":
-//         navigate("/supplier/dashboard");
-//         break;
-//       case "partner":
-//         navigate("/partner/dashboard");
-//         break;
-//       default:
-//         navigate("/");
-//     }
-//   };
-
-//   const redirectToLogin = () => {
-//     if (withoutRedirection) {
-//       setMounted(true);
-//       return;
-//     }
-
-//     if (
-//       [
-//         "/admin/login",
-//         "/company/login",
-//         "/supplier/login",
-//         "/partner/login",
-//         "/login",
-//       ].includes(pathname)
-//     ) {
-//       return;
-//     }
-
-//     if (pathname.startsWith("admin")) {
-//       navigate("/admin/login");
-//     } else if (pathname.startsWith("company")) {
-//       navigate("/company/login");
-//     } else if (pathname.startsWith("supplier")) {
-//       navigate("/supplier/login");
-//     } else if (pathname.startsWith("partner")) {
-//       navigate("/partner/login");
-//     } else {
-//       navigate("/login");
-//     }
-//   };
-
-//   useEffect(() => {
-//     if (!isLoggedIn) {
-//       redirectToLogin();
-//       setMounted(true);
-//     } else if (isLoggedIn) {
-//       if (pathname.includes("login")) {
-//         redirectToDashboard();
-//       }
-
-//       setMounted(true);
-//     }
-//   }, [isLoggedIn, pathname]);
-
-//   return <>{mounted ? children : <>Loading...</>}</>;
-// }
+  return <>{mounted ? children : <>Loading...</>}</>;
+}

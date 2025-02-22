@@ -1,62 +1,79 @@
-// import Logo from "@/assets/logo/logo-lg.svg";
-// import FormInput from "@components/Form/FormInput";
-// import { SubmitHandler, useForm } from "react-hook-form";
-// import clsx from "clsx";
-// import Form from "@components/Form/Form";
-// import Button from "@components/Button";
-// import { toast } from "react-toastify";
-// import useLogin from "@modules/[common]/auth/login/hooks/useLogin";
-// import { useNavigate } from "react-router-dom";
-// import { isAxiosError } from "axios";
+// import Logo from "@/assets/logo/logo-circle.svg";
+import FormInput from "@components/Form/FormInput";
+import { SubmitHandler, useForm } from "react-hook-form";
+import clsx from "clsx";
+import Form from "@components/Form/Form";
+import Button from "@components/Button";
 
-// interface CredentialPayload {
-//   username: string;
-//   password: string;
-// }
+interface CredentialPayload {
+  email: string;
+  password: string;
+}
+
+import { useState } from "react";
+import {
+  auth,
+  provider,
+  signInWithPopup,
+  signInWithEmailAndPassword,
+} from "@constants/firebase";
 
 export default function AdminLoginPage() {
-  //   const navigate = useNavigate();
-  //   const methods = useForm<CredentialPayload>({ mode: "onChange" });
-  //   const { isSubmitting, isValid } = methods.formState;
+  const [user, setUser] = useState(auth.currentUser);
 
-  //   const { handleLogin } = useLogin("admin");
+  const handleLogin = async () => {
+    try {
+      provider.setCustomParameters({ prompt: "select_account" });
+      const result = await signInWithPopup(auth, provider);
+      setUser(result.user);
+      console.log(user);
+    } catch (error) {
+      console.error("Login failed", error);
+    }
+  };
+  const methods = useForm<CredentialPayload>({ mode: "onChange" });
+  const { isSubmitting, isValid } = methods.formState;
 
-  //   const onSubmit: SubmitHandler<CredentialPayload> = async (state) => {
-  //     try {
-  //       await handleLogin(state.username, state.password);
-  //       navigate("/admin/dashboard");
-  //     } catch (error) {
-  //       if (isAxiosError(error)) {
-  //         toast.error(error.response?.data?.message, {
-  //           position: "top-right",
-  //         });
-  //       } else {
-  //         toast.error((error as Error).message, {
-  //           position: "top-right",
-  //         });
-  //       }
-  //     }
-  //   };
+  const onSubmit: SubmitHandler<CredentialPayload> = async (state) => {
+    try {
+      const result = await signInWithEmailAndPassword(
+        auth,
+        state.email,
+        state.password
+      );
+
+      setUser(result.user);
+      console.log(result);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <div className="w-full h-screen bg-neutral-50">
-      <h1>Admin Login</h1>
-      {/* <div className="grid grid-cols-12">
+      <div className="grid grid-cols-12">
         <div className="col-span-4 hidden md:block"></div>
         <div className="col-span-12 lg:col-span-4 flex items-center w-full h-screen px-5">
-          <div className="rounded-xl w-full">
-            <div className="bg-neutral-950 flex flex-col items-center gap-3 text-white rounded-t-xl p-5">
-              <img src={Logo} alt="Logo" />
-              <h1 className="text-[24px] font-semibold">Let's Get Started</h1>
-              <span className="text-[14px]">Sign in to continue</span>
+          <div className="rounded-xl border-2 shadow-xl bg-base-100 w-full p-10">
+            <div className="flex flex-col text-left gap-1 text-black rounded-t-xl mb-10">
+              {/* <img src={Logo} alt="Logo" /> */}
+              <h1 className="text-4xl italic text-[#B9AA96] mb-8">
+                Visuelstory
+              </h1>
+              <h1 className="text-[20px] font-semibold font-sans tracking-wider">
+                Hi, Welcome Back! 👋
+              </h1>
+              <span className="text-[20px] font-sans font-thin">
+                It's good to see you again
+              </span>
             </div>
-            <div className="p-5 bg-white rounded-b-xl">
+            <div className="rounded-b-xl">
               <Form {...methods} onSubmit={onSubmit}>
                 <FormInput
-                  label="Username"
-                  name="username"
-                  type="text"
-                  placeholder="Username"
+                  label="E-Mail"
+                  name="email"
+                  type="email"
+                  placeholder="Email"
                   isRequired
                 />
                 <FormInput
@@ -67,30 +84,43 @@ export default function AdminLoginPage() {
                   withShowPasswordButton
                   isRequired
                 />
+
                 <Button
                   type="submit"
-                  variant="primary"
                   className={clsx([
-                    "block w-full py-2 rounded-xl font-semibold mb-2 cursor-pointer",
+                    "block w-full py-2 rounded-xl font-semibold cursor-pointer font-sans",
                     isValid
-                      ? "bg-primary-500 hover:bg-primary-700 text-white"
-                      : "bg-neutral-200 text-neutral-400",
+                      ? "bg-[#B9AA96] text-white hover:bg-[#928763] hover:text-white"
+                      : "bg-[#eeece6] text-[#52453c]",
                   ])}
                   disabled={isSubmitting || !isValid}
                 >
-                  <span>{isSubmitting ? "Loading..." : "Login"}</span>
+                  <span>{isSubmitting ? "Loading..." : "Sign In"}</span>
                 </Button>
-                <div className="text-center">
-                  <span className="underline text-neutral-950 font-medium text-md">
-                    Forgot Password
+                <Button
+                  type="button"
+                  className={
+                    "block w-full py-2 rounded-xl font-semibold cursor-pointer font-sans outline-2 outline-[#B9AA96] text-[#B9AA96] hover:bg-[#B9AA96] hover:text-white"
+                  }
+                  onClick={handleLogin}
+                >
+                  <span className="flex gap-2">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="currentColor"
+                      className="bi bi-google h-4 w-4 my-auto"
+                      viewBox="0 0 16 16"
+                    >
+                      <path d="M15.545 6.558a9.4 9.4 0 0 1 .139 1.626c0 2.434-.87 4.492-2.384 5.885h.002C11.978 15.292 10.158 16 8 16A8 8 0 1 1 8 0a7.7 7.7 0 0 1 5.352 2.082l-2.284 2.284A4.35 4.35 0 0 0 8 3.166c-2.087 0-3.86 1.408-4.492 3.304a4.8 4.8 0 0 0 0 3.063h.003c.635 1.893 2.405 3.301 4.492 3.301 1.078 0 2.004-.276 2.722-.764h-.003a3.7 3.7 0 0 0 1.599-2.431H8v-3.08z" />
+                    </svg>
+                    Sign In with Google
                   </span>
-                </div>
+                </Button>
               </Form>
             </div>
           </div>
         </div>
-        <div className="col-span-4 hidden md:block"></div>
-      </div> */}
+      </div>
     </div>
   );
 }
