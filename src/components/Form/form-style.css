@@ -1,0 +1,8 @@
+/* Form Date */
+input[type='date']::-webkit-calendar-picker-indicator {
+  background: url('@/assets/icons/calendar-blank.svg') no-repeat;
+}
+
+input[type='date']::placeholder {
+  color: #64748b;
+}

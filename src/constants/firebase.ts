@@ -1,7 +1,15 @@
 // Import the functions you need from the SDKs you need
+import config from "@constants/config";
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import config from "@constants/config"
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+} from "firebase/auth";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -14,11 +22,22 @@ const firebaseConfig = {
   storageBucket: config.VITE_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: config.VITE_FIREBASE_MESSAGING_SENDER_ID,
   appId: config.VITE_FIREBASE_APP_ID,
-  measurementId: config.VITE_FIREBASE_MEASUREMENT_ID
+  measurementId: config.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
 
-export { app, analytics };
+export {
+  app,
+  analytics,
+  auth,
+  provider,
+  signInWithPopup,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+};

@@ -1,6 +1,10 @@
 import { Navigate } from "react-router-dom";
 import DefaultLayout from "@layouts/DefaultLayout";
 import * as Admin from "@pages/admin";
+<<<<<<< HEAD
+import AuthMiddleware from "./middlewares/AuthMiddleware";
+=======
+>>>>>>> main
 // import AuthMiddleware from "./middlewares/AuthMiddleware";
 // import {
 //   BookCategoryCreatePage,
@@ -20,7 +24,15 @@ import * as Admin from "@pages/admin";
 export default [
   {
     path: "/admin",
+<<<<<<< HEAD
+    element: (
+      <AuthMiddleware>
+        <DefaultLayout />
+      </AuthMiddleware>
+    ),
+=======
     element: <DefaultLayout />,
+>>>>>>> main
     // errorElement: <ErrorPage />,
     children: [
       { index: true, element: <Navigate to="dashboard" /> },

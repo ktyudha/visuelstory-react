@@ -1,5 +1,5 @@
-import { LoginPage } from "@pages/auth";
-// import AuthMiddleware from "./middlewares/AuthMiddleware";
+import { LoginPage, AdminLoginPage } from "@pages/auth";
+import AuthMiddleware from "./middlewares/AuthMiddleware";
 
 export default [
   // Auth
@@ -7,12 +7,12 @@ export default [
     path: "/login",
     element: <LoginPage />,
   },
-  //   {
-  //     path: "/admin/login",
-  //     element: (
-  //       <AuthMiddleware>
-  //         <AdminLoginPage />
-  //       </AuthMiddleware>
-  //     ),
-  //   },
+  {
+    path: "/admin/login",
+    element: (
+      <AuthMiddleware>
+        <AdminLoginPage />
+      </AuthMiddleware>
+    ),
+  },
 ];
