@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import Image from "@components/Image";
+import Metadata from "@components/Metadata";
 
 export default function Investment() {
   const [isVisible, setIsVisible] = useState(false);
@@ -33,6 +34,7 @@ export default function Investment() {
   ];
   return (
     <>
+      <Metadata title="Investment" />
       <section id="investment" className="relative">
         <div className="relative h-[78vh] w-full mb-8">
           <Image

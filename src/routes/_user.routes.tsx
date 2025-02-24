@@ -1,5 +1,6 @@
 import { lazy } from "react";
 import LandingLayout from "@layouts/LandingLayout";
+import CustomLayout from "@layouts/CustomLayout";
 import * as Landing from "@pages/user";
 
 const LinkPage = lazy(() => import("@pages/user/LinkPage"));
@@ -22,6 +23,7 @@ export default [
   },
   {
     path: "/links",
-    element: <LinkPage />,
+    element: <CustomLayout />,
+    children: [{ index: true, element: <LinkPage /> }],
   },
 ];
