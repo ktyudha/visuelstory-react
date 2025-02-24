@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate, NavLink } from "react-router-dom";
+import Metadata from "@components/Metadata";
 
 import Image from "@components/Image";
 import Logo from "@assets/logo/logo-circle.svg";
@@ -39,6 +40,7 @@ export default function Link() {
   ];
   return (
     <>
+      <Metadata title="Bio Links" />
       <section id="links" className="relative flex flex-col items-center pb-14">
         <Image
           className="md:h-[44vh] h-[18vh] w-full object-cover object-center z-10 brightness-75"

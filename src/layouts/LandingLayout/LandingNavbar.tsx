@@ -41,9 +41,9 @@ export default function LandingNavbar() {
                 </NavLink>
               </li>
               <li className="hidden md:block">
-                <a href="/" onClick={() => setIsOpen(false)}>
+                <NavLink to="/" onClick={() => setIsOpen(false)}>
                   <img src={Logo} alt="logo-dhagrafis" className="w-20" />
-                </a>
+                </NavLink>
               </li>
               <li className="hover:opacity-90 transition duration-150 ease-in-out">
                 <NavLink to={"/about"} onClick={() => setIsOpen(false)}>

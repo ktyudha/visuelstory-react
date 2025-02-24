@@ -1,8 +1,10 @@
 import Image from "@components/Image";
+import Metadata from "@components/Metadata";
 
 export default function About() {
   return (
     <>
+      <Metadata title="About" />
       <section id="about" className="relative">
         <Image
           className="h-[78vh] w-full object-cover object-center z-50 brightness-75"
