@@ -13,7 +13,7 @@ export default function SliderSection() {
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="currentColor"
-          className="bi bi-arrow-left h-6 w-6 text-gray-300 hover:text-white ease-in-out duration-300"
+          className="bi bi-arrow-left h-6 w-6 md:text-gray-300 md:hover:text-white text-white ease-in-out duration-300"
           viewBox="0 0 16 16"
         >
           <path
@@ -36,7 +36,7 @@ export default function SliderSection() {
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="currentColor"
-          className="bi bi-arrow-right h-6 w-6 text-gray-300 hover:text-white ease-in-out duration-300"
+          className="bi bi-arrow-right h-6 w-6 md:text-gray-300 md:hover:text-white text-white ease-in-out duration-300"
           viewBox="0 0 16 16"
         >
           <path
