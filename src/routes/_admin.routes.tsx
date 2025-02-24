@@ -30,6 +30,11 @@ export default [
     children: [
       { index: true, element: <Navigate to="dashboard" /> },
       { path: "dashboard", element: <Admin.DashboardPage /> },
+      { path: "account", element: <Admin.DashboardPage /> },
+      { path: "platform/about", element: <Admin.DashboardPage /> },
+      { path: "platform/contact", element: <Admin.DashboardPage /> },
+      { path: "platform/investment", element: <Admin.DashboardPage /> },
+      { path: "portfolio/engagement", element: <Admin.PortfolioPage /> },
       //   { path: "master-data/books", element: <BookPage /> },
       //   {
       //     path: "master-data/book-categories",
