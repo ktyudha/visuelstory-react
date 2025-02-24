@@ -1,9 +1,11 @@
 import Image from "@components/Image";
 import { NavLink } from "react-router-dom";
+import Metadata from "@components/Metadata";
 
 export default function Contact() {
   return (
     <>
+      <Metadata title="Contact" />
       <section id="contact" className="relative">
         <Image
           className="h-[78vh] w-full object-cover object-center z-50 brightness-75"

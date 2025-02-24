@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { dummyPortfolio } from "@constants/dummy";
+import Metadata from "@components/Metadata";
 
 import Image from "@components/Image";
 
@@ -15,6 +16,7 @@ export default function Portfolio() {
   }, []);
   return (
     <>
+      <Metadata title="Portofolio" />
       <section id="portfolio" className="relative">
         <Image
           className="h-[78vh] w-full object-cover object-bottom z-50 brightness-75 "

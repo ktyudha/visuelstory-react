@@ -1,18 +1,21 @@
-import { LoginPage, AdminLoginPage } from "@pages/auth";
+import CustomLayout from "@layouts/CustomLayout";
+import { AdminLoginPage } from "@pages/auth";
 import AuthMiddleware from "./middlewares/AuthMiddleware";
 
 export default [
   // Auth
-  {
-    path: "/login",
-    element: <LoginPage />,
-  },
+  // {
+  //   path: "/login",
+  //   element: <LoginPage />,
+  // },
   {
     path: "/admin/login",
+
     element: (
       <AuthMiddleware>
-        <AdminLoginPage />
+        <CustomLayout />
       </AuthMiddleware>
     ),
+    children: [{ index: true, element: <AdminLoginPage /> }],
   },
 ];
