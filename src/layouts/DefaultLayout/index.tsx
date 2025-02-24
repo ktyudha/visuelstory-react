@@ -1,5 +1,4 @@
 import { HelmetProvider } from "react-helmet-async";
-<<<<<<< HEAD
 import { Outlet } from "react-router-dom";
 import Metadata from "@components/Metadata";
 
@@ -21,19 +20,12 @@ import {
 
 import BreadCrumb from "@components/Breadcrumb";
 import { data } from "./sidebar-menu.constant";
-=======
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/ui/app-sidebar";
-import { Outlet } from "react-router-dom";
-import Metadata from "@components/Metadata";
->>>>>>> main
 
 export default function DefaultLayout() {
   return (
     <>
       <HelmetProvider>
         <Metadata />
-<<<<<<< HEAD
 
         <SidebarProvider>
           <AppSidebar />
@@ -52,14 +44,6 @@ export default function DefaultLayout() {
               </div>
             </main>
           </SidebarInset>
-=======
-        <SidebarProvider>
-          <AppSidebar />
-          <main>
-            <SidebarTrigger />
-            <Outlet />
-          </main>
->>>>>>> main
         </SidebarProvider>
       </HelmetProvider>
     </>
