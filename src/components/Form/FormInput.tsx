@@ -91,7 +91,7 @@ const FormInput: FunctionComponent<Props> = ({
       {label && (
         <label
           htmlFor={name}
-          className="flex gap-1 leading-4 text-[12px] text-neutral-800 mb-2 font-normal"
+          className="flex gap-1 leading-4 text-[12px] mb-2 font-normal"
         >
           {label}
           {isRequired && <span className="text-red-500">*</span>}

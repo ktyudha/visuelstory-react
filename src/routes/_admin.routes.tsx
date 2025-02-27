@@ -30,8 +30,9 @@ export default [
     children: [
       { index: true, element: <Navigate to="dashboard" /> },
       { path: "dashboard", element: <Admin.DashboardPage /> },
-      { path: "account", element: <Admin.DashboardPage /> },
-      { path: "platform/about", element: <Admin.DashboardPage /> },
+      { path: "account", element: <Admin.AccountPage /> },
+      { path: "platform/about", element: <Admin.AboutCreatePage /> },
+      // { path: "platform/about/create", element: <Admin.AboutCreatePage /> },
       { path: "platform/contact", element: <Admin.DashboardPage /> },
       { path: "platform/investment", element: <Admin.DashboardPage /> },
       { path: "portfolio/engagement", element: <Admin.PortfolioPage /> },
