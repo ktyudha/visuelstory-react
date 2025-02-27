@@ -4,6 +4,6 @@ export interface IGetOneAboutResponse {
   id: string;
   title: string;
   description: string;
-  createdAt: Timestamp;
-  updatedAt: Timestamp;
+  createdAt?: Timestamp;
+  updatedAt?: Timestamp;
 }

@@ -1,18 +1,20 @@
 import { db } from "@constants/firebase";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { useQueryClient } from "@tanstack/react-query";
+import { doc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { ICreateUpdateAboutPayload } from "../interfaces/create-update-about.types";
+import { useQueryClient } from "@tanstack/react-query";
 
-export default function useCreateAbout() {
+export default function useUpdateAbout() {
   const nameDB = "about";
-  const docRef = collection(db, nameDB);
   const queryClient = useQueryClient();
 
-  const createAbout = async (payload: ICreateUpdateAboutPayload) => {
-    // const { title, description, createdAt, updatedAt } = payload;
-
+  const updateAbout = async (
+    aboutId: string,
+    payload: ICreateUpdateAboutPayload
+  ) => {
     try {
-      const res = await addDoc(docRef, {
+      const docRef = doc(db, nameDB, aboutId);
+
+      await updateDoc(docRef, {
         title: payload.title,
         description: payload.description,
         createdAt: serverTimestamp(),
@@ -20,7 +22,7 @@ export default function useCreateAbout() {
       });
 
       queryClient.invalidateQueries([nameDB] as any);
-      return { response: res, error: null };
+      return { response: "Update Successful", error: null };
     } catch (error: any) {
       if (error.status >= 500) {
         return { response: null, error: "Server error" };
@@ -30,5 +32,5 @@ export default function useCreateAbout() {
     }
   };
 
-  return { createAbout };
+  return { updateAbout };
 }
