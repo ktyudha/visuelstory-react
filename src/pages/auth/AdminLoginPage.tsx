@@ -57,7 +57,7 @@ export default function AdminLoginPage() {
   return (
     <>
       <Metadata title="Sign In" />
-      <div className="w-full h-screen bg-neutral-50">
+      <div className="w-full h-screen bg-neutral-50 light">
         <div className="grid grid-cols-12">
           <div className="col-span-4 hidden md:block"></div>
           <div className="col-span-12 lg:col-span-4 flex items-center w-full h-screen px-5">

@@ -1,11 +1,13 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 
 import useCreateAbout from "@services/admin/about/hooks/create.type";
 import useUpdateAbout from "@services/admin/about/hooks/update.type";
-import useGetOneAbout from "@services/admin/about/hooks/get-one.types";
+// import useGetOneAbout from "@services/admin/about/hooks/get-one.types";
+import useGetAllAbout from "@services/admin/about/hooks/get-all.type";
 import { ICreateUpdateAboutPayload } from "@services/admin/about/interfaces/create-update-about.types";
+import { IGetAllAboutResponse } from "@services/admin/about/interfaces/get-all.types";
 
 import Spinner from "@components/Reusable/Spinner";
 import FormInput from "@components/Form/FormInput";
@@ -17,30 +19,39 @@ export default function AboutCreate() {
   const { isSubmitting } = methods.formState;
   const isValid = methods.formState.isValid;
 
-  const aboutId = "x5g1aXJ1sx30rVFP6Nsd";
+  // const aboutId = "x5g1aXJ1sx30rVFP6Nsd";
+  const [about, setAbout] = useState<IGetAllAboutResponse | null>(null);
 
+  const { data, isLoading } = useGetAllAbout();
   const { createAbout } = useCreateAbout();
   const { updateAbout } = useUpdateAbout();
-  const { data, isLoading, refreshData } = useGetOneAbout(aboutId);
+  // const { data, isLoading, refreshData } = useGetOneAbout(aboutId);
 
+  useEffect(() => {
+    if (data?.length) {
+      setAbout(data?.[0] as IGetAllAboutResponse);
+    }
+  }, [data]);
+
+  // console.log(data?.[0]);
   const onSubmit: SubmitHandler<FormFields> = async (state) => {
     try {
-      const { error } = aboutId
-        ? await updateAbout(aboutId, { ...state })
+      const { error } = about?.id
+        ? await updateAbout(about?.id, { ...state })
         : await createAbout({ ...state });
 
       if (error) {
-        toast.error(`Gagal ${aboutId ? "Mengupdate" : "Menambahkan"} About`, {
+        toast.error(`Gagal ${about?.id ? "Mengupdate" : "Menambahkan"} About`, {
           position: "top-right",
         });
       } else {
         toast.success(
-          `Berhasil ${aboutId ? "Mengupdate" : "Menambahkan"} About`,
+          `Berhasil ${about?.id ? "Mengupdate" : "Menambahkan"} About`,
           {
             position: "top-right",
           }
         );
-        await refreshData();
+        // await refreshData();
         methods.reset();
       }
     } catch (error: any) {
@@ -66,19 +77,19 @@ export default function AboutCreate() {
   };
 
   useEffect(() => {
-    if (data) {
-      methods.reset(data);
+    if (about) {
+      methods.reset(about);
     }
-  }, [data, methods]);
+  }, [about, methods]);
 
   return (
     <>
       <div className="mb-1">
         <h2 className="font-medium">
-          {aboutId ? "Edit About" : "Create About"}
+          {about?.id ? "Edit About" : "Create About"}
         </h2>
       </div>
-      {isLoading || !data ? (
+      {isLoading || !about ? (
         <Spinner />
       ) : (
         <FormProvider {...methods}>
@@ -91,7 +102,7 @@ export default function AboutCreate() {
                     type="text"
                     placeholder="Title"
                     name="title"
-                    defaultValue={data.title}
+                    defaultValue={about?.title}
                     isRequired
                   />
                   <FormInput
@@ -99,7 +110,7 @@ export default function AboutCreate() {
                     type="textarea"
                     placeholder="Description"
                     name="description"
-                    defaultValue={data.description}
+                    defaultValue={about?.description}
                     isRequired
                   />
                 </div>
@@ -116,7 +127,7 @@ export default function AboutCreate() {
                 }`}
                 disabled={!isValid || isSubmitting}
               >
-                {!isSubmitting ? aboutId ? "Update" : "Submit" : <Spinner />}
+                {!isSubmitting ? about?.id ? "Update" : "Submit" : <Spinner />}
               </button>
             </div>
           </form>
