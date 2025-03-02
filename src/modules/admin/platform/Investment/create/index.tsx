@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 
@@ -13,8 +13,8 @@ import Spinner from "@components/Reusable/Spinner";
 import FormInput from "@components/Form/FormInput";
 import Skeleton from "@components/Skeleton/Skeleton";
 import { Button } from "@components/ui/button";
-
-import InvImage from "@assets/images/pricelist-1.png";
+// import { dummyTypeInvestment } from "@constants/dummy";
+// import InvImage from "@assets/images/pricelist-1.png";
 
 type FormFields = ICreateUpdateInvestmentPayload;
 
@@ -23,8 +23,8 @@ export default function InvestmentCreate() {
   const { isSubmitting } = methods.formState;
   const isValid = methods.formState.isValid;
 
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  // const [imagePreview, setImagePreview] = useState<string | null>(null);
+  // const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const [investment, setInvestment] =
     useState<IGetAllInvestmentResponse | null>(null);
@@ -46,26 +46,24 @@ export default function InvestmentCreate() {
     }
   }, [investment]);
 
-  const handleButtonClick = () => {
-    fileInputRef.current?.click();
-  };
+  // const handleButtonClick = () => {
+  //   fileInputRef.current?.click();
+  // };
 
-  const handleImageUpload = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      event.target.value = "";
-      const previewUrl = URL.createObjectURL(file);
-      setImagePreview(previewUrl);
-    }
-  };
+  // const handleImageUpload = (event: ChangeEvent<HTMLInputElement>) => {
+  //   const file = event.target.files?.[0];
+  //   if (file) {
+  //     event.target.value = "";
+  //     const previewUrl = URL.createObjectURL(file);
+  //     setImagePreview(previewUrl);
+  //   }
+  // };
 
-  const handleRemoveImage = () => {
-    setImagePreview(null);
-  };
+  // const handleRemoveImage = () => {
+  //   setImagePreview(null);
+  // };
 
   const handleRemovePricelist = (indexToRemove: number) => {
-    // const idx = indexToRemove + 1;
-
     if (pricelistCount > 1) {
       setInvestment((prevInvestment) => {
         if (!prevInvestment || !prevInvestment.investments)
@@ -84,29 +82,28 @@ export default function InvestmentCreate() {
   };
 
   const onSubmit: SubmitHandler<FormFields> = async (state) => {
-    console.log(state);
-    // try {
-    //   const { error } = investment?.id
-    //     ? await updateContact(investment?.id, { ...state })
-    //     : await createInvestment({ ...state });
-    //   if (error) {
-    //     toast.error(`Gagal ${investment?.id ? "Mengupdate" : "Menambahkan"}`, {
-    //       position: "top-right",
-    //     });
-    //   } else {
-    //     toast.success(
-    //       `Berhasil ${investment?.id ? "Mengupdate" : "Menambahkan"}`,
-    //       {
-    //         position: "top-right",
-    //       }
-    //     );
-    //     methods.reset();
-    //   }
-    // } catch (error: any) {
-    //   toast.error((error as Error).message, {
-    //     position: "top-right",
-    //   });
-    // }
+    try {
+      const { error } = investment?.id
+        ? await updateContact(investment?.id, { ...state })
+        : await createInvestment({ ...state });
+      if (error) {
+        toast.error(`Gagal ${investment?.id ? "Mengupdate" : "Menambahkan"}`, {
+          position: "top-right",
+        });
+      } else {
+        toast.success(
+          `Berhasil ${investment?.id ? "Mengupdate" : "Menambahkan"}`,
+          {
+            position: "top-right",
+          }
+        );
+        methods.reset();
+      }
+    } catch (error: any) {
+      toast.error((error as Error).message, {
+        position: "top-right",
+      });
+    }
   };
 
   useEffect(() => {
@@ -201,6 +198,19 @@ export default function InvestmentCreate() {
                             />
                           </Skeleton>
 
+                          {/* <Skeleton isLoading={isLoading} height="40px">
+                            <FormInput
+                              label="Image"
+                              type="file"
+                              placeholder="Choose Cover"
+                              name={`investments[${index}][image]`}
+                              defaultValue={
+                                investment?.investments?.[index]?.image || ""
+                              }
+                              isRequired
+                            />
+                          </Skeleton> */}
+
                           {/* <div className="flex flex-row">
                             {imagePreview ? (
                               <img
@@ -241,18 +251,6 @@ export default function InvestmentCreate() {
                               onChange={handleImageUpload}
                             />
                           </div> */}
-                          <Skeleton isLoading={isLoading} height="40px">
-                            <FormInput
-                              label="Image"
-                              type="file"
-                              placeholder="Choose Cover"
-                              name={`investments[${index}][image]`}
-                              defaultValue={
-                                investment?.investments?.[index]?.image || ""
-                              }
-                              isRequired
-                            />
-                          </Skeleton>
 
                           {pricelistCount > 1 && (
                             <Button

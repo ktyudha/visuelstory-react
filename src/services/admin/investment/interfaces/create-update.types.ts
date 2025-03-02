@@ -12,5 +12,5 @@ export interface ICreateUpdateInvestmentPayload {
 export interface Investment {
   name: string;
   type: string;
-  image: string;
+  // image?: File;
 }
