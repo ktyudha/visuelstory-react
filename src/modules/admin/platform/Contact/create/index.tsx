@@ -96,7 +96,7 @@ export default function ContactCreate() {
                       isRequired
                     />
                   </Skeleton>
-                  <Skeleton isLoading={isLoading} height="70px">
+                  <Skeleton isLoading={isLoading} height="150px">
                     <FormInput
                       label="Description"
                       type="textarea"
@@ -104,6 +104,7 @@ export default function ContactCreate() {
                       name="description"
                       defaultValue={contact?.description}
                       isRequired
+                      className="lg:h-[150px] h-[300px]"
                     />
                   </Skeleton>
                 </div>
