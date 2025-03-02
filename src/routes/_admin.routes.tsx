@@ -33,8 +33,8 @@ export default [
       { path: "account", element: <Admin.AccountPage /> },
       { path: "platform/about", element: <Admin.AboutCreatePage /> },
       // { path: "platform/about/create", element: <Admin.AboutCreatePage /> },
-      { path: "platform/contact", element: <Admin.DashboardPage /> },
-      { path: "platform/investment", element: <Admin.DashboardPage /> },
+      { path: "platform/contact", element: <Admin.ContactCreatePage /> },
+      { path: "platform/investment", element: <Admin.InvestmentCreatePage /> },
       { path: "portfolio/engagement", element: <Admin.PortfolioPage /> },
       //   { path: "master-data/books", element: <BookPage /> },
       //   {
