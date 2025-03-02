@@ -86,7 +86,7 @@ export default function AboutCreate() {
                       isRequired
                     />
                   </Skeleton>
-                  <Skeleton isLoading={isLoading} height="70px">
+                  <Skeleton isLoading={isLoading} height="100px">
                     <FormInput
                       label="Description"
                       type="textarea"
@@ -94,6 +94,7 @@ export default function AboutCreate() {
                       name="description"
                       defaultValue={about?.description}
                       isRequired
+                      className="lg:h-auto h-[100px]"
                     />
                   </Skeleton>
                 </div>
