@@ -2,49 +2,49 @@ import { useEffect, useState } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 
-import useCreateAbout from "@services/admin/about/hooks/create.type";
-import useUpdateAbout from "@services/admin/about/hooks/update.type";
-import useGetAllAbout from "@services/admin/about/hooks/get-all.type";
-import { ICreateUpdateAboutPayload } from "@services/admin/about/interfaces/create-update-about.types";
-import { IGetAllAboutResponse } from "@services/admin/about/interfaces/get-all.types";
+import useCreateContact from "@services/admin/contact/hooks/create.type";
+import useUpdateContact from "@services/admin/contact/hooks/update.type";
+import useGetAllContact from "@services/admin/contact/hooks/get-all.type";
+import { ICreateUpdateContactPayload } from "@services/admin/contact/interfaces/create-update.types";
+import { IGetAllContactResponse } from "@services/admin/contact/interfaces/get-all.types";
 
 import Card from "@components/Card";
 import Spinner from "@components/Reusable/Spinner";
 import FormInput from "@components/Form/FormInput";
 import Skeleton from "@components/Skeleton/Skeleton";
 
-type FormFields = ICreateUpdateAboutPayload;
+type FormFields = ICreateUpdateContactPayload;
 
-export default function AboutCreate() {
+export default function ContactCreate() {
   const methods = useForm<FormFields>({ mode: "onChange" });
   const { isSubmitting } = methods.formState;
   const isValid = methods.formState.isValid;
 
-  const [about, setAbout] = useState<IGetAllAboutResponse | null>(null);
+  const [contact, setContact] = useState<IGetAllContactResponse | null>(null);
 
-  const { data, isLoading } = useGetAllAbout();
-  const { createAbout } = useCreateAbout();
-  const { updateAbout } = useUpdateAbout();
+  const { data, isLoading } = useGetAllContact();
+  const { createContact } = useCreateContact();
+  const { updateContact } = useUpdateContact();
 
   useEffect(() => {
     if (data?.length) {
-      setAbout(data?.[0] as IGetAllAboutResponse);
+      setContact(data?.[0] as IGetAllContactResponse);
     }
   }, [data]);
 
   const onSubmit: SubmitHandler<FormFields> = async (state) => {
     try {
-      const { error } = about?.id
-        ? await updateAbout(about?.id, { ...state })
-        : await createAbout({ ...state });
+      const { error } = contact?.id
+        ? await updateContact(contact?.id, { ...state })
+        : await createContact({ ...state });
 
       if (error) {
-        toast.error(`Gagal ${about?.id ? "Mengupdate" : "Menambahkan"} About`, {
+        toast.error(`Gagal ${contact?.id ? "Mengupdate" : "Menambahkan"}`, {
           position: "top-right",
         });
       } else {
         toast.success(
-          `Berhasil ${about?.id ? "Mengupdate" : "Menambahkan"} About`,
+          `Berhasil ${contact?.id ? "Mengupdate" : "Menambahkan"}`,
           {
             position: "top-right",
           }
@@ -59,15 +59,15 @@ export default function AboutCreate() {
   };
 
   useEffect(() => {
-    if (about) {
-      methods.reset(about);
+    if (contact) {
+      methods.reset(contact);
     }
-  }, [about, methods]);
+  }, [contact, methods]);
 
   return (
     <>
       <div className="mb-1">
-        <h2 className="font-medium">About</h2>
+        <h2 className="font-medium">Contact</h2>
       </div>
 
       <Card>
@@ -82,7 +82,17 @@ export default function AboutCreate() {
                       type="text"
                       placeholder="Title"
                       name="title"
-                      defaultValue={about?.title}
+                      defaultValue={contact?.title}
+                      isRequired
+                    />
+                  </Skeleton>
+                  <Skeleton isLoading={isLoading} height="40px">
+                    <FormInput
+                      label="Short Description"
+                      type="text"
+                      placeholder="Short Description"
+                      name="short_description"
+                      defaultValue={contact?.short_description}
                       isRequired
                     />
                   </Skeleton>
@@ -92,7 +102,7 @@ export default function AboutCreate() {
                       type="textarea"
                       placeholder="Description"
                       name="description"
-                      defaultValue={about?.description}
+                      defaultValue={contact?.description}
                       isRequired
                     />
                   </Skeleton>
@@ -112,7 +122,7 @@ export default function AboutCreate() {
                   disabled={!isValid || isSubmitting}
                 >
                   {!isSubmitting ? (
-                    about?.id ? (
+                    contact?.id ? (
                       "Update"
                     ) : (
                       "Submit"
