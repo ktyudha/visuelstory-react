@@ -73,7 +73,7 @@ export default function Contact() {
                 <FormInput
                   label="Email (opsional)"
                   name="email"
-                  type="text"
+                  type="email"
                   placeholder="name@gmail.com"
                 />
                 <FormInput
