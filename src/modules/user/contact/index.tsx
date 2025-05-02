@@ -71,10 +71,11 @@ export default function Contact() {
                   isRequired
                 />
                 <FormInput
-                  label="Email (opsional)"
+                  label="Email"
                   name="email"
                   type="email"
                   placeholder="name@gmail.com"
+                  isRequired
                 />
                 <FormInput
                   label="WhatsApp"
