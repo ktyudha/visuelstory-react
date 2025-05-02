@@ -1,23 +1,22 @@
 import { db } from "@constants/firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { useQueryClient } from "@tanstack/react-query";
-import { ICreateUpdateInvestmentPayload } from "../interfaces/create-update.types";
+import { ICreateInvestmentPayload } from "../interfaces/create.types";
 
 export default function useCreateInvestment() {
-  const nameDB = "investment";
+  const nameDB = "users";
   const docRef = collection(db, nameDB);
   const queryClient = useQueryClient();
 
-  const createInvestment = async (payload: ICreateUpdateInvestmentPayload) => {
-    const { title, description, investments, whatsapp } = payload;
+  const createInvestment = async (payload: ICreateInvestmentPayload) => {
+    const { name, email, whatsapp, location } = payload;
     try {
       const res = await addDoc(docRef, {
-        title,
-        description,
+        name,
+        email,
         whatsapp,
-        investments,
+        location,
         createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
       });
 
       queryClient.invalidateQueries([nameDB] as any);
