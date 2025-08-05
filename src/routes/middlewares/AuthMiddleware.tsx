@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "@constants/firebase";
+import { getMe } from "@modules/auth/services/hooks/useGetMe";
+import { User } from "@modules/auth/services/interfaces/login.types";
 import useGlobalStore from "@store/useStore";
+import Cookies from "js-cookie";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   children: React.ReactNode;
@@ -14,36 +15,74 @@ export default function AuthMiddleware({
   withoutRedirection,
 }: Props) {
   const [mounted, setMounted] = useState(false);
+  const setMe = useGlobalStore((state) => state.setMe);
+  const setRole = useGlobalStore((state) => state.setRole);
+  const setIsLoggedIn = useGlobalStore((state) => state.setIsLoggedIn);
+
+  // console.log("auth middleware");
+
+  const token = Cookies.get("token-user") || Cookies.get("token");
+
+  const isLoggedIn = !!token;
+
+  setIsLoggedIn(!!isLoggedIn);
+
+  const role = Cookies.get("token") ? "admin" : "user";
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
-  const setMe = useGlobalStore((state) => state.setMe);
-  // const setRole = useGlobalStore((state) => state.setRole);
-  const setIsLoggedIn = useGlobalStore((state) => state.setIsLoggedIn);
+  useEffect(() => {
+    if (role) {
+      getMe(role).then(({ data }) => {
+        setMe(data.data as User);
+      });
+
+      setRole(role);
+    }
+  }, [role, setMe, setRole]);
+
+  const redirectToDashboard = () => {
+    console.log("redirectToDashboard()");
+    console.log("isLoggedIn", isLoggedIn);
+
+    switch (role) {
+      case "admin":
+        navigate("/admin/dashboard");
+        break;
+      default:
+        navigate("/");
+    }
+  };
+
+  const redirectToLogin = () => {
+    if (withoutRedirection) {
+      setMounted(true);
+      return;
+    }
+
+    if (["/admin/login", "/login"].includes(pathname)) {
+      return;
+    }
+
+    if (pathname.startsWith("admin")) {
+      navigate("/admin/login");
+    } else {
+      navigate("/login");
+    }
+  };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        // Pengguna sudah login
-        setIsLoggedIn(true);
-        setMe(user);
-
-        if (pathname.includes("login")) {
-          navigate("/admin/dashboard");
-        }
-      } else {
-        // Pengguna belum login
-        setIsLoggedIn(false);
-
-        if (!withoutRedirection) {
-          navigate("/admin/login");
-        }
-      }
+    if (!isLoggedIn) {
+      redirectToLogin();
       setMounted(true);
-    });
+    } else if (isLoggedIn) {
+      if (pathname.includes("login")) {
+        redirectToDashboard();
+      }
 
-    return () => unsubscribe();
-  }, [auth, pathname, navigate, setIsLoggedIn]);
+      setMounted(true);
+    }
+  }, [isLoggedIn, pathname]);
 
   return <>{mounted ? children : <>Loading...</>}</>;
 }
