@@ -4,7 +4,7 @@ import { Role } from "@modules/auth/services/role.def";
 
 export const getMe = async (role: Role) => {
   const url = {
-    admin: "auth/user/me",
+    admin: "auth/admin/me",
     user: "auth/customers/me",
   }[role];
 

@@ -26,7 +26,7 @@ import {
 } from "flowbite-react";
 import { HiOutlineLogout } from "react-icons/hi";
 
-import { sidebarOrganizer } from "./sidebar-organizer.constant";
+import { sidebarOrganizer } from "./sidebar-admin.constant";
 import BreadcrumbComponent from "@components/Flowbite/Breadcrumb";
 import { useOutsideClick } from "@hooks/useOutsideClick";
 
@@ -115,7 +115,7 @@ export default function SidebarDefaultLayout({ children }: Props) {
   });
 
   return (
-    <ThemeProvider theme={customTheme}>
+    <ThemeProvider theme={customTheme} applyTheme={"merge"}>
       {/* Navbar */}
       <Navbar fluid>
         <NavbarBrand href="#">
@@ -132,13 +132,9 @@ export default function SidebarDefaultLayout({ children }: Props) {
               />
             </svg>
           </button>
-          <img
-            src="https://flowbite-react.com/favicon.svg"
-            className="mr-3 h-6 sm:h-9"
-            alt="Logo"
-          />
-          <span className="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
-            Ticketing
+          <img src="/logo-circle.svg" className="mr-3 h-6 sm:h-9" alt="Logo" />
+          <span className="self-center whitespace-nowrap text-xl font-semibold dark:text-white italic">
+            Visuelstory
           </span>
         </NavbarBrand>
 
@@ -193,7 +189,8 @@ export default function SidebarDefaultLayout({ children }: Props) {
             <SidebarItemGroup>
               {sidebarOrganizer.map((sidebar, index) => {
                 const isActiveChild = sidebar.children?.some(
-                  (child) => child.route === currentPath
+                  (child) =>
+                    child.route.split("/")[2] === currentPath.split("/")[2]
                 );
 
                 if (sidebar.hasChild && sidebar.children) {
@@ -211,7 +208,8 @@ export default function SidebarDefaultLayout({ children }: Props) {
                           onClick={() => child.route && navigate(child.route)}
                           className={clsx(
                             `cursor-pointer`,
-                            child.route === currentPath
+                            child.route.split("/")[2] ===
+                              currentPath.split("/")[2]
                               ? "bg-gray-100 dark:bg-gray-700"
                               : ""
                           )}

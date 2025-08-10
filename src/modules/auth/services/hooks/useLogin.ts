@@ -17,7 +17,7 @@ export default function useLogin(role: Role) {
   const handleLogin = async (email: string, otp: string) => {
     console.log(email, otp);
     const { data } = await axiosInstance({ withToken: false }).post(
-      `/auth/${role === "admin" ? "user" : role}/verify-otp`,
+      `/auth/${role === "admin" ? "admin" : role}/verify-otp`,
       {
         email,
         otp,

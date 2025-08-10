@@ -17,6 +17,7 @@ interface Props {
   fontSizeLabel?: string;
   fontWeightLabel?: string;
   min?: number;
+  max?: number;
   className?: string;
   errorMessage?: string;
   maskOptions?: MaskOptions;
@@ -32,6 +33,7 @@ export default function TextInputComponent({
   defaultValue,
   value,
   min,
+  max,
   className,
   errorMessage = "",
   maskOptions,
@@ -83,6 +85,7 @@ export default function TextInputComponent({
             }))}
           key={name}
           min={min}
+          max={max}
           defaultValue={defaultValue}
           value={value}
           required={isRequired}

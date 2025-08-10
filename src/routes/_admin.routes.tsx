@@ -14,6 +14,16 @@ export default [
     children: [
       { index: true, element: <Navigate to="dashboard" /> },
       { path: "dashboard", element: <Admin.DashboardPage /> },
+      { path: "package-categories", element: <Admin.PackageCategoryPage /> },
+      { path: "package-addons", element: <Admin.PackageAddonPage /> },
+
+      // Package
+      { path: "packages", element: <Admin.PackagePage /> },
+      { path: "packages/create", element: <Admin.PackageCreatePage /> },
+      {
+        path: "packages/edit/:packageId",
+        element: <Admin.PackageUpdatePage />,
+      },
     ],
   },
 ];
