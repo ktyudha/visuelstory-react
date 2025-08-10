@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Checkbox, TableRow, TableCell, Badge } from "flowbite-react";
 import { Package } from "@services/admin/package/interfaces/get-all.type";
 import { formattedCurrency } from "@helpers/currency";
@@ -6,9 +7,16 @@ import TableItemMenu from "./TableItemMenu";
 
 interface Props {
   item: Package;
+  expandedId: string | null;
+  setExpandedId: (id: string | null) => void;
 }
 
-export default function TableItem({ item }: Props) {
+export default function TableItem({ item, expandedId, setExpandedId }: Props) {
+  const isExpanded = expandedId === item.id;
+
+  const shortText = item.description?.slice(0, 120);
+  const displayText = isExpanded ? item.description : shortText;
+
   return (
     <TableRow className="bg-white dark:border-gray-700 dark:bg-gray-800">
       <TableCell className="px-4">
@@ -21,12 +29,21 @@ export default function TableItem({ item }: Props) {
       <TableCell className="prose dark:prose-invert">
         <div
           dangerouslySetInnerHTML={{
-            __html: item.description
+            __html: displayText
               .split("\n")
               .map((line) => `${line}<br/>`)
               .join(""),
           }}
         />
+        {item.description.length > 100 && (
+          <button
+            type="button"
+            onClick={() => setExpandedId(isExpanded ? null : item.id)}
+            className="cursor-pointer hover:underline"
+          >
+            {isExpanded ? "Show less" : "Show more"}
+          </button>
+        )}
       </TableCell>
       <TableCell>
         <Badge className="justify-center" size="sm">

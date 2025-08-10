@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Checkbox,
   Table,
@@ -15,7 +16,7 @@ import useGetAll from "@services/admin/package/hooks/useGetAll";
 
 export default function TablePackage() {
   const { data, pagination, setPageNum, loading, setName } = useGetAll();
-  console.log(data);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   return (
     <div>
@@ -44,7 +45,12 @@ export default function TablePackage() {
             ) : (
               data.map((item, idx) => {
                 return (
-                  <TableItem key={`event-table-item-${idx}`} item={item} />
+                  <TableItem
+                    key={`event-table-item-${idx}`}
+                    item={item}
+                    expandedId={expandedId}
+                    setExpandedId={setExpandedId}
+                  />
                 );
               })
             )}
