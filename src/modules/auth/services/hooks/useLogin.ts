@@ -15,7 +15,6 @@ export default function useLogin(role: Role) {
   );
 
   const handleLogin = async (email: string, otp: string) => {
-    console.log(email, otp);
     const { data } = await axiosInstance({ withToken: false }).post(
       `/auth/${role === "admin" ? "admin" : role}/verify-otp`,
       {
@@ -23,6 +22,7 @@ export default function useLogin(role: Role) {
         otp,
       }
     );
+    console.log(data);
 
     const tokenName = `token${role === "admin" ? "" : `-${role}`}`;
     Cookies.set(tokenName, data.data as string);

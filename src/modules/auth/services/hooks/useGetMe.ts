@@ -5,7 +5,7 @@ import { Role } from "@modules/auth/services/role.def";
 export const getMe = async (role: Role) => {
   const url = {
     admin: "auth/admin/me",
-    user: "auth/customers/me",
+    customer: "auth/customer/me",
   }[role];
 
   const { data } = await axiosInstance({

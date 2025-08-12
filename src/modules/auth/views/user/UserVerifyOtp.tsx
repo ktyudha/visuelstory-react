@@ -21,7 +21,7 @@ export default function UserVerifyOtp() {
   const methods = useForm<CredentialPayload>({ mode: "onChange" });
   const { isSubmitting, isValid } = methods.formState;
 
-  const { handleLogin } = useLogin("user");
+  const { handleLogin } = useLogin("customer");
 
   const onSubmit: SubmitHandler<CredentialPayload> = async (state) => {
     try {

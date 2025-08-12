@@ -4,8 +4,8 @@ import { type StateCreator } from "zustand";
 export declare interface AuthState {
   email: string;
   setEmail: (param: string) => void;
-  role: "admin" | "user";
-  setRole: (role: "admin" | "user") => void;
+  role: "admin" | "customer";
+  setRole: (role: "admin" | "customer") => void;
   me?: User;
   setMe: (user: User) => void;
   isLoggedIn: boolean;
@@ -15,7 +15,7 @@ export declare interface AuthState {
 const createAuthSlice: StateCreator<AuthState> = (set) => ({
   email: "",
   setEmail: (param) => set({ email: param }),
-  role: "user",
+  role: "customer",
   setRole: (role) => set({ role }),
   isLoggedIn: false,
   setIsLoggedIn: (isLoggedIn: boolean) => set({ isLoggedIn }),

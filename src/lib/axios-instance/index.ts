@@ -5,12 +5,12 @@ import Cookies from "js-cookie";
 
 type AxiosInstanceParams = {
   withToken: boolean;
-  tokenType?: "admin" | "user" | "auto";
+  tokenType?: "admin" | "customer" | "auto";
 };
 
 const mapToken = new Map([
   ["admin", "token"],
-  ["user", "token-user"],
+  ["customer", "token-customer"],
 ]);
 
 export default function axiosInstance(
