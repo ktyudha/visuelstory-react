@@ -14,7 +14,6 @@ export default [
     children: [
       { index: true, element: <Navigate to="dashboard" /> },
       { path: "dashboard", element: <Admin.DashboardPage /> },
-      { path: "package-addons", element: <Admin.PackageAddonPage /> },
 
       // Package
       { path: "packages", element: <Admin.PackagePage /> },
@@ -24,7 +23,7 @@ export default [
         element: <Admin.PackageUpdatePage />,
       },
 
-      // Package
+      // Package Category
       { path: "package-categories", element: <Admin.PackageCategoryPage /> },
       {
         path: "package-categories/create",
@@ -33,6 +32,17 @@ export default [
       {
         path: "package-categories/edit/:packageCategoryId",
         element: <Admin.PackageCategoryUpdatePage />,
+      },
+
+      // Package Add On
+      { path: "package-addons", element: <Admin.PackageAddonPage /> },
+      {
+        path: "package-addons/create",
+        element: <Admin.PackageAddonCreatePage />,
+      },
+      {
+        path: "package-addons/edit/:packageAddOnId",
+        element: <Admin.PackageAddonUpdatePage />,
       },
     ],
   },

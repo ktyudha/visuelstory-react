@@ -10,3 +10,5 @@ export { default as PackageCategoryCreatePage } from "@modules/admin/package-cat
 export { default as PackageCategoryUpdatePage } from "@modules/admin/package-category/Action/Update";
 
 export { default as PackageAddonPage } from "@modules/admin/package-addon";
+export { default as PackageAddonCreatePage } from "@modules/admin/package-addon/Action/Create";
+export { default as PackageAddonUpdatePage } from "@modules/admin/package-addon/Action/Update";
