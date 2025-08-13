@@ -61,6 +61,11 @@ export default function SidebarDefaultLayout({ children }: Props) {
     activeSidebar?.label ||
     fallbackLabel.charAt(0).toUpperCase() + fallbackLabel.slice(1);
 
+  const finalActiveLabel = activeLabel
+    .split("-") // Jika ada dash, pisah
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1)) // Kapitalisasi setiap kata
+    .join(" ");
+
   const { role, me } = useGlobalStore(
     useShallow((state) => ({
       role: state.role,
@@ -80,8 +85,8 @@ export default function SidebarDefaultLayout({ children }: Props) {
         if (role === "admin") {
           Cookies.remove("token");
           navigate("/admin/login", { replace: true });
-        } else if (role === "user") {
-          Cookies.remove("token-user");
+        } else if (role === "customer") {
+          Cookies.remove("token-customer");
           navigate("/login", { replace: true });
         }
       } else {
@@ -247,7 +252,7 @@ export default function SidebarDefaultLayout({ children }: Props) {
           {/* Header */}
 
           <div className="w-full py-4 mb-6 bg-gray-50 dark:bg-gray-800 rounded-lg justify-between md:flex">
-            <h1 className="text-4xl font-medium px-6">{activeLabel}</h1>
+            <h1 className="text-4xl font-medium px-6">{finalActiveLabel}</h1>
             <div className="right-0 px-6 mt-3">
               <BreadcrumbComponent currentPath={currentPath} />
             </div>

@@ -14,7 +14,7 @@ export default function BreadcrumbComponent({ currentPath }: Props) {
     <Breadcrumb aria-label="Default breadcrumb example">
       <BreadcrumbItem
         icon={HiHome}
-        onClick={() => navigate("/organizer/dashboard")}
+        onClick={() => navigate("/admin/dashboard")}
         className="cursor-pointer"
       >
         Home
@@ -27,10 +27,15 @@ export default function BreadcrumbComponent({ currentPath }: Props) {
           .join(" "); // Gabungkan kembali dengan spasi
 
         if (idx === 0) return;
+        if (idx === 3) return;
         return (
           <BreadcrumbItem
             key={`breadcrumb-${idx}`}
-            onClick={() => navigate(currentPath)}
+            onClick={() => {
+              if (idx !== 2) {
+                navigate(currentPath);
+              }
+            }}
             className="cursor-pointer"
           >
             {label}

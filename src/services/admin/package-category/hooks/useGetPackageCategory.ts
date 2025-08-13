@@ -16,7 +16,7 @@ export default function useGetPackageCategory(packageCategoryId: string) {
 
   return {
     loading: !data && !error,
-    event: data?.data,
+    data: data?.data,
     error,
   };
 }
