@@ -13,4 +13,10 @@ export interface PackageCategory {
   id: string;
   name: string;
   description: string;
+  packages: Package[];
+}
+
+export interface Package {
+  id: string;
+  name: string;
 }

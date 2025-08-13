@@ -2,6 +2,7 @@ import { Checkbox, TableRow, TableCell, Badge } from "flowbite-react";
 import { PackageCategory } from "@services/admin/package-category/interfaces/get-all-package-category.type";
 
 import TableItemMenu from "./TableItemMenu";
+import { isEmpty } from "lodash";
 
 interface Props {
   item: PackageCategory;
@@ -43,10 +44,19 @@ export default function TableItem({ item, expandedId, setExpandedId }: Props) {
           </button>
         )}
       </TableCell>
-      <TableCell className="flex">
-        <Badge className="justify-center" size="sm">
-          {item.name}
-        </Badge>
+
+      <TableCell className="flex gap-2 max-w-md">
+        {!isEmpty(item.packages) ? (
+          item.packages.map((pkg) => (
+            <Badge className="justify-center" size="sm" color="indigo">
+              {pkg.name}
+            </Badge>
+          ))
+        ) : (
+          <Badge className="justify-center" size="sm" color="failure">
+            Not Yet
+          </Badge>
+        )}
       </TableCell>
       <TableCell>
         <TableItemMenu id={item.id} name={item.name} />

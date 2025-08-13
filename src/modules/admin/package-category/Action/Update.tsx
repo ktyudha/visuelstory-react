@@ -27,14 +27,12 @@ export default function PackageCreate() {
     params.packageCategoryId as string
   );
 
-  console.log(data);
   const { updatePackageCategory } = useUpdatePackageCategory(
     params.packageCategoryId as string
   );
 
   const onSubmit: SubmitHandler<FormFields> = async (state) => {
     const { error, response } = await updatePackageCategory(state);
-
     if (error || response) {
       if (error) {
         toast.error("Failed to update!", {

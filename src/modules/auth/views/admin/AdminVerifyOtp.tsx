@@ -17,7 +17,6 @@ export default function AdminVerifyOtp() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const email = searchParams.get("email") ?? "";
-  console.log(email);
   const methods = useForm<CredentialPayload>({ mode: "onChange" });
   const { isSubmitting, isValid } = methods.formState;
 

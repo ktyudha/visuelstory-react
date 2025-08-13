@@ -8,12 +8,14 @@ export default function useUpdatePackageCategory(packageCategoryId: string) {
   const updatePackageCategory = async (
     payload: ICreatePackageCategoryPayload
   ) => {
+    const { name, description } = payload;
     try {
       const res = await axiosInstance({
         withToken: true,
         tokenType: "admin",
       }).post(`/admin/package-categories/${packageCategoryId}`, {
-        payload,
+        name,
+        description,
         _method: "PUT",
       });
 

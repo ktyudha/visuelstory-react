@@ -27,7 +27,7 @@ export default function AuthMiddleware({
 
   setIsLoggedIn(!!isLoggedIn);
 
-  const role = Cookies.get("token") ? "admin" : "user";
+  const role = Cookies.get("token") ? "admin" : "customer";
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
@@ -42,8 +42,8 @@ export default function AuthMiddleware({
   }, [role, setMe, setRole]);
 
   const redirectToDashboard = () => {
-    console.log("redirectToDashboard()");
-    console.log("isLoggedIn", isLoggedIn);
+    // console.log("redirectToDashboard()");
+    // console.log("isLoggedIn", isLoggedIn);
 
     switch (role) {
       case "admin":

@@ -33,7 +33,6 @@ export default function PackageCreate() {
   const packageCategoryOptions = useMapInputOptions(PackageCategories);
 
   const onSubmit: SubmitHandler<FormFields> = async (state) => {
-    console.log(state);
     const { error, response } = await updateData(state);
 
     if (error || response) {

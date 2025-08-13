@@ -22,7 +22,6 @@ export default function useLogin(role: Role) {
         otp,
       }
     );
-    console.log(data);
 
     const tokenName = `token${role === "admin" ? "" : `-${role}`}`;
     Cookies.set(tokenName, data.data as string);

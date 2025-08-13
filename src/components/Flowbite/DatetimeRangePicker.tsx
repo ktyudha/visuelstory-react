@@ -92,7 +92,7 @@ export default function DatetimeRangePickerComponent({
           onChange={(selectedDates: Date[]) => {
             if (selectedDates.length === 2) {
               setRange([selectedDates[0], selectedDates[1]]);
-              console.log([selectedDates[0], selectedDates[1]]);
+              // console.log([selectedDates[0], selectedDates[1]]);
             }
           }}
         />
