@@ -22,7 +22,7 @@ export default function ShowDetail({ items }: Props) {
         <TableHead>
           <TableRow>
             <TableHeadCell>Information</TableHeadCell>
-            <TableHeadCell>Facility</TableHeadCell>
+            {/* <TableHeadCell>Facility</TableHeadCell> */}
             <TableHeadCell>price</TableHeadCell>
             <TableHeadCell>add on</TableHeadCell>
             {/* <TableHeadCell>discount</TableHeadCell> */}

@@ -30,19 +30,13 @@ interface Customer {
   address: string;
 }
 
-export interface Event {
-  id: string;
-  note: string;
-  date: Date;
-  location: string;
-}
-
 export interface InvoiceDetail {
   id: string;
   package: Package;
   quantity: number;
   amount: number;
   invoice_detail_addons: InvoiceDetailAddOn[];
+  events: Event[];
 }
 
 interface InvoiceDetailAddOn {
@@ -50,6 +44,13 @@ interface InvoiceDetailAddOn {
   package_addon: PackageAddOn;
   quantity: number;
   amount: number;
+}
+
+export interface Event {
+  id: string;
+  note: string;
+  date: Date;
+  location: string;
 }
 
 interface Package {
