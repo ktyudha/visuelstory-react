@@ -233,7 +233,7 @@ export default function SidebarDefaultLayout({ children }: Props) {
                     onClick={() => sidebar.route && navigate(sidebar.route)}
                     className={clsx(
                       `cursor-pointer`,
-                      sidebar.route === currentPath
+                      sidebar.route?.split("/")[2] === currentPath.split("/")[2]
                         ? "bg-gray-100 dark:bg-gray-700"
                         : ""
                     )}

@@ -1,22 +1,23 @@
 import {
   //   HiArrowSmRight,
-  HiChartPie,
+  HiOutlineHome,
+  HiOutlineCalendar,
   //   HiInbox,
   // HiShoppingBag,
-  HiMenu,
-  // HiDocumentReport,
+  HiOutlineMenu,
+  HiOutlineDocumentText,
 } from "react-icons/hi";
 
 export const sidebarOrganizer = [
   {
     label: "Dashboard",
-    icon: HiChartPie,
+    icon: HiOutlineHome,
     route: "/admin/dashboard",
     hasChild: false,
   },
   {
     label: "Package",
-    icon: HiMenu,
+    icon: HiOutlineMenu,
     hasChild: true,
     children: [
       {
@@ -33,12 +34,18 @@ export const sidebarOrganizer = [
       },
     ],
   },
-  // {
-  //   label: "Events",
-  //   icon: HiTable,
-  //   route: "/organizer/events",
-  //   hasChild: false,
-  // },
+  {
+    label: "Invoices",
+    icon: HiOutlineDocumentText,
+    route: "/admin/invoices",
+    hasChild: false,
+  },
+  {
+    label: "Events",
+    icon: HiOutlineCalendar,
+    route: "/admin/events",
+    hasChild: false,
+  },
   // {
   //   label: "Tickets",
   //   icon: HiShoppingBag,

@@ -44,6 +44,12 @@ export default [
         path: "package-addons/edit/:packageAddOnId",
         element: <Admin.PackageAddonUpdatePage />,
       },
+
+      // Event
+      { path: "events", element: <Admin.EventPage /> },
+      // Invoice
+      { path: "invoices", element: <Admin.InvoicePage /> },
+      { path: "invoices/show/:invoiceId", element: <Admin.InvoiceShowPage /> },
     ],
   },
 ];
