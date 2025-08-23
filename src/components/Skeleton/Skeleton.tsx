@@ -3,7 +3,7 @@ import "./Skeleton.css";
 
 interface SkeletonProps {
   isLoading: boolean;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   height?: string;
   width?: string;
   borderRadius?: string;
