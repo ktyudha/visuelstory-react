@@ -45,9 +45,15 @@ export default function TableItem({ item, expandedId, setExpandedId }: Props) {
         )}
       </TableCell>
       <TableCell>
-        <Badge className="justify-center" size="sm">
-          {item.package_category.name}
-        </Badge>
+        {item.package_category ? (
+          <Badge className="justify-center" size="sm">
+            {item.package_category.name}
+          </Badge>
+        ) : (
+          <Badge className="justify-center" size="sm" color="failure">
+            Not Yet
+          </Badge>
+        )}
       </TableCell>
       <TableCell>
         <div className="flex justify-between">
