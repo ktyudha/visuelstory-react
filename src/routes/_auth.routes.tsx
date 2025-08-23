@@ -1,21 +1,34 @@
-import CustomLayout from "@layouts/CustomLayout";
-import { AdminLoginPage } from "@pages/auth";
+import {
+  UserSendOtpPage,
+  UserVerifyOtpPage,
+  AdminLoginPage,
+  AdminVerifyOtpPage,
+} from "@pages/auth";
 import AuthMiddleware from "./middlewares/AuthMiddleware";
 
 export default [
-  // Auth
-  // {
-  //   path: "/login",
-  //   element: <LoginPage />,
-  // },
   {
-    path: "/admin/login",
-
+    path: "/login",
     element: (
       <AuthMiddleware>
-        <CustomLayout />
+        <UserSendOtpPage />
       </AuthMiddleware>
     ),
-    children: [{ index: true, element: <AdminLoginPage /> }],
+  },
+  {
+    path: "/verify-otp",
+    element: <UserVerifyOtpPage />,
+  },
+  {
+    path: "/admin/login",
+    element: (
+      <AuthMiddleware>
+        <AdminLoginPage />
+      </AuthMiddleware>
+    ),
+  },
+  {
+    path: "/admin/verify-otp",
+    element: <AdminVerifyOtpPage />,
   },
 ];
