@@ -6,14 +6,12 @@ export default function useLogout() {
   const handleLogout = async (role: Role) => {
     const tokenKeys = {
       admin: "token",
-      organizer: "token-organizer",
-      user: "token-user",
+      customer: "token-customer",
     } as const;
 
     const logoutUrls = {
       admin: "/admin/auth/logout",
-      organizer: "/organizer/auth/logout",
-      user: "/user/auth/logout",
+      customer: "/customer/auth/logout",
     } as const;
 
     const token = Cookies.get(tokenKeys[role]) ?? "";

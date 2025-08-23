@@ -26,7 +26,7 @@ export default function PaginationComponent({
   setPageNum,
   maxPageNum,
   perPage = 10,
-  pageLimit,
+  // pageLimit,
   total = 0,
 }: Props) {
   const [currentPage, setCurrentPage] = useState(1);

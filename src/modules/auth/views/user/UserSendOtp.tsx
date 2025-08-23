@@ -21,7 +21,7 @@ export default function UserSendOtp() {
   const methods = useForm<CredentialPayload>({ mode: "onChange" });
   const { isSubmitting, isValid } = methods.formState;
 
-  const { handleSendOtp } = useSendOtp("user");
+  const { handleSendOtp } = useSendOtp("customer");
 
   const onSubmit: SubmitHandler<CredentialPayload> = async (state) => {
     try {
