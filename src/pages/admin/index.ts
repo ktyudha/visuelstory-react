@@ -1,9 +1,21 @@
-export { default as DashboardPage } from "./DashboardPage.tsx";
-export { default as PortfolioPage } from "@modules/admin/portfolio";
-export { default as AccountPage } from "@modules/admin/account";
+export { default as DashboardPage } from "@modules/admin/dashboard";
+// Package
+export { default as PackagePage } from "@modules/admin/package";
+export { default as PackageCreatePage } from "@modules/admin/package/Action/Create";
+export { default as PackageUpdatePage } from "@modules/admin/package/Action/Update";
 
-// About
-export { default as AboutPage } from "@modules/admin/platform/About";
-export { default as AboutCreatePage } from "@modules/admin/platform/About/create";
-export { default as ContactCreatePage } from "@modules/admin/platform/Contact/create";
-export { default as InvestmentCreatePage } from "@modules/admin/platform/Investment/create";
+// PackageCategory
+export { default as PackageCategoryPage } from "@modules/admin/package-category";
+export { default as PackageCategoryCreatePage } from "@modules/admin/package-category/Action/Create";
+export { default as PackageCategoryUpdatePage } from "@modules/admin/package-category/Action/Update";
+
+export { default as PackageAddonPage } from "@modules/admin/package-addon";
+export { default as PackageAddonCreatePage } from "@modules/admin/package-addon/Action/Create";
+export { default as PackageAddonUpdatePage } from "@modules/admin/package-addon/Action/Update";
+
+// Event
+export { default as EventPage } from "@modules/admin/event";
+
+// Invoice
+export { default as InvoicePage } from "@modules/admin/invoice";
+export { default as InvoiceShowPage } from "@modules/admin/invoice/Action/Show";
