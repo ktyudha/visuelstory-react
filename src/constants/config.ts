@@ -1,6 +1,6 @@
-// export const BASE_API_URL = "https://api-eklinik.ktyudha.site/api/v1";
+// export const BASE_API_URL = "https://api-visuel.superrayateknik.com/api/v1";
 export const BASE_API_URL =
-  import.meta.env.BASE_API_URL ?? "http://127.0.0.1:8000/api/v1";
+  import.meta.env.VITE_BASE_API_URL ?? "http://127.0.0.1:8000/api/v1";
 
 export const VITE_FIREBASE_API_KEY = import.meta.env.VITE_FIREBASE_API_KEY;
 export const VITE_FIREBASE_AUTH_DOMAIN = import.meta.env
