@@ -9,6 +9,7 @@ import TextareaComponent from "@components/Flowbite/Textarea";
 import SelectTwo from "@components/Flowbite/SelectTwo";
 import Form from "@components/Form/Form";
 import Skeleton from "@components/Skeleton/Skeleton";
+import { HiChevronLeft } from "react-icons/hi";
 
 import { ICreatePayload } from "@services/admin/package/interfaces/create.type";
 import useUpdate from "@services/admin/package/hooks/useUpdate";
@@ -71,9 +72,13 @@ export default function PackageCreate() {
                 name="package_category_id"
                 isSearchable
                 isRequired
-                defaultValue={packageCategoryOptions.filter(
-                  (opt) => opt.value === data?.package_category.id
-                )}
+                defaultValue={
+                  data?.package_category?.id
+                    ? packageCategoryOptions.filter(
+                        (opt) => opt.value === data.package_category.id
+                      )
+                    : null
+                }
                 selectTwoOptions={packageCategoryOptions}
               />
             </Skeleton>
@@ -109,7 +114,17 @@ export default function PackageCreate() {
               isRequired
             />
           </Skeleton>
-          <div className="flex justify-end mt-4">
+          <div className="flex justify-end mt-4 gap-2">
+            <Button
+              type="button"
+              onClick={() => navigate(-1)}
+              className="group flex items-center cursor-pointer bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:bg-gradient-to-l focus:ring-purple-200 dark:focus:ring-purple-800 px-4 py-2 rounded-lg"
+            >
+              <HiChevronLeft size={22} />
+              <span className="transition-all duration-300 ease-in-out opacity-0 max-w-0 overflow-hidden group-hover:opacity-100 group-hover:max-w-[50px]">
+                Back
+              </span>
+            </Button>
             <Skeleton isLoading={loading} height="5rem">
               <Button
                 type="submit"
