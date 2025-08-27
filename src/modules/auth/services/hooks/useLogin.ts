@@ -24,7 +24,7 @@ export default function useLogin(role: Role) {
     );
 
     const tokenName = `token${role === "admin" ? "" : `-${role}`}`;
-    Cookies.set(tokenName, data.data as string);
+    Cookies.set(tokenName, data.data as string, { expires: 365, path: "/" });
 
     const { data: meData } = await getMe(role);
 
