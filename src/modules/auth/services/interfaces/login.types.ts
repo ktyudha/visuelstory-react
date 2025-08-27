@@ -8,5 +8,6 @@ export interface ILoginResponse {
 export type User = {
   id: string;
   name: string;
+  whatsapp: string;
   email: string;
 };

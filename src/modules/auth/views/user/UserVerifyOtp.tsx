@@ -16,7 +16,7 @@ interface CredentialPayload {
 export default function UserVerifyOtp() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const email = searchParams.get("email") ?? "";
+  const whatsapp = searchParams.get("whatsapp") ?? "";
 
   const methods = useForm<CredentialPayload>({ mode: "onChange" });
   const { isSubmitting, isValid } = methods.formState;
@@ -25,7 +25,7 @@ export default function UserVerifyOtp() {
 
   const onSubmit: SubmitHandler<CredentialPayload> = async (state) => {
     try {
-      await handleLogin(email, state.otp);
+      await handleLogin(whatsapp, state.otp);
       navigate("/");
     } catch (error) {
       if (isAxiosError(error)) {

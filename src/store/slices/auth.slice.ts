@@ -4,6 +4,8 @@ import { type StateCreator } from "zustand";
 export declare interface AuthState {
   email: string;
   setEmail: (param: string) => void;
+  whatsapp: string;
+  setWhatsapp: (param: string) => void;
   role: "admin" | "customer";
   setRole: (role: "admin" | "customer") => void;
   me?: User;
@@ -14,7 +16,9 @@ export declare interface AuthState {
 
 const createAuthSlice: StateCreator<AuthState> = (set) => ({
   email: "",
+  whatsapp: "",
   setEmail: (param) => set({ email: param }),
+  setWhatsapp: (param) => set({ whatsapp: param }),
   role: "customer",
   setRole: (role) => set({ role }),
   isLoggedIn: false,
