@@ -26,6 +26,9 @@ export default function useLogout() {
         tokenType: role,
       }).post(logoutUrls[role]);
 
+      // Hapus token di cookie
+      Cookies.remove(tokenKeys[role], { path: "/" });
+
       return { data: data.message, error: null };
     } catch (error: any) {
       if (!error) {
