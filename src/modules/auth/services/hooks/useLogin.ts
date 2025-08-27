@@ -14,11 +14,11 @@ export default function useLogin(role: Role) {
     }))
   );
 
-  const handleLogin = async (email: string, otp: string) => {
+  const handleLogin = async (whatsapp: string, otp: string) => {
     const { data } = await axiosInstance({ withToken: false }).post(
       `/auth/${role === "admin" ? "admin" : role}/verify-otp`,
       {
-        email,
+        whatsapp,
         otp,
       }
     );

@@ -11,11 +11,11 @@ export default function useSendOtp(role: Role) {
     }))
   );
 
-  const handleSendOtp = async (email: string) => {
+  const handleSendOtp = async (whatsapp: string) => {
     const { data } = await axiosInstance({ withToken: false }).post(
       `/auth/${role === "admin" ? "admin" : role}/send-otp`,
       {
-        email,
+        whatsapp,
       }
     );
 

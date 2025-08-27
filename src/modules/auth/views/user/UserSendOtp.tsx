@@ -11,12 +11,12 @@ import useGlobalStore from "@store/useStore";
 import { useNavigate } from "react-router-dom";
 
 interface CredentialPayload {
-  email: string;
+  whatsapp: string;
 }
 
 export default function UserSendOtp() {
   const navigate = useNavigate();
-  const setEmail = useGlobalStore((state) => state.setEmail);
+  const setWhatsapp = useGlobalStore((state) => state.setWhatsapp);
 
   const methods = useForm<CredentialPayload>({ mode: "onChange" });
   const { isSubmitting, isValid } = methods.formState;
@@ -25,9 +25,9 @@ export default function UserSendOtp() {
 
   const onSubmit: SubmitHandler<CredentialPayload> = async (state) => {
     try {
-      await handleSendOtp(state.email);
-      setEmail(state.email);
-      navigate(`/verify-otp?email=${state.email}`);
+      await handleSendOtp(state.whatsapp);
+      setWhatsapp(state.whatsapp);
+      navigate(`/verify-otp?whatsapp=${state.whatsapp}`);
     } catch (error) {
       if (isAxiosError(error)) {
         toast.error(error.response?.data?.message, {
@@ -64,10 +64,10 @@ export default function UserSendOtp() {
               <div className="flex flex-col gap-6">
                 <div className="grid gap-2">
                   <FormInput
-                    label="Email"
-                    name="email"
-                    type="email"
-                    placeholder="hello@example.com"
+                    label="WhatsApp"
+                    name="whatsapp"
+                    type="number"
+                    placeholder="62 xxxx xxxx xxx"
                     isRequired
                   />
                 </div>
