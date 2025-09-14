@@ -34,7 +34,7 @@ export default function TableItem({ item, expandedId, setExpandedId }: Props) {
               .join(""),
           }}
         />
-        {item.description.length > 100 && (
+        {item.description.length > 150 && (
           <button
             type="button"
             onClick={() => setExpandedId(isExpanded ? null : item.id)}
