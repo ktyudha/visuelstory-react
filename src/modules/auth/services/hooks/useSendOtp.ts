@@ -1,0 +1,28 @@
+import axiosInstance from "@lib/axios-instance";
+import useGlobalStore from "@store/useStore";
+import { useShallow } from "zustand/shallow";
+import { Role } from "@modules/auth/services/role.def";
+import { ILoginResponse } from "../interfaces/login.types";
+
+export default function useSendOtp(role: Role) {
+  const { setRole } = useGlobalStore(
+    useShallow((state) => ({
+      setRole: state.setRole,
+    }))
+  );
+
+  const handleSendOtp = async (whatsapp: string) => {
+    const { data } = await axiosInstance({ withToken: false }).post(
+      `/auth/${role === "admin" ? "admin" : role}/send-otp`,
+      {
+        whatsapp,
+      }
+    );
+
+    setRole(role);
+
+    return data as ILoginResponse;
+  };
+
+  return { handleSendOtp };
+}

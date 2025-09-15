@@ -1,9 +1,13 @@
-import { User } from "@services/auth/interfaces/login.type";
+import { User } from "@modules/auth/services/interfaces/login.types";
 import { type StateCreator } from "zustand";
 
 export declare interface AuthState {
-  //   role: "admin" | "supplier" | "partner" | "reader";
-  //   setRole: (role: "admin" | "supplier" | "partner" | "reader") => void;
+  email: string;
+  setEmail: (param: string) => void;
+  whatsapp: string;
+  setWhatsapp: (param: string) => void;
+  role: "admin" | "customer";
+  setRole: (role: "admin" | "customer") => void;
   me?: User;
   setMe: (user: User) => void;
   isLoggedIn: boolean;
@@ -11,8 +15,12 @@ export declare interface AuthState {
 }
 
 const createAuthSlice: StateCreator<AuthState> = (set) => ({
-  //   role: "partner",
-  //   setRole: (role) => set({ role }),
+  email: "",
+  whatsapp: "",
+  setEmail: (param) => set({ email: param }),
+  setWhatsapp: (param) => set({ whatsapp: param }),
+  role: "customer",
+  setRole: (role) => set({ role }),
   isLoggedIn: false,
   setIsLoggedIn: (isLoggedIn: boolean) => set({ isLoggedIn }),
   me: undefined,
