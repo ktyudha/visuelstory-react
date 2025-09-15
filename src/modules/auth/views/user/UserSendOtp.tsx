@@ -55,9 +55,9 @@ export default function UserSendOtp() {
                 </div>
                 <span className="sr-only">Acme Inc.</span>
               </a>
-              <h1 className="text-xl font-bold">Welcome to Inbeworks.</h1>
+              <h1 className="text-xl font-bold">Welcome to Visuelstory.</h1>
               <div className="text-center text-sm">
-                Send an email to get an OTP
+                Send an WhatsApp to get an OTP
               </div>
             </div>
             <Form {...methods} onSubmit={onSubmit}>
