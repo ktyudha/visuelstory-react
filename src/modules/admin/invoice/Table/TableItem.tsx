@@ -20,11 +20,11 @@ export default function TableItem({ item }: Props) {
         {item.customer.name}
       </TableCell>
 
-      <TableCell className="uppercase text-gray-900 dark:text-white font-medium">
+      <TableCell className="uppercase text-gray-900 dark:text-white font-medium whitespace-nowrap">
         {item.invoice_number}
       </TableCell>
 
-      <TableCell>
+      <TableCell className="whitespace-nowrap">
         {!isEmpty(item.invoice_details) ? (
           item.invoice_details.map((pkg) => (
             <Badge className="justify-center" size="sm" color="indigo">
