@@ -15,6 +15,7 @@ import useGetAll from "@services/admin/event/hooks/useGetAll";
 
 export default function TableEvent() {
   const { data, pagination, setPageNum, loading, setName } = useGetAll();
+
   return (
     <div>
       <TableHeader setSearchCallback={(e) => setName(e)} />
@@ -25,8 +26,9 @@ export default function TableEvent() {
               <TableHeadCell className="p-4">
                 <Checkbox />
               </TableHeadCell>
-              <TableHeadCell>Name</TableHeadCell>
-              <TableHeadCell>Price</TableHeadCell>
+              <TableHeadCell>Information</TableHeadCell>
+              <TableHeadCell>Package</TableHeadCell>
+              <TableHeadCell>Add on</TableHeadCell>
               <TableHeadCell></TableHeadCell>
             </TableRow>
           </TableHead>

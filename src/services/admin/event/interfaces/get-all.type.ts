@@ -12,8 +12,8 @@ export interface IGet {
 export interface Event {
   id: string;
   customer: Customer;
-  package: Package;
   invoice: Invoice;
+  invoice_detail: InvoiceDetail;
   note: string;
   date: Date;
   location: string;
@@ -27,9 +27,29 @@ interface Customer {
 interface Package {
   id: string;
   name: string;
+  description: string;
+  category: string;
 }
 
 interface Invoice {
   id: string;
   number: string;
+}
+
+interface InvoiceDetail {
+  amount: string;
+  package: Package;
+  invoice_detail_addons: InvoiceDetailAddOn[];
+}
+
+interface InvoiceDetailAddOn {
+  amount: number;
+  quantity: number;
+  package_addon: PackageAddOn;
+}
+
+interface PackageAddOn {
+  id: string;
+  name: string;
+  price: number;
 }

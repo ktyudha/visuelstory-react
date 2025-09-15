@@ -1,7 +1,7 @@
 import { Button } from "flowbite-react";
-import { HiPencil, HiTrash } from "react-icons/hi";
+import { HiTrash } from "react-icons/hi";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 
 import EventDelete from "../Action/Delete";
 interface Props {
@@ -10,7 +10,7 @@ interface Props {
 }
 
 export default function TableItemMenu({ id, name }: Props) {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const [openDeleteModal, setOpenDeleteModal] = useState<boolean>(false);
 
   return (
@@ -25,12 +25,12 @@ export default function TableItemMenu({ id, name }: Props) {
         {/* <Button className="cursor-pointer px-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:bg-gradient-to-bl focus:ring-cyan-300 dark:focus:ring-cyan-800">
           <HiOutlineEye />
         </Button> */}
-        <Button
+        {/* <Button
           onClick={() => navigate(`edit/${id}`)}
           className="cursor-pointer px-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:bg-gradient-to-bl focus:ring-cyan-300 dark:focus:ring-cyan-800"
         >
           <HiPencil />
-        </Button>
+        </Button> */}
         <Button
           // onClick={onDelete}
           onClick={() => setOpenDeleteModal(true)}
