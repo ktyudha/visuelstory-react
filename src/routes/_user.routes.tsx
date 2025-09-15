@@ -20,6 +20,7 @@ export default [
       { path: "portfolio/:slug", element: <Landing.PortfolioDetailPage /> },
       { path: "about", element: <Landing.AboutPage /> },
       { path: "investment", element: <Landing.InvestmentPage /> },
+      { path: "contact", element: <Landing.ContactPage /> },
     ],
   },
   {
