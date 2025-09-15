@@ -2,7 +2,7 @@ import { Button, Modal, ModalBody, ModalHeader } from "flowbite-react";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 
 import { toast } from "react-toastify";
-import useDelete from "@services/admin/package-addon/hooks/useDelete";
+import useDelete from "@services/admin/event/hooks/useDelete";
 
 interface Props {
   id: string;
