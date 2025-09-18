@@ -3,17 +3,36 @@ import { toast } from "react-toastify";
 import { Spinner, Button } from "flowbite-react";
 import { useNavigate } from "react-router-dom";
 import { HiChevronLeft } from "react-icons/hi";
+import { useState, useMemo } from "react";
 
 import TextInputComponent from "@components/Flowbite/Input";
+import TextareaComponent from "@components/Flowbite/Textarea";
+import SelectTwo from "@components/Flowbite/SelectTwo";
 import Form from "@components/Form/Form";
 
-import { ICreatePayload } from "@services/admin/package-addon/interfaces/create.type";
-import useCreate from "@services/admin/package-addon/hooks/useCreate";
+import { ICreatePayload } from "@services/admin/invoice/interfaces/create.type";
+import useCreate from "@services/admin/invoice/hooks/useCreate";
+import useGetAll from "@services/admin/package/hooks/useGetAll";
 
 type FormFields = ICreatePayload;
 
 export default function PackageAddOnCreate() {
   const navigate = useNavigate();
+
+  /** call api */
+  const { data, setName } = useGetAll();
+
+  const packageOptions = useMemo(() => {
+    if (!data || data.length === 0) {
+      return [{ label: "Data tidak ditemukan", value: "" }];
+    }
+    return data.map((each: any) => ({
+      label: each.package_category.name + " - " + each.name,
+      value: each.id,
+    }));
+  }, [data]);
+
+  const [packages, setPackages] = useState([{ id: "" }]);
 
   const methods = useForm<FormFields>({ mode: "onChange" });
   const { isSubmitting } = methods.formState;
@@ -22,8 +41,8 @@ export default function PackageAddOnCreate() {
   const { createData } = useCreate();
 
   const onSubmit: SubmitHandler<FormFields> = async (state) => {
+    // console.log(state);
     const { error, response } = await createData(state);
-
     if (error || response) {
       if (error) {
         toast.error("Failed to add!", {
@@ -45,19 +64,78 @@ export default function PackageAddOnCreate() {
         <div className="w-full flex flex-col gap-4">
           <div className="grid lg:grid-cols-2 grid-cols-1 gap-4">
             <TextInputComponent
-              label="Name"
+              label="Customer"
               type="text"
-              name="name"
-              placeholder="Name of package addon"
+              name="customer_id"
+              placeholder="Customer of invoice"
               isRequired
             />
             <TextInputComponent
-              label="Price"
-              type="number"
-              name="price"
-              placeholder="Price of package addon"
+              label="Proof"
+              type="file"
+              name="proof"
+              placeholder="Proof of invoice"
               isRequired
             />
+
+            {packages.map((pkg, idx) => (
+              <div key={idx} className="flex flex-col gap-4">
+                <SelectTwo
+                  label="Package"
+                  name={`packages[${idx}][id]`}
+                  isSearchable
+                  isRequired
+                  selectTwoOptions={packageOptions}
+                  onInputChange={setName}
+                />
+
+                <TextInputComponent
+                  label={`Quantity`}
+                  type="number"
+                  name={`packages[${idx}][quantity]`}
+                  placeholder="quantity of package invoice"
+                  isRequired
+                />
+
+                <TextInputComponent
+                  label={`Date of Event`}
+                  type="datetime-local"
+                  name={`packages[${idx}][date]`}
+                  placeholder="package of invoice"
+                  isRequired
+                />
+
+                <TextareaComponent
+                  label="Note"
+                  name={`packages[${idx}][note]`}
+                  placeholder="note of package invoice"
+                />
+
+                <TextareaComponent
+                  label="Location"
+                  name={`packages[${idx}][location]`}
+                  placeholder="location of package invoice"
+                />
+                {/* <Button
+                onClick={() => {
+                  const newPackages = packages.filter((_, i) => i !== idx); // hapus index tertentu
+                  setPackages(newPackages);
+                }}
+                type="button"
+                className="cursor-pointer"
+              >
+                Delete
+              </Button> */}
+              </div>
+            ))}
+
+            <Button
+              onClick={() => setPackages([...packages, { id: "" }])}
+              type="button"
+              className="cursor-pointer"
+            >
+              Add
+            </Button>
           </div>
 
           <div className="flex justify-end mt-4 gap-2">

@@ -1,7 +1,7 @@
 import { useCallback } from "react";
-import { TextInput } from "flowbite-react";
-import { HiSearch } from "react-icons/hi";
-// import { useNavigate } from "react-router-dom";
+import { TextInput, Button } from "flowbite-react";
+import { HiSearch, HiPlus } from "react-icons/hi";
+import { useNavigate } from "react-router-dom";
 import debounce from "lodash/debounce";
 
 interface Props {
@@ -9,7 +9,7 @@ interface Props {
 }
 
 export default function TableHeader({ setSearchCallback }: Props) {
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   const debouncedSearch = useCallback(
     debounce((value: string) => {
       setSearchCallback(value);
@@ -20,13 +20,13 @@ export default function TableHeader({ setSearchCallback }: Props) {
   return (
     <>
       <div className="flex lg:flex-row flex-col justify-between gap-4 mb-4">
-        {/* <Button
+        <Button
           className="cursor-pointer bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:bg-gradient-to-bl focus:ring-cyan-300 dark:focus:ring-cyan-800"
           onClick={() => navigate("create")}
         >
           <HiPlus className="mr-2 h-5 w-5" />
           Create
-        </Button> */}
+        </Button>
         <div className="flex gap-4 lg:flex-row flex-col">
           {/* Search */}
           <TextInput
