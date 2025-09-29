@@ -20,3 +20,8 @@ export { default as EventPage } from "@modules/admin/event";
 export { default as InvoicePage } from "@modules/admin/invoice";
 export { default as InvoiceCreatePage } from "@modules/admin/invoice/Action/Create";
 export { default as InvoiceShowPage } from "@modules/admin/invoice/Action/Show";
+
+// Customer
+export { default as CustomerPage } from "@modules/admin/customer";
+export { default as CustomerCreatePage } from "@modules/admin/customer/Action/Create";
+export { default as CustomerUpdatePage } from "@modules/admin/customer/Action/Update";

@@ -9,7 +9,7 @@ export interface IGet {
   data: Customer;
 }
 
-interface Customer {
+export interface Customer {
   id: string;
   name: string;
   email: string;
