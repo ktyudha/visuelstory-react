@@ -30,7 +30,7 @@ export default function PackageAddOnCreate() {
       return [{ label: "Data tidak ditemukan", value: "" }];
     }
     return dataCustomer.map((each: any) => ({
-      label: each.name + " - " + each.whatsapp,
+      label: each.whatsapp + " - " + each.name,
       value: each.id,
     }));
   }, [data]);
