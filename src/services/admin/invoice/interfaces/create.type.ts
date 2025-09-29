@@ -1,6 +1,6 @@
 export interface ICreatePayload {
   customer_id: string;
-  proof: File;
+  proof?: File;
   packages: Package[];
   price: string;
   discount: number;

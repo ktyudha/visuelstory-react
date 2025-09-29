@@ -1,9 +1,10 @@
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import { Spinner, Button } from "flowbite-react";
+import { Spinner, Button, FileInput, Label } from "flowbite-react";
 import { useNavigate } from "react-router-dom";
 import { HiChevronLeft } from "react-icons/hi";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
+import { formattedCurrency } from "@helpers/currency";
 
 import TextInputComponent from "@components/Flowbite/Input";
 import TextareaComponent from "@components/Flowbite/Textarea";
@@ -13,6 +14,7 @@ import Form from "@components/Form/Form";
 import { ICreatePayload } from "@services/admin/invoice/interfaces/create.type";
 import useCreate from "@services/admin/invoice/hooks/useCreate";
 import useGetAll from "@services/admin/package/hooks/useGetAll";
+import useGetAllCustomer from "@services/admin/customer/hooks/useGetAll";
 
 type FormFields = ICreatePayload;
 
@@ -20,29 +22,53 @@ export default function PackageAddOnCreate() {
   const navigate = useNavigate();
 
   /** call api */
+  const { data: dataCustomer, setName: setNameCustomer } = useGetAllCustomer();
   const { data, setName } = useGetAll();
+
+  const customerOptions = useMemo(() => {
+    if (!dataCustomer || dataCustomer.length === 0) {
+      return [{ label: "Data tidak ditemukan", value: "" }];
+    }
+    return dataCustomer.map((each: any) => ({
+      label: each.name + " - " + each.whatsapp,
+      value: each.id,
+    }));
+  }, [data]);
 
   const packageOptions = useMemo(() => {
     if (!data || data.length === 0) {
       return [{ label: "Data tidak ditemukan", value: "" }];
     }
     return data.map((each: any) => ({
-      label: each.package_category.name + " - " + each.name,
+      label:
+        each.package_category.name +
+        " - " +
+        each.name +
+        " - " +
+        formattedCurrency(each.price),
       value: each.id,
     }));
   }, [data]);
 
   const [packages, setPackages] = useState([{ id: "" }]);
+  const uploadsRef = useRef<HTMLInputElement | null>(null);
+  // const [imageProof, setImageProof] = useState<string>();
 
   const methods = useForm<FormFields>({ mode: "onChange" });
+
+  const customer = methods.watch("customer_id");
+
   const { isSubmitting } = methods.formState;
   const isValid = methods.formState.isValid;
 
   const { createData } = useCreate();
 
   const onSubmit: SubmitHandler<FormFields> = async (state) => {
-    // console.log(state);
-    const { error, response } = await createData(state);
+    const imageFile = uploadsRef.current?.files?.[0];
+    const { error, response } = await createData({
+      ...state,
+      proof: imageFile,
+    });
     if (error || response) {
       if (error) {
         toast.error("Failed to add!", {
@@ -58,85 +84,122 @@ export default function PackageAddOnCreate() {
     }
   };
 
+  useEffect(() => {
+    console.log(methods.getValues("customer_id"));
+  }, [customer]);
+
+  // const handleChangeImage = (event: ChangeEvent<HTMLInputElement>) => {
+  //   const file = event.target.files?.[0];
+  // if (file) {
+  //   const previewUrl = URL.createObjectURL(file);
+  //   setImageProof(previewUrl);
+  // }
+  // };
+
   return (
     <div className="p-6 bg-gray-50 dark:bg-gray-800 rounded-lg">
       <Form {...methods} onSubmit={onSubmit}>
         <div className="w-full flex flex-col gap-4">
           <div className="grid lg:grid-cols-2 grid-cols-1 gap-4">
-            <TextInputComponent
-              label="Customer"
-              type="text"
-              name="customer_id"
-              placeholder="Customer of invoice"
-              isRequired
-            />
-            <TextInputComponent
-              label="Proof"
-              type="file"
-              name="proof"
-              placeholder="Proof of invoice"
-              isRequired
-            />
+            <div className="flex flex-col gap-4">
+              <SelectTwo
+                label="Customer"
+                name={`customer_id`}
+                isSearchable
+                isRequired
+                selectTwoOptions={customerOptions}
+                onInputChange={setNameCustomer}
+              />
 
-            {packages.map((pkg, idx) => (
-              <div key={idx} className="flex flex-col gap-4">
-                <SelectTwo
-                  label="Package"
-                  name={`packages[${idx}][id]`}
-                  isSearchable
-                  isRequired
-                  selectTwoOptions={packageOptions}
-                  onInputChange={setName}
-                />
+              {packages.map((_, idx) => (
+                <div key={idx} className="flex flex-col gap-4">
+                  <SelectTwo
+                    label="Package"
+                    name={`packages[${idx}][id]`}
+                    isSearchable
+                    isRequired
+                    selectTwoOptions={packageOptions}
+                    onInputChange={setName}
+                  />
 
-                <TextInputComponent
-                  label={`Quantity`}
-                  type="number"
-                  name={`packages[${idx}][quantity]`}
-                  placeholder="quantity of package invoice"
-                  isRequired
-                />
+                  <div className="grid lg:grid-cols-2 grid-cols-1 gap-4">
+                    <TextInputComponent
+                      label={`Quantity`}
+                      type="number"
+                      name={`packages[${idx}][quantity]`}
+                      placeholder="quantity of package invoice"
+                      isRequired
+                    />
 
-                <TextInputComponent
-                  label={`Date of Event`}
-                  type="datetime-local"
-                  name={`packages[${idx}][date]`}
-                  placeholder="package of invoice"
-                  isRequired
-                />
+                    <TextInputComponent
+                      label={`Date of Event`}
+                      type="datetime-local"
+                      name={`packages[${idx}][date]`}
+                      placeholder="package of invoice"
+                      isRequired
+                    />
+                  </div>
 
-                <TextareaComponent
-                  label="Note"
-                  name={`packages[${idx}][note]`}
-                  placeholder="note of package invoice"
-                />
+                  <TextareaComponent
+                    label="Note"
+                    name={`packages[${idx}][note]`}
+                    placeholder="note of package invoice"
+                  />
 
-                <TextareaComponent
-                  label="Location"
-                  name={`packages[${idx}][location]`}
-                  placeholder="location of package invoice"
+                  <TextareaComponent
+                    label="Location"
+                    name={`packages[${idx}][location]`}
+                    placeholder="location of package invoice"
+                  />
+                  {/* <Button
+                    onClick={() => {
+                      const newPackages = packages.filter((_, i) => i !== idx); // hapus index tertentu
+                      setPackages(newPackages);
+                    }}
+                    type="button"
+                    className="cursor-pointer"
+                  >
+                    Delete
+                  </Button> */}
+                </div>
+              ))}
+
+              <div>
+                <Label className="mb-3 block">
+                  Proof of payment <span className="text-red-500">*</span>
+                </Label>
+                <FileInput
+                  ref={uploadsRef}
+                  accept="image/*"
+                  // onChange={handleChangeImage}
+                  required
                 />
-                {/* <Button
-                onClick={() => {
-                  const newPackages = packages.filter((_, i) => i !== idx); // hapus index tertentu
-                  setPackages(newPackages);
-                }}
-                type="button"
-                className="cursor-pointer"
-              >
-                Delete
-              </Button> */}
               </div>
-            ))}
+            </div>
 
-            <Button
+            {/* {imageProof && (
+              <img
+                src={imageProof}
+                alt="Preview"
+                className="w-[165px] h-[248px] rounded-[14px] mx-auto mb-[-2px] z-10 relative"
+              />
+            )} */}
+
+            <div className="flex flex-col gap-4">
+              <h4>Information of Package</h4>
+              <div className="bg-gray-600 p-4">
+                <h2>Before Wedding - Jasmine</h2>
+              </div>
+            </div>
+          </div>
+
+          {/* <Button
               onClick={() => setPackages([...packages, { id: "" }])}
               type="button"
               className="cursor-pointer"
             >
               Add
-            </Button>
-          </div>
+            </Button> */}
 
           <div className="flex justify-end mt-4 gap-2">
             <Button
