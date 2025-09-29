@@ -31,8 +31,6 @@ export default function Show() {
     return sum + addonSum;
   }, 0);
 
-  console.log(data);
-
   if (!data) return;
 
   return (
@@ -100,9 +98,9 @@ export default function Show() {
                 {data?.customer.address}
               </span>
             </div>
-            {/* <span className="italic">{data?.customer.email}</span> */}
-            {/* <br /> */}
-            <span className="italic">{data?.customer.phone}</span>
+            <span className="italic">{data?.customer?.email ?? "-"}</span>
+            <br />
+            <span className="italic">{data?.customer?.whatsapp ?? "-"}</span>
           </div>
         </div>
 
