@@ -3,35 +3,28 @@ import { toast } from "react-toastify";
 import { Spinner, Button } from "flowbite-react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import useMapInputOptions from "@/hooks/useMapInputOptions";
 import TextInputComponent from "@components/Flowbite/Input";
 import TextareaComponent from "@components/Flowbite/Textarea";
-import SelectTwo from "@components/Flowbite/SelectTwo";
 import Form from "@components/Form/Form";
 import Skeleton from "@components/Skeleton/Skeleton";
 import { HiChevronLeft } from "react-icons/hi";
 
-import { ICreatePayload } from "@services/admin/package/interfaces/create.type";
-import useUpdate from "@services/admin/package/hooks/useUpdate";
-import useGet from "@services/admin/package/hooks/useGet";
-import useGetAllAdminPackageCategory from "@services/admin/package-category/hooks/useGetAllPackageCategory";
+import { ICreatePayload } from "@services/admin/customer/interfaces/create.type";
+import useUpdate from "@services/admin/customer/hooks/useUpdate";
+import useGet from "@services/admin/customer/hooks/useGet";
 
 type FormFields = ICreatePayload;
 
-export default function PackageCreate() {
+export default function CustomerCreate() {
   const navigate = useNavigate();
   const params = useParams();
 
   const methods = useForm<FormFields>({ mode: "onChange" });
   const { isSubmitting } = methods.formState;
-  const packageCategory = methods.watch("package_category_id");
-  const isValid = methods.formState.isValid && !!packageCategory;
+  const isValid = methods.formState.isValid;
 
-  const { data: PackageCategories } = useGetAllAdminPackageCategory();
-  const { data, loading } = useGet(params.packageId as string);
-  const { updateData } = useUpdate(params.packageId as string);
-
-  const packageCategoryOptions = useMapInputOptions(PackageCategories);
+  const { data, loading } = useGet(params.customerId as string);
+  const { updateData } = useUpdate(params.customerId as string);
 
   const onSubmit: SubmitHandler<FormFields> = async (state) => {
     const { error, response } = await updateData(state);
@@ -42,7 +35,9 @@ export default function PackageCreate() {
           position: "top-center",
         });
       } else {
-        navigate("/admin/packages");
+        /** back */
+        navigate(-1);
+
         toast.success("Updated successfully.", {
           position: "top-center",
         });
@@ -55,65 +50,52 @@ export default function PackageCreate() {
     <div className="p-6 bg-gray-50 dark:bg-gray-800 rounded-lg">
       <Form {...methods} onSubmit={onSubmit}>
         <div className="w-full flex flex-col gap-4">
+          <Skeleton isLoading={loading} height="2.5rem">
+            <TextInputComponent
+              label="Name"
+              type="text"
+              name="name"
+              defaultValue={data?.name}
+              placeholder="Name of customer"
+              isRequired
+            />
+          </Skeleton>
+
           <div className="grid lg:grid-cols-2 grid-cols-1 gap-4">
             <Skeleton isLoading={loading} height="2.5rem">
               <TextInputComponent
-                label="Name"
+                label="WhatsApp"
                 type="text"
-                name="name"
-                defaultValue={data?.name}
-                placeholder="Name of package"
+                name="whatsapp"
+                defaultValue={data?.whatsapp}
+                placeholder="62 8xxx xxxx"
                 isRequired
               />
             </Skeleton>
-            <Skeleton isLoading={loading} height="2.5rem">
-              <SelectTwo
-                label="Category"
-                name="package_category_id"
-                isSearchable
-                isRequired
-                defaultValue={
-                  data?.package_category?.id
-                    ? packageCategoryOptions.filter(
-                        (opt) => opt.value === data.package_category.id
-                      )
-                    : null
-                }
-                selectTwoOptions={packageCategoryOptions}
-              />
-            </Skeleton>
+
             <Skeleton isLoading={loading} height="2.5rem">
               <TextInputComponent
-                label="Price"
-                type="number"
-                name="price"
-                defaultValue={data?.price}
-                placeholder="Price of package"
-                isRequired
-              />
-            </Skeleton>
-            <Skeleton isLoading={loading} height="2.5rem">
-              <TextInputComponent
-                label="Discount"
-                type="number"
-                max={100}
-                name="discount"
-                defaultValue={data?.discount}
-                placeholder="Discount of package"
+                label="Email"
+                type="text"
+                name="email"
+                defaultValue={data?.email}
+                placeholder="example@visuelstory.com"
                 isRequired
               />
             </Skeleton>
           </div>
+
           <Skeleton isLoading={loading} height="5rem">
             <TextareaComponent
-              label="Description"
-              placeholder="Description of package"
-              name="description"
-              defaultValue={data?.description}
+              label="Address"
+              placeholder="Address of customer"
+              name="address"
+              defaultValue={data?.address}
               rows={5}
               isRequired
             />
           </Skeleton>
+
           <div className="flex justify-end mt-4 gap-2">
             <Button
               type="button"
@@ -125,19 +107,18 @@ export default function PackageCreate() {
                 Back
               </span>
             </Button>
-            <Skeleton isLoading={loading} height="5rem">
-              <Button
-                type="submit"
-                className={`md:w-fit w-full md:px-5 rounded-lg py-2 font-medium text-base ${
-                  !isValid || isSubmitting
-                    ? "bg-gray-200 dark:bg-gray-900 text-gray-800 dark:text-white cursor-not-allowed focus:outline-none disabled:opacity-100"
-                    : " bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:bg-gradient-to-bl focus:ring-cyan-300 dark:focus:ring-cyan-800"
-                }`}
-                disabled={!isValid || isSubmitting}
-              >
-                {!isSubmitting ? "Update" : <Spinner />}
-              </Button>
-            </Skeleton>
+
+            <Button
+              type="submit"
+              className={`md:w-fit w-full md:px-5 rounded-lg py-2 font-medium text-base ${
+                !isValid || isSubmitting
+                  ? "bg-gray-200 dark:bg-gray-900 text-gray-800 dark:text-white cursor-not-allowed focus:outline-none disabled:opacity-100"
+                  : " bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:bg-gradient-to-bl focus:ring-cyan-300 dark:focus:ring-cyan-800"
+              }`}
+              disabled={!isValid || isSubmitting}
+            >
+              {!isSubmitting ? "Update" : <Spinner />}
+            </Button>
           </div>
         </div>
       </Form>
