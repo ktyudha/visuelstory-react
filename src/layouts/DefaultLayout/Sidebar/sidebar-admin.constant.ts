@@ -3,7 +3,7 @@ import {
   HiOutlineHome,
   HiOutlineCalendar,
   //   HiInbox,
-  // HiShoppingBag,
+  HiOutlineUserGroup,
   HiOutlineMenu,
   HiOutlineDocumentText,
 } from "react-icons/hi";
@@ -44,6 +44,12 @@ export const sidebarOrganizer = [
     label: "Events",
     icon: HiOutlineCalendar,
     route: "/admin/events",
+    hasChild: false,
+  },
+  {
+    label: "Customers",
+    icon: HiOutlineUserGroup,
+    route: "/admin/customers",
     hasChild: false,
   },
   // {
