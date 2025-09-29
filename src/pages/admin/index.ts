@@ -23,3 +23,5 @@ export { default as InvoiceShowPage } from "@modules/admin/invoice/Action/Show";
 
 // Customer
 export { default as CustomerPage } from "@modules/admin/customer";
+export { default as CustomerCreatePage } from "@modules/admin/customer/Action/Create";
+export { default as CustomerUpdatePage } from "@modules/admin/customer/Action/Update";

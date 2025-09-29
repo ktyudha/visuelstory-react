@@ -3,31 +3,24 @@ import { toast } from "react-toastify";
 import { Spinner, Button } from "flowbite-react";
 import { useNavigate } from "react-router-dom";
 
-import useMapInputOptions from "@/hooks/useMapInputOptions";
 import TextInputComponent from "@components/Flowbite/Input";
 import TextareaComponent from "@components/Flowbite/Textarea";
-import SelectTwo from "@components/Flowbite/SelectTwo";
 import Form from "@components/Form/Form";
 import { HiChevronLeft } from "react-icons/hi";
 
-import { ICreatePayload } from "@services/admin/package/interfaces/create.type";
-import useCreate from "@services/admin/package/hooks/useCreate";
-import useGetAllAdminPackageCategory from "@services/admin/package-category/hooks/useGetAllPackageCategory";
+import { ICreatePayload } from "@services/admin/customer/interfaces/create.type";
+import useCreate from "@services/admin/customer/hooks/useCreate";
 
 type FormFields = ICreatePayload;
 
-export default function PackageCreate() {
+export default function CustomerCreate() {
   const navigate = useNavigate();
 
   const methods = useForm<FormFields>({ mode: "onChange" });
   const { isSubmitting } = methods.formState;
-  const packageCategory = methods.watch("package_category_id");
-  const isValid = methods.formState.isValid && !!packageCategory;
+  const isValid = methods.formState.isValid;
 
-  const { data } = useGetAllAdminPackageCategory();
   const { createData } = useCreate();
-
-  const packageCategoryOptions = useMapInputOptions(data);
 
   const onSubmit: SubmitHandler<FormFields> = async (state) => {
     const { error, response } = await createData(state);
@@ -38,7 +31,9 @@ export default function PackageCreate() {
           position: "top-center",
         });
       } else {
-        navigate("/admin/packages");
+        /** back */
+        navigate(-1);
+
         toast.success("Added successfully.", {
           position: "top-center",
         });
@@ -51,46 +46,36 @@ export default function PackageCreate() {
     <div className="p-6 bg-gray-50 dark:bg-gray-800 rounded-lg">
       <Form {...methods} onSubmit={onSubmit}>
         <div className="w-full flex flex-col gap-4">
+          <TextInputComponent
+            label="Name"
+            type="text"
+            name="name"
+            placeholder="Name of customer"
+            isRequired
+          />
+
           <div className="grid lg:grid-cols-2 grid-cols-1 gap-4">
             <TextInputComponent
-              label="Name"
+              label="WhatsApp"
               type="text"
-              name="name"
-              placeholder="Name of package"
-              isRequired
-            />
-
-            <SelectTwo
-              label="Category"
-              name="package_category_id"
-              isSearchable
-              isRequired
-              selectTwoOptions={packageCategoryOptions}
-            />
-
-            <TextInputComponent
-              label="Price"
-              type="number"
-              name="price"
-              placeholder="Price of package"
+              name="whatsapp"
+              placeholder="62 8xxx xxxx"
               isRequired
             />
 
             <TextInputComponent
-              label="Discount"
-              type="number"
-              max={100}
-              name="discount"
-              defaultValue={0}
-              placeholder="Discount of package"
+              label="Email"
+              type="email"
+              name="email"
+              placeholder="example@visuelstory.com"
               isRequired
             />
           </div>
 
           <TextareaComponent
-            label="Description"
-            placeholder="Description of package"
-            name="description"
+            label="Address"
+            placeholder="Address of customer"
+            name="address"
             rows={5}
             isRequired
           />

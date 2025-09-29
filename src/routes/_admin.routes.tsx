@@ -55,6 +55,11 @@ export default [
 
       // Customer
       { path: "customers", element: <Admin.CustomerPage /> },
+      { path: "customers/create", element: <Admin.CustomerCreatePage /> },
+      {
+        path: "customers/edit/:customerId",
+        element: <Admin.CustomerUpdatePage />,
+      },
     ],
   },
 ];
