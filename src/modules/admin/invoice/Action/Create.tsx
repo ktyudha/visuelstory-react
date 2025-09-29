@@ -50,7 +50,7 @@ export default function PackageAddOnCreate() {
     }));
   }, [data]);
 
-  const [packages, setPackages] = useState([{ id: "" }]);
+  const [packages] = useState([{ id: "" }]);
   const uploadsRef = useRef<HTMLInputElement | null>(null);
   // const [imageProof, setImageProof] = useState<string>();
 
