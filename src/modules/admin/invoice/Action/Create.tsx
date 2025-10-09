@@ -149,6 +149,14 @@ export default function PackageAddOnCreate() {
                 required
               />
             </div>
+
+            <TextInputComponent
+              label={`Paid Amount`}
+              type="number"
+              name={`packages[0][paid_amount]`}
+              placeholder="Quantity of package invoice"
+              isRequired
+            />
           </div>
 
           <div className="flex justify-end mt-4 gap-2">

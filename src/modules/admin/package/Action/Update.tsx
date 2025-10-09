@@ -74,7 +74,7 @@ export default function PackageCreate() {
                 isRequired
                 defaultValue={
                   data?.package_category?.id
-                    ? packageCategoryOptions.filter(
+                    ? packageCategoryOptions.find(
                         (opt) => opt.value === data.package_category.id
                       )
                     : null
@@ -125,19 +125,18 @@ export default function PackageCreate() {
                 Back
               </span>
             </Button>
-            <Skeleton isLoading={loading} height="5rem">
-              <Button
-                type="submit"
-                className={`md:w-fit w-full md:px-5 rounded-lg py-2 font-medium text-base ${
-                  !isValid || isSubmitting
-                    ? "bg-gray-200 dark:bg-gray-900 text-gray-800 dark:text-white cursor-not-allowed focus:outline-none disabled:opacity-100"
-                    : " bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:bg-gradient-to-bl focus:ring-cyan-300 dark:focus:ring-cyan-800"
-                }`}
-                disabled={!isValid || isSubmitting}
-              >
-                {!isSubmitting ? "Update" : <Spinner />}
-              </Button>
-            </Skeleton>
+
+            <Button
+              type="submit"
+              className={`md:w-fit w-full md:px-5 rounded-lg py-2 font-medium text-base ${
+                !isValid || isSubmitting
+                  ? "bg-gray-200 dark:bg-gray-900 text-gray-800 dark:text-white cursor-not-allowed focus:outline-none disabled:opacity-100"
+                  : " bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:bg-gradient-to-bl focus:ring-cyan-300 dark:focus:ring-cyan-800"
+              }`}
+              disabled={!isValid || isSubmitting}
+            >
+              {!isSubmitting ? "Update" : <Spinner />}
+            </Button>
           </div>
         </div>
       </Form>

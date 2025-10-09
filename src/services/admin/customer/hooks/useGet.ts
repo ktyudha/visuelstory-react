@@ -3,7 +3,7 @@ import axiosInstance from "@/lib/axios-instance";
 import useSWR, { type Fetcher } from "swr";
 import { IGet } from "../interfaces/get-all.type";
 
-export default function useGetOne(customerId: string) {
+export default function useGet(customerId: string) {
   const fetcher: Fetcher<IGet, string> = (url) =>
     axiosInstance({ withToken: true, tokenType: "admin" })
       .get(url)

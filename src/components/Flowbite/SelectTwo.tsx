@@ -51,7 +51,7 @@ const SelectTwo: FunctionComponent<Props> = ({
   useEffect(() => {
     if (!selectedValue && defaultValue) {
       setSelectedValue(defaultValue);
-      setValue(name, defaultValue[0].value); // Pastikan juga react-hook-form mendapatkan nilai awal
+      setValue(name, defaultValue.value); // Pastikan juga react-hook-form mendapatkan nilai awal
     }
   }, [defaultValue, selectedValue, setValue, name]);
 
