@@ -4,15 +4,15 @@ import useRevalidateMutation from "@/lib/swr/useRevalidateMutation";
 export default function useDelete() {
   const revalidateMutationsByKey = useRevalidateMutation();
 
-  const deleteData = async (packageAddOnId: string) => {
+  const deleteData = async (invoiceId: string) => {
     try {
       const res = await axiosInstance({
         withToken: true,
         tokenType: "admin",
-      }).delete(`/admin/package-addons/${packageAddOnId}`);
+      }).delete(`/admin/invoices/${invoiceId}`);
 
       if (res.status === 200) {
-        revalidateMutationsByKey(/^\/admin\/package-addons/);
+        revalidateMutationsByKey(/^\/admin\/invoices/);
       }
 
       return { response: res, error: null };

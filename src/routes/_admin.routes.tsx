@@ -52,6 +52,10 @@ export default [
       { path: "invoices", element: <Admin.InvoicePage /> },
       { path: "invoices/create", element: <Admin.InvoiceCreatePage /> },
       { path: "invoices/show/:invoiceId", element: <Admin.InvoiceShowPage /> },
+      {
+        path: "invoices/edit/:invoiceId",
+        element: <Admin.InvoiceUpdatePage />,
+      },
 
       // Customer
       { path: "customers", element: <Admin.CustomerPage /> },

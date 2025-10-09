@@ -19,6 +19,7 @@ export { default as EventPage } from "@modules/admin/event";
 // Invoice
 export { default as InvoicePage } from "@modules/admin/invoice";
 export { default as InvoiceCreatePage } from "@modules/admin/invoice/Action/Create";
+export { default as InvoiceUpdatePage } from "@modules/admin/invoice/Action/Update";
 export { default as InvoiceShowPage } from "@modules/admin/invoice/Action/Show";
 
 // Customer

@@ -43,7 +43,7 @@ export default function TableItem({ item }: Props) {
       </TableCell>
 
       <TableCell>
-        <TableItemMenu id={item.id} name={item.invoice_number} />
+        <TableItemMenu id={item.id} invoice_number={item.invoice_number} />
       </TableCell>
     </TableRow>
   );

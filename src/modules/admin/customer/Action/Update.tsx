@@ -15,7 +15,7 @@ import useGet from "@services/admin/customer/hooks/useGet";
 
 type FormFields = ICreatePayload;
 
-export default function CustomerCreate() {
+export default function CustomerUpdate() {
   const navigate = useNavigate();
   const params = useParams();
 
