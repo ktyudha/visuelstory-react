@@ -45,10 +45,14 @@ export default function TableItem({ item, expandedId, setExpandedId }: Props) {
         )}
       </TableCell>
 
-      <TableCell className="flex gap-2 max-w-md">
+      <TableCell className="flex flex-wrap gap-2 max-w-sm">
         {!isEmpty(item.packages) ? (
           item.packages.map((pkg) => (
-            <Badge className="justify-center" size="sm" color="indigo">
+            <Badge
+              className="justify-center whitespace-nowrap"
+              size="sm"
+              color="indigo"
+            >
               {pkg.name}
             </Badge>
           ))
