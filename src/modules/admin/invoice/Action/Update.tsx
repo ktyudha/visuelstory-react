@@ -160,7 +160,7 @@ export default function InvoiceUpdate() {
                 label="Note"
                 name={`packages[0][note]`}
                 placeholder="Note of package invoice"
-                defaultValue={invoice?.invoice_number}
+                defaultValue={invoice?.invoice_details[0]?.events[0]?.note}
               />
             </Skeleton>
 
@@ -182,7 +182,11 @@ export default function InvoiceUpdate() {
                   ref={uploadsRef}
                   accept="image/*"
                   // onChange={handleChangeImage}
-                  required
+                  // required
+                />
+                <img
+                  src={invoice?.proof}
+                  className="rounded-lg mt-4 object-cover aspect-square max-w-3xs"
                 />
               </div>
             </Skeleton>
