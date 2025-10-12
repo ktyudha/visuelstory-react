@@ -193,7 +193,7 @@ export default function InvoiceUpdate() {
                 type="number"
                 name={`packages[0][paid_amount]`}
                 placeholder="Quantity of package invoice"
-                defaultValue={Number(invoice?.total_price)}
+                defaultValue={Number(invoice?.amount_paid)}
                 isRequired
               />
             </Skeleton>

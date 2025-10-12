@@ -15,6 +15,8 @@ export interface Invoice {
   invoice_url: string;
   transaction_status: string;
   total_price: number;
+  amount_paid: number;
+  remaining_paid: number;
   proof: string;
   customer: Customer;
   events: Event[];
