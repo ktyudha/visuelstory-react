@@ -3,28 +3,37 @@ import { toast } from "react-toastify";
 import { Spinner, Button, FileInput, Label } from "flowbite-react";
 import { useNavigate } from "react-router-dom";
 import { HiChevronLeft } from "react-icons/hi";
-import { useMemo, useRef, useEffect } from "react";
+import { useMemo, useRef, useEffect, useState } from "react";
 import { formattedCurrency } from "@helpers/currency";
+import useMapInputOptions from "@hooks/useMapInputOptions";
 
 import TextInputComponent from "@components/Flowbite/Input";
 import TextareaComponent from "@components/Flowbite/Textarea";
 import SelectTwo from "@components/Flowbite/SelectTwo";
 import Form from "@components/Form/Form";
+import SelectComponent from "@components/Flowbite/Select";
 
 import { ICreatePayload } from "@services/admin/invoice/interfaces/create.type";
 import useCreate from "@services/admin/invoice/hooks/useCreate";
 import useGetAll from "@services/admin/package/hooks/useGetAll";
 import useGetAllCustomer from "@services/admin/customer/hooks/useGetAll";
+import useGetAllAddOn from "@services/admin/package-addon/hooks/useGetAll";
 
 type FormFields = ICreatePayload;
 
 export default function PackageAddOnCreate() {
   const navigate = useNavigate();
 
+  const [selectedAddOns, setSelectedAddOns] = useState([
+    { id: "", quantity: 1 },
+  ]);
+
   /** call api */
   const { data: dataCustomer, setName: setNameCustomer } = useGetAllCustomer();
+  const { data: dataAddOn } = useGetAllAddOn();
   const { data, setName } = useGetAll();
 
+  const addonOptions = useMapInputOptions(dataAddOn);
   const customerOptions = useMemo(() => {
     if (!dataCustomer || dataCustomer.length === 0) {
       return [{ label: "Data tidak ditemukan", value: "" }];
@@ -49,6 +58,14 @@ export default function PackageAddOnCreate() {
       value: each.id,
     }));
   }, [data]);
+
+  const addAddon = () => {
+    setSelectedAddOns([...selectedAddOns, { id: "", quantity: 1 }]);
+  };
+
+  const removeAddon = (index: number) => {
+    setSelectedAddOns(selectedAddOns.filter((_, i) => i !== index));
+  };
 
   const uploadsRef = useRef<HTMLInputElement | null>(null);
 
@@ -137,6 +154,61 @@ export default function PackageAddOnCreate() {
               name={`packages[0][location]`}
               placeholder="Location of package invoice"
             />
+
+            <SelectTwo
+              label="Package"
+              name={`packages[0][id]`}
+              isSearchable
+              isRequired
+              selectTwoOptions={packageOptions}
+              onInputChange={setName}
+            />
+
+            <div>
+              <Label className="mb-3 block">
+                Proof of payment <span className="text-red-500">*</span>
+              </Label>
+
+              {selectedAddOns.map((addon, idx) => (
+                <div key={idx}>
+                  <SelectComponent
+                    label="Add On"
+                    name={`packages[0][package_addons][${idx}][id]`}
+                    selectOptions={addonOptions}
+                    isRequired
+                  />
+
+                  <TextInputComponent
+                    label={`Quantity`}
+                    type="number"
+                    name={`packages[0][package_addons][${idx}][quantity]`}
+                    placeholder="Quantity of package invoice"
+                    defaultValue={addon.quantity}
+                    isRequired
+                  />
+
+                  {idx > 0 && (
+                    <Button
+                      color="failure"
+                      size="xs"
+                      onClick={() => removeAddon(idx)}
+                      className="col-span-2 w-fit"
+                    >
+                      Hapus
+                    </Button>
+                  )}
+                </div>
+              ))}
+
+              <Button
+                type="button"
+                color="blue"
+                onClick={addAddon}
+                className="mt-2"
+              >
+                + Tambah Addon
+              </Button>
+            </div>
 
             <div>
               <Label className="mb-3 block">
