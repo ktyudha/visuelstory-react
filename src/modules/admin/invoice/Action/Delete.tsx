@@ -47,9 +47,8 @@ export default function Delete({ id, invoice_number, onOpen, onClose }: Props) {
             </h3>
             <div className="flex justify-center gap-4">
               <Button
-                color={"failure"}
                 onClick={onDelete}
-                className="cursor-pointer hover:bg-red-500 hover:text-white"
+                className="cursor-pointer hover:!bg-red-500 hover:text-white"
               >
                 {"Yes, I'm sure"}
               </Button>
