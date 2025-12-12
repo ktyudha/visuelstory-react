@@ -142,6 +142,20 @@ export default function Show() {
               {formattedCurrency(data?.total_price ?? 0)}
             </div>
           </div>
+          <hr className="my-4" />
+          <div className="grid grid-cols-2 gap-2">
+            <div className="dark:text-gray-400 text-gray-500">Down Payment</div>
+            <div className="text-end">
+              {formattedCurrency(Number(data?.amount_paid))}
+            </div>
+
+            <div className="font-medium text-md text-left">
+              Remaining Balance
+            </div>
+            <div className="text-end font-bold text-2xl text-purple-500">
+              {formattedCurrency(Number(data?.total_price - data?.amount_paid))}
+            </div>
+          </div>
         </div>
       </div>
     </div>

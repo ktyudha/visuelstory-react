@@ -3,6 +3,7 @@ export interface ICreatePayload {
   proof?: File;
   packages: Package[];
   price: string;
+  amount_paid: number;
   discount: number;
 }
 

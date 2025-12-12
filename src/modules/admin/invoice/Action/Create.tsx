@@ -155,61 +155,6 @@ export default function PackageAddOnCreate() {
               placeholder="Location of package invoice"
             />
 
-            <SelectTwo
-              label="Package"
-              name={`packages[0][id]`}
-              isSearchable
-              isRequired
-              selectTwoOptions={packageOptions}
-              onInputChange={setName}
-            />
-
-            <div>
-              <Label className="mb-3 block">
-                Proof of payment <span className="text-red-500">*</span>
-              </Label>
-
-              {selectedAddOns.map((addon, idx) => (
-                <div key={idx}>
-                  <SelectComponent
-                    label="Add On"
-                    name={`packages[0][package_addons][${idx}][id]`}
-                    selectOptions={addonOptions}
-                    isRequired
-                  />
-
-                  <TextInputComponent
-                    label={`Quantity`}
-                    type="number"
-                    name={`packages[0][package_addons][${idx}][quantity]`}
-                    placeholder="Quantity of package invoice"
-                    defaultValue={addon.quantity}
-                    isRequired
-                  />
-
-                  {idx > 0 && (
-                    <Button
-                      color="failure"
-                      size="xs"
-                      onClick={() => removeAddon(idx)}
-                      className="col-span-2 w-fit"
-                    >
-                      Hapus
-                    </Button>
-                  )}
-                </div>
-              ))}
-
-              <Button
-                type="button"
-                color="blue"
-                onClick={addAddon}
-                className="mt-2"
-              >
-                + Tambah Addon
-              </Button>
-            </div>
-
             <div>
               <Label className="mb-3 block">
                 Proof of payment <span className="text-red-500">*</span>
@@ -225,10 +170,54 @@ export default function PackageAddOnCreate() {
             <TextInputComponent
               label={`Paid Amount`}
               type="number"
-              name={`packages[0][paid_amount]`}
+              name={`amount_paid`}
               placeholder="Quantity of package invoice"
               isRequired
             />
+          </div>
+
+          <div>
+            <Label className="mb-3 block">Add On</Label>
+            <Button
+              type="button"
+              color="blue"
+              onClick={addAddon}
+              className="mt-2"
+            >
+              + Tambah Addon
+            </Button>
+
+            <div className="grid lg:grid-cols-2 grid-cols-1 gap-4">
+              {selectedAddOns.map((addon, idx) => (
+                <div key={idx}>
+                  <SelectComponent
+                    label="Item"
+                    name={`packages[0][package_addons][${idx}][id]`}
+                    selectOptions={addonOptions}
+                    // isRequired
+                  />
+
+                  <TextInputComponent
+                    label={`Quantity`}
+                    type="number"
+                    name={`packages[0][package_addons][${idx}][quantity]`}
+                    placeholder="Quantity of package invoice"
+                    defaultValue={addon.quantity}
+                    // isRequired
+                  />
+
+                  {idx > 0 && (
+                    <Button
+                      size="xs"
+                      onClick={() => removeAddon(idx)}
+                      className="col-span-2 w-fit !bg-red-500 mt-2"
+                    >
+                      Hapus
+                    </Button>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className="flex justify-end mt-4 gap-2">

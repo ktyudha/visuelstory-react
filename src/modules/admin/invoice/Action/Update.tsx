@@ -13,7 +13,7 @@ import Form from "@components/Form/Form";
 import Skeleton from "@components/Skeleton/Skeleton";
 
 import { ICreatePayload } from "@services/admin/invoice/interfaces/create.type";
-import useCreate from "@services/admin/invoice/hooks/useCreate";
+import useUpdate from "@services/admin/invoice/hooks/useUpdate";
 import useGet from "@services/admin/invoice/hooks/useGet";
 import useGetAll from "@services/admin/package/hooks/useGetAll";
 import useGetAllCustomer from "@services/admin/customer/hooks/useGetAll";
@@ -64,22 +64,22 @@ export default function InvoiceUpdate() {
   const { isSubmitting } = methods.formState;
   const isValid = methods.formState.isValid;
 
-  const { createData } = useCreate();
+  const { updateData } = useUpdate(params.invoiceId as string);
 
   const onSubmit: SubmitHandler<FormFields> = async (state) => {
     const imageFile = uploadsRef.current?.files?.[0];
-    const { error, response } = await createData({
+    const { error, response } = await updateData({
       ...state,
       proof: imageFile,
     });
     if (error || response) {
       if (error) {
-        toast.error("Failed to add!", {
+        toast.error("Failed to Update!", {
           position: "top-center",
         });
       } else {
         navigate(-1);
-        toast.success("Added successfully.", {
+        toast.success("Update successfully.", {
           position: "top-center",
         });
         methods.reset();
@@ -160,7 +160,7 @@ export default function InvoiceUpdate() {
                 label="Note"
                 name={`packages[0][note]`}
                 placeholder="Note of package invoice"
-                defaultValue={invoice?.invoice_number}
+                defaultValue={invoice?.invoice_details[0]?.events[0]?.note}
               />
             </Skeleton>
 
@@ -182,8 +182,15 @@ export default function InvoiceUpdate() {
                   ref={uploadsRef}
                   accept="image/*"
                   // onChange={handleChangeImage}
-                  required
+                  // required
                 />
+                {invoice?.proof && (
+                  <img
+                    src={invoice?.proof}
+                    alt={`proof-${invoice.invoice_number}`}
+                    className="aspect-16/9 object-fit img-cover"
+                  />
+                )}
               </div>
             </Skeleton>
 
@@ -191,9 +198,9 @@ export default function InvoiceUpdate() {
               <TextInputComponent
                 label={`Paid Amount`}
                 type="number"
-                name={`packages[0][paid_amount]`}
+                name={`amount_paid`}
                 placeholder="Quantity of package invoice"
-                defaultValue={Number(invoice?.total_price)}
+                defaultValue={Number(invoice?.amount_paid)}
                 isRequired
               />
             </Skeleton>
