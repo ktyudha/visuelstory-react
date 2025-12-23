@@ -116,7 +116,8 @@ export default function PackageAddOnCreate() {
               selectTwoOptions={customerOptions}
               onInputChange={setNameCustomer}
             />
-
+          </div>
+          <div className="grid lg:grid-cols-2 grid-cols-1 gap-4">
             <SelectTwo
               label="Package"
               name={`packages[0][id]`}
@@ -182,14 +183,14 @@ export default function PackageAddOnCreate() {
               type="button"
               color="blue"
               onClick={addAddon}
-              className="mt-2"
+              className="my-2"
             >
               + Tambah Addon
             </Button>
 
             <div className="grid lg:grid-cols-2 grid-cols-1 gap-4">
               {selectedAddOns.map((addon, idx) => (
-                <div key={idx}>
+                <div key={idx} className="flex flex-col gap-2">
                   <SelectComponent
                     label="Item"
                     name={`packages[0][package_addons][${idx}][id]`}

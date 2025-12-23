@@ -20,3 +20,9 @@ interface PackageAddOn {
   id: string;
   quantity: string;
 }
+
+export interface IUpdatePayload {
+  customer_id: string;
+  amount_paid: number;
+  transaction_status: number;
+}
