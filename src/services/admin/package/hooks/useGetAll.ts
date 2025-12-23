@@ -7,6 +7,7 @@ import querystring from "query-string";
 
 export default function useGetAll() {
   const [name, setName] = useState("");
+  const [packageCategory, setPackageCategory] = useState("");
   const [pageNum, setPageNum] = useState(1);
   const [pageLimit, setPageLimit] = useState(10);
 
@@ -18,6 +19,7 @@ export default function useGetAll() {
   const qs = querystring.stringify(
     {
       name,
+      package_category_id: packageCategory,
       page_limit: pageLimit,
       page: pageNum,
     },
@@ -28,6 +30,9 @@ export default function useGetAll() {
 
   const onSetName = useCallback((name: string) => {
     setName(name);
+  }, []);
+  const onSetPackageCategory = useCallback((id: string) => {
+    setPackageCategory(id);
   }, []);
 
   return {
@@ -41,5 +46,7 @@ export default function useGetAll() {
     setPageLimit,
     name,
     setName: onSetName,
+    packageCategory,
+    setPackageCategory: onSetPackageCategory,
   };
 }

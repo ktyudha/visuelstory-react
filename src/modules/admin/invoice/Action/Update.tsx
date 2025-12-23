@@ -1,21 +1,22 @@
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import { Spinner, Button, FileInput, Label } from "flowbite-react";
+import { Spinner, Button } from "flowbite-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { HiChevronLeft } from "react-icons/hi";
-import { useMemo, useRef, useEffect } from "react";
-import { formattedCurrency } from "@helpers/currency";
+import { useRef, useMemo, useEffect } from "react";
+// import { formattedCurrency } from "@helpers/currency";
 
 import TextInputComponent from "@components/Flowbite/Input";
-import TextareaComponent from "@components/Flowbite/Textarea";
-import SelectTwo from "@components/Flowbite/SelectTwo";
+// import TextareaComponent from "@components/Flowbite/Textarea";
+// import SelectTwo from "@components/Flowbite/SelectTwo";
+import Select from "@components/Flowbite/Select";
 import Form from "@components/Form/Form";
 import Skeleton from "@components/Skeleton/Skeleton";
 
 import { ICreatePayload } from "@services/admin/invoice/interfaces/create.type";
 import useUpdate from "@services/admin/invoice/hooks/useUpdate";
 import useGet from "@services/admin/invoice/hooks/useGet";
-import useGetAll from "@services/admin/package/hooks/useGetAll";
+// import useGetAll from "@services/admin/package/hooks/useGetAll";
 import useGetAllCustomer from "@services/admin/customer/hooks/useGetAll";
 
 type FormFields = ICreatePayload;
@@ -25,8 +26,8 @@ export default function InvoiceUpdate() {
   const params = useParams();
 
   /** call api */
-  const { data: dataCustomer, setName: setNameCustomer } = useGetAllCustomer();
-  const { data, setName } = useGetAll();
+  const { data: dataCustomer } = useGetAllCustomer();
+  // const { data, setName } = useGetAll();
 
   const { data: invoice, loading } = useGet(params.invoiceId as string);
 
@@ -38,22 +39,22 @@ export default function InvoiceUpdate() {
       label: each.whatsapp + " - " + each.name,
       value: each.id,
     }));
-  }, [data]);
+  }, [dataCustomer]);
 
-  const packageOptions = useMemo(() => {
-    if (!data || data.length === 0) {
-      return [{ label: "Data tidak ditemukan", value: "" }];
-    }
-    return data.map((each: any) => ({
-      label:
-        each.package_category.name +
-        " - " +
-        each.name +
-        " - " +
-        formattedCurrency(each.price),
-      value: each.id,
-    }));
-  }, [data]);
+  // const packageOptions = useMemo(() => {
+  //   if (!data || data.length === 0) {
+  //     return [{ label: "Data tidak ditemukan", value: "" }];
+  //   }
+  //   return data.map((each: any) => ({
+  //     label:
+  //       each.package_category.name +
+  //       " - " +
+  //       each.name +
+  //       " - " +
+  //       formattedCurrency(each.price),
+  //     value: each.id,
+  //   }));
+  // }, [data]);
 
   const uploadsRef = useRef<HTMLInputElement | null>(null);
 
@@ -97,7 +98,25 @@ export default function InvoiceUpdate() {
         <div className="w-full flex flex-col gap-4">
           <div className="grid lg:grid-cols-2 grid-cols-1 gap-4">
             <Skeleton isLoading={loading} height="2.5rem">
-              <SelectTwo
+              {/* <TextInputComponent
+                label={`Customer`}
+                type="text"
+                name={`customer_id`}
+                placeholder="Customer of invoice"
+                defaultValue={invoice?.customer.id}
+                isRequired
+                isReadOnly
+              /> */}
+              <Select
+                label="Customer"
+                name="customer_id"
+                defaultValue={invoice?.customer.id}
+                selectOptions={customerOptions}
+                isRequired
+                isDisabled
+              />
+
+              {/* <SelectTwo
                 label="Customer"
                 name={`customer_id`}
                 isSearchable
@@ -111,10 +130,26 @@ export default function InvoiceUpdate() {
                       )
                     : null
                 }
-              />
+              /> */}
             </Skeleton>
 
             <Skeleton isLoading={loading} height="2.5rem">
+              <Select
+                label="Transaction Status"
+                name="transaction_status"
+                defaultValue={invoice?.transaction_status}
+                isRequired
+                selectOptions={[
+                  {
+                    label: "Paid",
+                    value: "paid",
+                  },
+                  { label: "Down Payment (DP)", value: "down_payment" },
+                  { label: "Unpaid", value: "unpaid" },
+                ]}
+              ></Select>
+            </Skeleton>
+            {/* <Skeleton isLoading={loading} height="2.5rem">
               <SelectTwo
                 label="Package"
                 name={`packages[0][id]`}
@@ -131,9 +166,9 @@ export default function InvoiceUpdate() {
                     : null
                 }
               />
-            </Skeleton>
+            </Skeleton> */}
 
-            <Skeleton isLoading={loading} height="2.5rem">
+            {/* <Skeleton isLoading={loading} height="2.5rem">
               <TextInputComponent
                 label={`Quantity`}
                 type="number"
@@ -171,13 +206,11 @@ export default function InvoiceUpdate() {
                 placeholder="Location of package invoice"
                 defaultValue={invoice?.invoice_details[0]?.events[0]?.location}
               />
-            </Skeleton>
+            </Skeleton> */}
 
-            <Skeleton isLoading={loading} height="2.5rem">
+            {/* <Skeleton isLoading={loading} height="2.5rem">
               <div>
-                <Label className="mb-3 block">
-                  Proof of payment <span className="text-red-500">*</span>
-                </Label>
+                <Label className="mb-3 block">Proof</Label>
                 <FileInput
                   ref={uploadsRef}
                   accept="image/*"
@@ -192,8 +225,19 @@ export default function InvoiceUpdate() {
                   />
                 )}
               </div>
-            </Skeleton>
+            </Skeleton> */}
 
+            <Skeleton isLoading={loading} height="2.5rem">
+              <TextInputComponent
+                label={`Total`}
+                type="number"
+                name={`total_price`}
+                placeholder="Total price of invoice"
+                defaultValue={Number(invoice?.total_price)}
+                isRequired
+                isReadOnly
+              />
+            </Skeleton>
             <Skeleton isLoading={loading} height="2.5rem">
               <TextInputComponent
                 label={`Paid Amount`}

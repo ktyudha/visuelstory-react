@@ -68,8 +68,17 @@ export default function TextInputComponent({
           </Label>
         )}
       </div>
-      <div className={clsx([borderColor, isReadOnly && "cursor-not-allowed"])}>
+      <div
+        className={clsx([
+          borderColor,
+          isReadOnly && "[&_input]:bg-base-200 [&_input]:cursor-not-allowed ",
+        ])}
+      >
         <TextInput
+          className={clsx(
+            "[&_input]:focus:outline-none [&_input]:focus:ring-0",
+            !isReadOnly && "[&_input]:focus:border-primary-500"
+          )}
           ref={inputRef as any}
           {...restProps}
           name={name}
@@ -90,6 +99,7 @@ export default function TextInputComponent({
           value={value}
           required={isRequired}
           readOnly={isReadOnly}
+          disabled={isReadOnly}
         />
 
         {/* Error Message */}
