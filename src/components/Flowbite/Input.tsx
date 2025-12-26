@@ -8,7 +8,7 @@ interface Props {
   label?: string;
   name: string;
   type: HTMLInputTypeAttribute;
-  placeholder: string;
+  placeholder?: string;
   error?: string;
   isRequired?: boolean;
   isReadOnly?: boolean;

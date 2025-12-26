@@ -7,7 +7,7 @@ import { MaskOptions, useMask } from "@react-input/mask";
 interface Props {
   label?: string;
   name: string;
-  placeholder: string;
+  placeholder?: string;
   error?: string;
   isRequired?: boolean;
   isReadOnly?: boolean;
