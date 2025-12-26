@@ -24,7 +24,7 @@ export default function TableItem({ item }: Props) {
         {item.invoice_number}
       </TableCell>
 
-      <TableCell className="whitespace-nowrap">
+      <TableCell className="whitespace-nowrap flex flex-col gap-2">
         {!isEmpty(item.invoice_details) ? (
           item.invoice_details.map((pkg) => (
             <Badge className="justify-center" size="sm" color="indigo">
@@ -40,6 +40,24 @@ export default function TableItem({ item }: Props) {
 
       <TableCell className="text-gray-900 dark:text-white font-medium">
         {formattedCurrency(item.total_price)}
+      </TableCell>
+
+      <TableCell className="uppercase text-gray-900 dark:text-white font-medium whitespace-nowrap">
+        <Badge
+          className="justify-center capitalize"
+          size="sm"
+          color={
+            item.transaction_status == "paid"
+              ? "success"
+              : item.transaction_status == "unpaid"
+              ? "red"
+              : "purple"
+          }
+        >
+          {item.transaction_status === "down_payment"
+            ? "down payment"
+            : item.transaction_status}
+        </Badge>
       </TableCell>
 
       <TableCell>
