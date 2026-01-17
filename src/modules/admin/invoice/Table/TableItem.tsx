@@ -4,16 +4,26 @@ import { formattedCurrency } from "@helpers/currency";
 
 import TableItemMenu from "./TableItemMenu";
 import { isEmpty } from "lodash";
+import useGlobalStore from "@store/useStore";
 
 interface Props {
   item: Invoice;
 }
 
 export default function TableItem({ item }: Props) {
+  const selectedIds = useGlobalStore((state) => state.selectedIds);
+  const setIsSelectedId = useGlobalStore((state) => state.setIsSelectedId);
+
+  const isChecked = selectedIds.includes(item.id);
+
   return (
     <TableRow className="bg-white dark:border-gray-700 dark:bg-gray-800">
       <TableCell className="px-4">
-        <Checkbox />
+        <Checkbox
+          className="cursor-pointer"
+          checked={isChecked}
+          onChange={() => setIsSelectedId(item.id)}
+        />
       </TableCell>
 
       <TableCell className="capitalize font-medium text-gray-900 dark:text-white my-auto">
@@ -50,8 +60,8 @@ export default function TableItem({ item }: Props) {
             item.transaction_status == "paid"
               ? "success"
               : item.transaction_status == "unpaid"
-              ? "red"
-              : "purple"
+                ? "red"
+                : "purple"
           }
         >
           {item.transaction_status === "down_payment"
