@@ -12,7 +12,7 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <StrictMode>
-    <ToastContainer />
+    <ToastContainer position="top-center" />
     <RouterProvider router={router} />
   </StrictMode>
 );

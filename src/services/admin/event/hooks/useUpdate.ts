@@ -1,35 +1,34 @@
-// import axiosInstance from "@/lib/axios-instance";
-// import useRevalidateMutation from "@/lib/swr/useRevalidateMutation";
-// import { ICreatePayload } from "../interfaces/create.type";
+import axiosInstance from "@/lib/axios-instance";
+import useRevalidateMutation from "@/lib/swr/useRevalidateMutation";
+import { ICreatePayload } from "../interfaces/create.type";
 
-// export default function useUpdate(packageAddOnId: string) {
-//   const revalidateMutationsByKey = useRevalidateMutation();
+export default function useUpdate(eventId: string) {
+    const revalidateMutationsByKey = useRevalidateMutation();
 
-//   const updateData = async (payload: ICreatePayload) => {
-//     const { name, price } = payload;
-//     try {
-//       const res = await axiosInstance({
-//         withToken: true,
-//         tokenType: "admin",
-//       }).post(`/admin/package-addons/${packageAddOnId}`, {
-//         name,
-//         price,
-//         _method: "PUT",
-//       });
+    const updateData = async (payload: ICreatePayload) => {
+        const { package_id, invoice_id, date, note, location } = payload;
+        try {
+            const res = await axiosInstance({
+                withToken: true,
+                tokenType: "admin",
+            }).post(`/admin/events/${eventId}`, {
+                package_id, invoice_id, date, note, location,
+                _method: "PUT",
+            });
 
-//       if (res.status === 200) {
-//         revalidateMutationsByKey(/^\/admin\/package-addons/);
-//       }
+            if (res.status === 200) {
+                revalidateMutationsByKey(/^\/admin\/events/);
+            }
 
-//       return { response: res, error: null };
-//     } catch (error: any) {
-//       if (error.status >= 500) {
-//         return { response: null, error: "Server error" };
-//       }
+            return { response: res, error: null };
+        } catch (error: any) {
+            if (error.status >= 500) {
+                return { response: null, error: "Server error" };
+            }
 
-//       return { response: null, error: error.data.message };
-//     }
-//   };
+            return { response: null, error: error.data.message };
+        }
+    };
 
-//   return { updateData };
-// }
+    return { updateData };
+}

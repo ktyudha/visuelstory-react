@@ -3,14 +3,14 @@ import axiosInstance from "@/lib/axios-instance";
 import useSWR, { type Fetcher } from "swr";
 import { IGet } from "../interfaces/get-all.type";
 
-export default function useGetPackageCategory(packageAddOnId: string) {
+export default function useGetEvent(eventId: string) {
   const fetcher: Fetcher<IGet, string> = (url) =>
     axiosInstance({ withToken: true, tokenType: "admin" })
       .get(url)
       .then((res) => res.data);
 
   const { data, error } = useSWR(
-    `/admin/package-addons/${packageAddOnId}`,
+    `/admin/events/${eventId}`,
     fetcher
   );
 
