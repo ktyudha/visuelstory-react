@@ -5,84 +5,72 @@ import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
+// ─── Types ───────────────────────────────────────────────────────────────────
+
+type Role = "admin" | "customer";
+
 type Props = {
   children: React.ReactNode;
   withoutRedirection?: boolean;
 };
 
-export default function AuthMiddleware({
-  children,
-  withoutRedirection,
-}: Props) {
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+function resolveRole(): Role {
+  return Cookies.get("token") ? "admin" : "customer";
+}
+
+function resolveDashboardPath(role: Role): string {
+  return role === "admin" ? "/admin/dashboard" : "/";
+}
+
+function resolveLoginPath(pathname: string): string {
+  return pathname.startsWith("/admin") ? "/admin/login" : "/login";
+}
+
+const LOGIN_PATHS = ["/admin/login", "/login"];
+
+// ─── Component ───────────────────────────────────────────────────────────────
+
+export default function AuthMiddleware({ children, withoutRedirection }: Props) {
   const [mounted, setMounted] = useState(false);
+
   const setMe = useGlobalStore((state) => state.setMe);
   const setRole = useGlobalStore((state) => state.setRole);
   const setIsLoggedIn = useGlobalStore((state) => state.setIsLoggedIn);
 
-  // console.log("auth middleware");
-
-  const token = Cookies.get("token-user") || Cookies.get("token");
-
-  const isLoggedIn = !!token;
-
-  setIsLoggedIn(!!isLoggedIn);
-
-  const role = Cookies.get("token") ? "admin" : "customer";
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
-  useEffect(() => {
-    if (role) {
-      getMe(role).then(({ data }) => {
-        setMe(data.data as User);
-      });
+  const token = Cookies.get("token-user") ?? Cookies.get("token");
+  const isLoggedIn = Boolean(token);
+  const role = resolveRole();
 
-      setRole(role);
-    }
+  // Sync login state to global store (outside effect — intentionally runs every render)
+  setIsLoggedIn(isLoggedIn);
+
+  // Fetch current user and set role
+  useEffect(() => {
+    setRole(role);
+    getMe(role).then(({ data }) => {
+      setMe(data.data as User);
+    });
   }, [role, setMe, setRole]);
 
-  const redirectToDashboard = () => {
-    // console.log("redirectToDashboard()");
-    // console.log("isLoggedIn", isLoggedIn);
-
-    switch (role) {
-      case "admin":
-        navigate("/admin/dashboard");
-        break;
-      default:
-        navigate("/");
-    }
-  };
-
-  const redirectToLogin = () => {
-    if (withoutRedirection) {
-      setMounted(true);
-      return;
-    }
-
-    if (["/admin/login", "/login"].includes(pathname)) {
-      return;
-    }
-
-    if (pathname.startsWith("admin")) {
-      navigate("/admin/login");
-    } else {
-      navigate("/login");
-    }
-  };
-
+  // Handle redirects
   useEffect(() => {
     if (!isLoggedIn) {
-      redirectToLogin();
-      setMounted(true);
-    } else if (isLoggedIn) {
-      if (pathname.includes("login")) {
-        redirectToDashboard();
+      if (!withoutRedirection && !LOGIN_PATHS.includes(pathname)) {
+        navigate(resolveLoginPath(pathname));
       }
-
-      setMounted(true);
+    } else if (pathname.includes("login")) {
+      navigate(resolveDashboardPath(role));
     }
-  }, [isLoggedIn, pathname]);
 
-  return <>{mounted ? children : <>Loading...</>}</>;
+    setMounted(true);
+  }, [isLoggedIn, pathname, role, navigate, withoutRedirection]);
+
+  if (!mounted) return <>Loading...</>;
+
+  return <>{children}</>;
 }
