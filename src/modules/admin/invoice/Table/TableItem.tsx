@@ -17,6 +17,18 @@ export default function TableItem({ item }: Props) {
   const detailCount = item.invoice_details.length;
   const isChecked = selectedIds.includes(item.id);
 
+
+  const addonTotal = item.invoice_details.reduce((total, item) => {
+    const addons =
+      item.invoice_detail_addons?.reduce(
+        (sum, addon) => sum + addon.amount,
+        0
+      ) ?? 0;
+
+    return total + addons;
+  }, 0);
+
+
   return (
     <TableRow className="bg-white dark:border-gray-700 dark:bg-gray-800">
       <TableCell className="px-4">
@@ -54,18 +66,39 @@ export default function TableItem({ item }: Props) {
         )}
       </TableCell>
 
-      <TableCell className="!py-1 text-gray-900 dark:text-white font-medium text-end">
-        {item.invoice_details.map((detail) => (
-          <p>
-            {formattedCurrency(detail.amount)}
-          </p>
+      <TableCell className="!py-1 text-gray-900 whitespace-nowrap dark:text-white font-medium text-end">
+        {item.invoice_details.map((detail, idx) => (
+          <>
+            <div className="flex gap-2 justify-between items-center" key={`package-${idx}`}>
+              <p className="text-xs">Package {detailCount > 1 && ++idx}</p>
+              <p>{formattedCurrency(detail.amount)}</p>
+            </div>
+
+            {detail.invoice_detail_addons.length > 0 &&
+              <div className="flex gap-2 justify-between items-center">
+                <p className="text-xs">Add On</p>
+                <p>{formattedCurrency(addonTotal)}</p>
+              </div>
+            }
+          </>
         ))}
+
+        <div className="flex gap-2 justify-between items-center">
+          <p className="text-xs">Total</p>
+          <p>{formattedCurrency(item.total_price)}</p>
+        </div>
+
+        <div className="flex gap-2 justify-between text-green-500  items-center">
+          <p className="text-xs">Remaining</p>
+          <p>{formattedCurrency(item.total_price - item.amount_paid)}</p>
+        </div>
+
       </TableCell>
 
       <TableCell className="uppercase text-gray-900 dark:text-white font-medium whitespace-nowrap">
         <Badge
           className="justify-center w-fit capitalize"
-          size="sm"
+          size="xs"
           color={
             item.transaction_status == "paid"
               ? "success"
