@@ -65,7 +65,7 @@ export default function AdminSendOtp() {
                   <FormInput
                     label="WhatsApp"
                     name="whatsapp"
-                    type="number"
+                    type="tel"
                     placeholder="62 xxxx xxxx xxx"
                     isRequired
                   />

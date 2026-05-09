@@ -1,43 +1,50 @@
-import Button from "@components/Button";
-import { GalleryVerticalEnd } from "lucide-react";
-import { SubmitHandler, useForm } from "react-hook-form";
-import FormInput from "@components/Form/FormInput";
-import Form from "@components/Form/Form";
-import { isAxiosError } from "axios";
-import { toast } from "react-toastify";
-import useLogin from "@modules/auth/services/hooks/useLogin";
+import { useState } from "react";
 import clsx from "clsx";
+import { toast } from "react-toastify";
+import { GalleryVerticalEnd } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
-interface CredentialPayload {
-  otp: string;
-}
+import Button from "@components/Button";
+import OtpInput from "@components/Form/OtpInput";
+
+import useLogin from "@modules/auth/services/hooks/useLogin";
+import Spinner from "@components/Reusable/Spinner";
+
 
 export default function AdminVerifyOtp() {
+  const otpLength = 6;
+
   const navigate = useNavigate();
+
   const [searchParams] = useSearchParams();
   const whatsapp = searchParams.get("whatsapp") ?? "";
-  const methods = useForm<CredentialPayload>({ mode: "onChange" });
-  const { isSubmitting, isValid } = methods.formState;
+
+
+  const [otpCode, setOtpCode] = useState<string | null>(null);
+  const [submitLoading, setSubmitLoading] = useState<boolean>(false);
 
   const { handleLogin } = useLogin("admin");
 
-  const onSubmit: SubmitHandler<CredentialPayload> = async (state) => {
+
+  const onSubmit = async (otp: string) => {
+    if (otp.length !== otpLength) return;
+
     try {
-      await handleLogin(whatsapp, state.otp);
-      navigate("/admin/dashboard");
+      setSubmitLoading(true);
+      await handleLogin(whatsapp, otp);
+
+      toast.success("Verifikasi akun berhasil!", {
+        onClose: () => navigate("/admin/dashboard"),
+      });
+
+      setSubmitLoading(false);
     } catch (error) {
-      if (isAxiosError(error)) {
-        toast.error(error.response?.data?.message, {
-          position: "top-right",
-        });
-      } else {
-        toast.error((error as Error).message, {
-          position: "top-right",
-        });
-      }
+      toast.error("Kode verifikasi tidak valid!");
+      setSubmitLoading(false);
     }
   };
+
+
   return (
     <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-background p-6 md:p-10">
       <div className="w-full max-w-sm">
@@ -58,31 +65,32 @@ export default function AdminVerifyOtp() {
                 Send an WhatsApp to get an OTP
               </div>
             </div>
-            <Form {...methods} onSubmit={onSubmit}>
-              <div className="flex flex-col gap-6">
-                <div className="grid gap-2">
-                  <FormInput
-                    label="OTP Code"
-                    name="otp"
-                    type="number"
-                    placeholder="XXXXXX"
-                    isRequired
-                  />
-                </div>
-                <Button
-                  type="submit"
-                  className={clsx([
-                    "block w-full py-2 rounded-xl font-semibold mb-2 ",
-                    isValid
-                      ? "bg-neutral-900 hover:bg-neutral-700 text-white dark:bg-white dark:text-gray-800 cursor-pointer"
-                      : "bg-neutral-200 text-neutral-400 dark:text-white dark:bg-gray-800 cursor-not-allowed",
-                  ])}
-                  disabled={isSubmitting || !isValid}
-                >
-                  <span>{isSubmitting ? "Loading..." : "Login"}</span>
-                </Button>
-              </div>
-            </Form>
+            <div className="space-y-6">
+              <OtpInput
+                numOfInputs={otpLength}
+                autoFocus
+                onChange={(value) => {
+                  setOtpCode(value);
+
+                  if (value.length === otpLength) {
+                    onSubmit(value);
+                  }
+                }}
+                autoSubmit
+              />
+
+              <Button
+                className={clsx([
+                  "block w-full py-2 rounded-xl font-semibold mb-2 ",
+                  otpCode?.length !== otpLength || submitLoading
+                    ? "bg-neutral-900 hover:bg-neutral-700 text-white dark:bg-white dark:text-gray-800 cursor-pointer"
+                    : "bg-neutral-200 text-neutral-400 dark:text-white dark:bg-gray-800 cursor-not-allowed",
+                ])}
+                disabled={otpCode?.length !== otpLength || submitLoading}
+              >
+                {!submitLoading ? "Verifikasi" : <Spinner />}
+              </Button>
+            </div>
           </div>
         </div>
       </div>

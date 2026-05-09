@@ -24,9 +24,20 @@ export default function TableItem({ item }: Props) {
 
       <TableCell className="whitespace-nowrap capitalize font-medium text-gray-900 dark:text-white my-auto">
         {item.name}
+
+        {item.package_category ? (
+          <Badge className="justify-center w-fit mt-1" size="sm">
+            {item.package_category.name}
+          </Badge>
+        ) : (
+          <Badge className="justify-center w-fit" size="sm" color="failure">
+            Not Yet
+          </Badge>
+        )}
       </TableCell>
       <TableCell className="prose dark:prose-invert whitespace-nowrap">
         <div
+          className="text-sm"
           dangerouslySetInnerHTML={{
             __html: item.description
               .split("\n")
@@ -54,17 +65,6 @@ export default function TableItem({ item }: Props) {
           </button>
         )}
       </TableCell> */}
-      <TableCell className="whitespace-nowrap">
-        {item.package_category ? (
-          <Badge className="justify-center" size="sm">
-            {item.package_category.name}
-          </Badge>
-        ) : (
-          <Badge className="justify-center" size="sm" color="failure">
-            Not Yet
-          </Badge>
-        )}
-      </TableCell>
       <TableCell className="whitespace-nowrap min-w-56">
         <div className="flex justify-between">
           <p>Price</p>
@@ -75,8 +75,8 @@ export default function TableItem({ item }: Props) {
           <p>{item.discount}%</p>
         </div>
         <div className="flex justify-between text-teal-400">
-          <p className="dark:text-white text-base font-semibold">Final</p>
-          <p className="dark:text-white text-base font-semibold">
+          <p className="dark:text-white text-md font-semibold">Final</p>
+          <p className="dark:text-white text-md font-semibold">
             {formattedCurrency(item.price_final)}
           </p>
         </div>

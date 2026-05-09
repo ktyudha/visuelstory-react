@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import { Spinner, Button } from "flowbite-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { HiChevronLeft } from "react-icons/hi";
-import { useRef, useMemo, useEffect } from "react";
+import { useRef, useMemo, } from "react";
 // import { formattedCurrency } from "@helpers/currency";
 
 import TextInputComponent from "@components/Flowbite/Input";
@@ -60,7 +60,7 @@ export default function InvoiceUpdate() {
 
   const methods = useForm<FormFields>({ mode: "onChange" });
 
-  const customer = methods.watch("customer_id");
+  // const customer = methods.watch("customer_id");
 
   const { isSubmitting } = methods.formState;
   const isValid = methods.formState.isValid;
@@ -88,9 +88,9 @@ export default function InvoiceUpdate() {
     }
   };
 
-  useEffect(() => {
-    console.log(methods.getValues("customer_id"));
-  }, [customer]);
+  // useEffect(() => {
+  //   console.log(methods.getValues("customer_id"));
+  // }, [customer]);
 
   return (
     <div className="p-6 bg-gray-50 dark:bg-gray-800 rounded-lg">
@@ -98,15 +98,7 @@ export default function InvoiceUpdate() {
         <div className="w-full flex flex-col gap-4">
           <div className="grid lg:grid-cols-2 grid-cols-1 gap-4">
             <Skeleton isLoading={loading} height="2.5rem">
-              {/* <TextInputComponent
-                label={`Customer`}
-                type="text"
-                name={`customer_id`}
-                placeholder="Customer of invoice"
-                defaultValue={invoice?.customer.id}
-                isRequired
-                isReadOnly
-              /> */}
+
               <Select
                 label="Customer"
                 name="customer_id"
@@ -116,21 +108,6 @@ export default function InvoiceUpdate() {
                 isDisabled
               />
 
-              {/* <SelectTwo
-                label="Customer"
-                name={`customer_id`}
-                isSearchable
-                isRequired
-                selectTwoOptions={customerOptions}
-                onInputChange={setNameCustomer}
-                defaultValue={
-                  invoice?.customer.id
-                    ? customerOptions.find(
-                        (opt) => opt.value === invoice?.customer.id
-                      )
-                    : null
-                }
-              /> */}
             </Skeleton>
 
             <Skeleton isLoading={loading} height="2.5rem">
@@ -139,6 +116,7 @@ export default function InvoiceUpdate() {
                 name="transaction_status"
                 defaultValue={invoice?.transaction_status}
                 isRequired
+                isDisabled
                 selectOptions={[
                   {
                     label: "Paid",
@@ -263,11 +241,10 @@ export default function InvoiceUpdate() {
             </Button>
             <Button
               type="submit"
-              className={`md:w-fit w-full md:px-5 rounded-lg py-2 font-medium text-base ${
-                !isValid || isSubmitting
-                  ? "bg-gray-200 dark:bg-gray-900 text-gray-800 dark:text-white cursor-not-allowed focus:outline-none disabled:opacity-100"
-                  : " bg-gradient-to-r from-cyan-500 to-blue-500 text-white cursor-pointer hover:bg-gradient-to-bl focus:ring-cyan-300 dark:focus:ring-cyan-800"
-              }`}
+              className={`md:w-fit w-full md:px-5 rounded-lg py-2 font-medium text-base ${!isValid || isSubmitting
+                ? "bg-gray-200 dark:bg-gray-900 text-gray-800 dark:text-white cursor-not-allowed focus:outline-none disabled:opacity-100"
+                : " bg-gradient-to-r from-cyan-500 to-blue-500 text-white cursor-pointer hover:bg-gradient-to-bl focus:ring-cyan-300 dark:focus:ring-cyan-800"
+                }`}
               disabled={!isValid || isSubmitting}
             >
               {!isSubmitting ? "Update" : <Spinner />}

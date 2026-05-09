@@ -19,7 +19,7 @@ export default function TableItem({ item }: Props) {
       </TableCell>
       <TableCell className="whitespace-nowrap">{item.email}</TableCell>
       <TableCell className="whitespace-nowrap">{item.whatsapp}</TableCell>
-      <TableCell className="prose dark:prose-invert whitespace-nowrap">
+      <TableCell className="prose dark:prose-invert whitespace-nowrap text-sm">
         {item.address}
       </TableCell>
       <TableCell>

@@ -3,8 +3,8 @@ import { Invoice } from "@services/admin/invoice/interfaces/get-all.type";
 import { formattedCurrency } from "@helpers/currency";
 
 import TableItemMenu from "./TableItemMenu";
-import { isEmpty } from "lodash";
 import useGlobalStore from "@store/useStore";
+import { formatDateCustom } from "@helpers/index";
 
 interface Props {
   item: Invoice;
@@ -14,6 +14,7 @@ export default function TableItem({ item }: Props) {
   const selectedIds = useGlobalStore((state) => state.selectedIds);
   const setIsSelectedId = useGlobalStore((state) => state.setIsSelectedId);
 
+  const detailCount = item.invoice_details.length;
   const isChecked = selectedIds.includes(item.id);
 
   return (
@@ -26,35 +27,44 @@ export default function TableItem({ item }: Props) {
         />
       </TableCell>
 
-      <TableCell className="capitalize font-medium text-gray-900 dark:text-white my-auto">
+      <TableCell className="text-gray-900 dark:text-white whitespace-nowrap">
+        <span className="text-xs">{formatDateCustom(item.created_at)}</span>
+        <br />
+        <span className="uppercase font-medium">{item.invoice_number}</span>
+      </TableCell>
+
+      <TableCell className="capitalize whitespace-nowrap font-medium text-gray-900 dark:text-white my-auto">
         {item.customer.name}
       </TableCell>
 
-      <TableCell className="uppercase text-gray-900 dark:text-white font-medium whitespace-nowrap">
-        {item.invoice_number}
-      </TableCell>
+      <TableCell className="!py-1 whitespace-nowrap flex flex-col text-gray-900 dark:text-white">
+        {item.invoice_details.map((detail, index) => {
+          const isLast = detailCount == index++;
 
-      <TableCell className="whitespace-nowrap flex flex-col gap-2">
-        {!isEmpty(item.invoice_details) ? (
-          item.invoice_details.map((pkg) => (
-            <Badge className="justify-center" size="sm" color="indigo">
-              {pkg.package.category} - {pkg.package.name}
-            </Badge>
-          ))
-        ) : (
-          <Badge className="justify-center" size="sm" color="failure">
-            Not Yet
-          </Badge>
+          return (
+            <>
+              {detail.events && detail.events.map((event) => <span className="text-xs">{formatDateCustom(event.date)}</span>)}
+
+              <Badge className={`justify-center w-fit ${detailCount > 1 && !isLast ? 'mb-2' : ''}`} size="sm" color="indigo">
+                {detail.package.category} - {detail.package.name}
+              </Badge>
+            </>
+          )
+        }
         )}
       </TableCell>
 
-      <TableCell className="text-gray-900 dark:text-white font-medium">
-        {formattedCurrency(item.total_price)}
+      <TableCell className="!py-1 text-gray-900 dark:text-white font-medium text-end">
+        {item.invoice_details.map((detail) => (
+          <p>
+            {formattedCurrency(detail.amount)}
+          </p>
+        ))}
       </TableCell>
 
       <TableCell className="uppercase text-gray-900 dark:text-white font-medium whitespace-nowrap">
         <Badge
-          className="justify-center capitalize"
+          className="justify-center w-fit capitalize"
           size="sm"
           color={
             item.transaction_status == "paid"
@@ -73,6 +83,6 @@ export default function TableItem({ item }: Props) {
       <TableCell>
         <TableItemMenu id={item.id} invoice_number={item.invoice_number} />
       </TableCell>
-    </TableRow>
+    </TableRow >
   );
 }

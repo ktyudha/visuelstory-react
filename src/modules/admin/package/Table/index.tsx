@@ -30,8 +30,7 @@ export default function TablePackage() {
               </TableHeadCell>
               <TableHeadCell>Name</TableHeadCell>
               <TableHeadCell>Description</TableHeadCell>
-              <TableHeadCell>Category</TableHeadCell>
-              <TableHeadCell>Price</TableHeadCell>
+              <TableHeadCell>Information</TableHeadCell>
               <TableHeadCell></TableHeadCell>
             </TableRow>
           </TableHead>
@@ -48,8 +47,8 @@ export default function TablePackage() {
                   <TableItem
                     key={`event-table-item-${idx}`}
                     item={item}
-                    // expandedId={expandedId}
-                    // setExpandedId={setExpandedId}
+                  // expandedId={expandedId}
+                  // setExpandedId={setExpandedId}
                   />
                 );
               })

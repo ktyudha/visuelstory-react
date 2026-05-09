@@ -5,7 +5,7 @@ import Skeleton from "@components/Skeleton/Skeleton";
 import clsx from "clsx";
 
 interface Props {
-  category: String;
+  category: string;
   setCategoryCallback: (param: string) => void;
 }
 
@@ -33,13 +33,24 @@ export default function PackageAddOnCreateHeader({
         )}
       >
         All
-        <span className="ml-2 px-2 text-xs py-1 rounded bg-gradient-to-r from-cyan-500 to-blue-500 text-white">
-          {totalPackages ?? 0}
-        </span>
+        <Skeleton isLoading={loading} className="!ml-2 !py-1 !rounded justify-end !my-auto !w-8 !h-6" >
+          <span className="ml-2 px-2 text-xs py-1 rounded bg-gradient-to-r from-cyan-500 to-blue-500 text-white">
+            {totalPackages ?? 0}
+          </span>
+        </Skeleton>
       </Button>
 
+
       {loading || !data ? (
-        <Skeleton isLoading={loading} />
+        Array.from({ length: 5 }).map((_, idx) =>
+          <div
+            key={`package-item-${idx}`}
+            className="w-full flex border rounded-lg gap-2 px-4"
+          >
+            <Skeleton key={`package-item-${idx}`} isLoading={loading} className="h-4 my-auto" />
+            <Skeleton key={`package-item-${idx}`} isLoading={loading} className="!py-1 !rounded !mt-1.5 justify-end !my-auto !w-10 !h-6" />
+          </div>
+        )
       ) : (
         data.map((item, idx) => {
           let isActive = category == item.id;
@@ -57,9 +68,11 @@ export default function PackageAddOnCreateHeader({
               )}
             >
               {item.name}
+
               <span className="ml-2 px-2 text-xs py-1 rounded bg-gradient-to-r from-cyan-500 to-blue-500 text-white">
                 {item.packages.length}
               </span>
+
             </Button>
           );
         })

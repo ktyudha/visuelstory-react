@@ -3,23 +3,12 @@ import ModalComponent from "@components/Flowbite/Modal";
 import SelectComponent from "@components/Flowbite/Select";
 import Form from "@components/Form/Form";
 import useMapInputOptions from "@hooks/useMapInputOptions";
-
-import {
-  UiPackage,
-  UiPackageAddOn,
-} from "@services/admin/invoice/interfaces/create.type";
-
+import { UiPackage, UiPackageAddOn } from "@services/admin/invoice/interfaces/create.type";
 import { Button, Spinner } from "flowbite-react";
-import {
-  SubmitHandler,
-  useFieldArray,
-  useForm,
-  useWatch,
-} from "react-hook-form";
-
+import { SubmitHandler, useFieldArray, useForm, useWatch } from "react-hook-form";
 import useGetAllAddOn from "@services/admin/package-addon/hooks/useGetAll";
 import { HiPlus } from "react-icons/hi";
-import { useEffect } from "react";
+import { useEffect, } from "react";
 
 interface Props {
   onOpen: boolean;
@@ -28,133 +17,111 @@ interface Props {
   onSubmitSuccess: (payload: UiPackageAddOn[]) => void;
 }
 
-export default function InvoicePackageAddOnModal({
-  onOpen,
-  onClose,
-  item,
-  onSubmitSuccess,
-}: Props) {
+const emptyAddOn: UiPackageAddOn = { id: "", name: "", price: 0, quantity: 1 };
+
+export default function InvoicePackageAddOnModal({ onOpen, onClose, item, onSubmitSuccess }: Props) {
   const { data: dataAddOn } = useGetAllAddOn();
   const addonOptions = useMapInputOptions(dataAddOn);
+
   const methods = useForm<UiPackage>({
     mode: "onChange",
-    defaultValues: {
-      package_addons: [],
-    },
+    defaultValues: { package_addons: [emptyAddOn] },
   });
 
-  const { control, reset, setValue } = methods;
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: "package_addons",
-  });
+  const { control, reset, setValue, getValues } = methods;
+  const { fields, append, remove } = useFieldArray({ control, name: "package_addons" });
+  const watchedAddons = useWatch({ control, name: "package_addons" });
+  const { isSubmitting, isValid } = methods.formState;
 
-  const watchedAddons = useWatch({
-    control,
-    name: "package_addons",
-  });
+  useEffect(() => {
+    if (!onOpen) {
+      reset({ package_addons: [emptyAddOn] });
+    }
+  }, [onOpen, reset]);
 
-  const { isSubmitting } = methods.formState;
-  const isValid = methods.formState.isValid;
+  useEffect(() => {
+    if (onOpen) {
+      reset({ package_addons: item.package_addons?.length ? item.package_addons : [emptyAddOn] });
+    }
+  }, [onOpen, item, reset]);
+
+  useEffect(() => {
+    if (!dataAddOn) return;
+
+    const currentAddons = getValues("package_addons");
+    if (!currentAddons?.length) return;
+
+    for (let idx = currentAddons.length - 1; idx >= 0; idx--) {
+      const addon = currentAddons[idx];
+      if (!addon?.id) continue;
+
+      const selected = dataAddOn.find((a) => a.id === addon.id);
+      if (!selected) continue;
+
+      // Sync name & price
+      if (addon.name !== selected.name) {
+        setValue(`package_addons.${idx}.name`, selected.name, {
+          shouldDirty: false, shouldTouch: false, shouldValidate: false,
+        });
+      }
+      if (addon.price !== selected.price) {
+        setValue(`package_addons.${idx}.price`, selected.price, {
+          shouldDirty: false, shouldTouch: false, shouldValidate: false,
+        });
+      }
+
+      const duplicateIndex = currentAddons.findIndex((a, i) => a.id === addon.id && i < idx);
+
+      if (duplicateIndex !== -1) {
+        const existingQty = Number(currentAddons[duplicateIndex]?.quantity ?? 0);
+        const addedQty = Number(currentAddons[idx]?.quantity ?? 1);
+
+        remove(idx);
+        setTimeout(() => {
+          setValue(`package_addons.${duplicateIndex}.quantity`, existingQty + addedQty, {
+            shouldDirty: true,
+          });
+        }, 0);
+        break; // satu merge per cycle, stop loop
+      }
+    }
+
+  }, [watchedAddons, dataAddOn, getValues, setValue, remove]);// tetap depend pada watchedAddons agar trigger saat ada perubahan
 
   const onSubmit: SubmitHandler<UiPackage> = async (state) => {
     onSubmitSuccess(state.package_addons ?? []);
     onClose();
   };
 
-  useEffect(() => {
-    if (!onOpen) {
-      reset();
-    }
-  }, [onClose, reset]);
-
-  useEffect(() => {
-    if (onOpen) {
-      reset({
-        package_addons: item.package_addons ?? [],
-      });
-    }
-  }, [onOpen, item, reset]);
-
-  useEffect(() => {
-    watchedAddons?.forEach((addon, idx) => {
-      if (!addon?.id) return;
-
-      const selected = dataAddOn?.find((a) => a.id === addon.id);
-      if (!selected) return;
-
-      // 🔒 GUARD — cegah loop
-      if (addon.name === selected.name && addon.price === selected.price) {
-        return;
-      }
-
-      setValue(`package_addons.${idx}.name`, selected.name, {
-        shouldDirty: false,
-        shouldTouch: false,
-      });
-
-      setValue(`package_addons.${idx}.price`, selected.price, {
-        shouldDirty: false,
-        shouldTouch: false,
-      });
-
-      const duplicateIndex = watchedAddons.findIndex(
-        (a, i) => a.id === addon.id && i !== idx
-      );
-
-      if (duplicateIndex !== -1) {
-        const currentQty = watchedAddons[duplicateIndex]?.quantity;
-        const nowQty = Number(currentQty) + 1;
-        console.log(currentQty);
-        console.log(nowQty);
-
-        // // increment quantity
-        setValue(`package_addons.${duplicateIndex}.quantity`, nowQty, {
-          shouldDirty: true,
-        });
-
-        // // hapus row duplikat
-        remove(idx);
-      }
-    });
-  }, [watchedAddons, dataAddOn, setValue]);
-
   return (
-    <ModalComponent
-      onOpen={onOpen}
-      onClose={onClose}
-      size="lg"
-      title={item.name}
-    >
+    <ModalComponent onOpen={onOpen} onClose={onClose} size="lg" title={item.name}>
       <Form {...methods} onSubmit={onSubmit}>
         <Button
           type="button"
           size="sm"
-          onClick={() => append({ id: "", name: "", price: 0, quantity: 1 })}
+          onClick={() => append(emptyAddOn)}
           className="md:w-fit w-full md:flex hidden mb-3 cursor-pointer bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:bg-gradient-to-bl focus:ring-cyan-300 dark:focus:ring-cyan-800"
         >
           <HiPlus className="mr-2 h-4 w-4" /> Add On
         </Button>
 
         <div className="grid md:grid-cols-2 gap-4">
-          {fields.map((addon, idx) => (
-            <div key={idx} className="flex flex-col gap-2">
+          {fields.map((field, idx) => (
+            <div key={field.id} className="flex flex-col gap-2">
               <SelectComponent
                 label="Item"
                 name={`package_addons.${idx}.id`}
                 selectOptions={addonOptions}
                 isRequired
               />
-
               <TextInputComponent
-                label={`Quantity`}
+                label="Quantity"
                 type="number"
                 name={`package_addons.${idx}.quantity`}
                 placeholder="Quantity of package invoice"
-                defaultValue={addon.quantity}
+                defaultValue={field.quantity}
                 isRequired
               />
-
               <Button
                 size="xs"
                 onClick={() => remove(idx)}
@@ -169,21 +136,20 @@ export default function InvoicePackageAddOnModal({
         <div className="flex md:flex-row flex-col md:justify-end md:mt-4 gap-2">
           <Button
             type="button"
-            onClick={() => append({ id: "", name: "", price: 0, quantity: 1 })}
+            onClick={() => append(emptyAddOn)}
             className="md:w-fit w-full md:hidden visible py-2 cursor-pointer bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:bg-gradient-to-bl focus:ring-cyan-300 dark:focus:ring-cyan-800"
           >
             <HiPlus className="mr-2 h-4 w-4" /> Add On
           </Button>
           <Button
             type="submit"
-            className={`md:w-fit w-full md:px-5 rounded-lg py-2 font-medium text-base ${
-              !isValid || isSubmitting
-                ? "bg-gray-200 dark:bg-gray-900 text-gray-800 dark:text-white cursor-not-allowed focus:outline-none disabled:opacity-100"
-                : "bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:bg-gradient-to-bl focus:ring-cyan-300 dark:focus:ring-cyan-800"
-            }`}
             disabled={!isValid || isSubmitting}
+            className={`md:w-fit w-full md:px-5 rounded-lg py-2 font-medium text-base ${!isValid || isSubmitting
+              ? "bg-gray-200 dark:bg-gray-900 text-gray-800 dark:text-white cursor-not-allowed"
+              : "bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:bg-gradient-to-bl focus:ring-cyan-300 dark:focus:ring-cyan-800"
+              }`}
           >
-            {!isSubmitting ? "Create" : <Spinner />}
+            {isSubmitting ? <Spinner /> : "Simpan"}
           </Button>
         </div>
       </Form>

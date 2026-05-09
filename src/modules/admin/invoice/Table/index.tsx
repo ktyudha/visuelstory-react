@@ -5,7 +5,6 @@ import {
   TableHead,
   TableHeadCell,
   TableRow,
-  TableCell,
 } from "flowbite-react";
 
 import PaginationComponent from "@components/Flowbite/Pagination";
@@ -13,6 +12,8 @@ import TableItem from "./TableItem";
 import TableHeader from "./TableHeader";
 import useGetAll from "@services/admin/invoice/hooks/useGetAll";
 import useGlobalStore from "@store/useStore";
+import { TableLoading, TableNotFound } from "@components/Flowbite/Table";
+import { isEmpty } from "lodash";
 
 export default function TableInvoice() {
   const { data, pagination, setPageNum, loading, setName } = useGetAll();
@@ -57,19 +58,17 @@ export default function TableInvoice() {
               </TableHeadCell>
               <TableHeadCell>Name</TableHeadCell>
               <TableHeadCell>Number</TableHeadCell>
-              <TableHeadCell>Packages</TableHeadCell>
+              <TableHeadCell>Waktu</TableHeadCell>
               <TableHeadCell>Price</TableHeadCell>
               <TableHeadCell>Category</TableHeadCell>
               <TableHeadCell></TableHeadCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {loading || !data ? (
-              <TableRow>
-                <TableCell colSpan={4} className="text-center">
-                  Loading
-                </TableCell>
-              </TableRow>
+            {loading ? (
+              <TableLoading colSpan={7} />
+            ) : isEmpty(data) || !data ? (
+              <TableNotFound colSpan={7} />
             ) : (
               data.map((item, idx) => {
                 return (

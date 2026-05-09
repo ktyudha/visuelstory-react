@@ -31,7 +31,7 @@ export default function TablePackageCategory() {
               </TableHeadCell>
               <TableHeadCell>Name</TableHeadCell>
               <TableHeadCell>Description</TableHeadCell>
-              <TableHeadCell>Package</TableHeadCell>
+              <TableHeadCell className="text-center">Package</TableHeadCell>
               <TableHeadCell></TableHeadCell>
             </TableRow>
           </TableHead>

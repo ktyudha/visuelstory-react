@@ -18,7 +18,6 @@ export interface Invoice {
   amount_paid: number;
   proof: string;
   customer: Customer;
-  events: Event[];
   invoice_details: InvoiceDetail[];
   created_at: Date;
 }
