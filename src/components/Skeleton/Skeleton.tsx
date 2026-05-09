@@ -1,4 +1,5 @@
 import React from "react";
+import clsx from "clsx";
 import "./Skeleton.css";
 
 interface SkeletonProps {
@@ -7,6 +8,7 @@ interface SkeletonProps {
   height?: string;
   width?: string;
   borderRadius?: string;
+  className?: string;
 }
 
 const Skeleton: React.FC<SkeletonProps> = ({
@@ -15,11 +17,12 @@ const Skeleton: React.FC<SkeletonProps> = ({
   height = "1rem",
   width = "100%",
   borderRadius = "4px",
+  className
 }) => {
   if (isLoading) {
     return (
       <div
-        className="skeleton"
+        className={clsx("skeleton", className)}
         style={{ minHeight: height, width, borderRadius }}
       ></div>
     );

@@ -25,14 +25,13 @@ export default function TableItemMenu({ id, name }: Props) {
         {/* <Button className="cursor-pointer px-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:bg-gradient-to-bl focus:ring-cyan-300 dark:focus:ring-cyan-800">
           <HiOutlineEye />
         </Button> */}
-        <Button
+        <Button size="xs"
           onClick={() => navigate(`edit/${id}`)}
           className="cursor-pointer px-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:bg-gradient-to-bl focus:ring-cyan-300 dark:focus:ring-cyan-800"
         >
           <HiPencil />
         </Button>
-        <Button
-          // onClick={onDelete}
+        <Button size="xs"
           onClick={() => setOpenDeleteModal(true)}
           className="cursor-pointer px-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:bg-gradient-to-bl focus:ring-cyan-300 dark:focus:ring-cyan-800"
         >

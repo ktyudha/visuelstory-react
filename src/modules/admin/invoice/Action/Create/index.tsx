@@ -1,10 +1,11 @@
 import { Button } from "flowbite-react";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 import {
   HiPlus,
   HiOutlineCalendar,
   HiOutlineLocationMarker,
   HiOutlineAnnotation,
-  HiPencil,
   HiOutlineTrash,
   HiOutlineFolder,
 } from "react-icons/hi";
@@ -14,7 +15,6 @@ import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import PackageAddOnCreateHeader from "./Header";
 
 import Skeleton from "@components/Skeleton/Skeleton";
-import Select from "@components/Flowbite/Select";
 import Form from "@components/Form/Form";
 import SelectTwo from "@components/Flowbite/SelectTwo";
 import TextInputComponent from "@components/Flowbite/Input";
@@ -34,8 +34,6 @@ import useCreate from "@services/admin/invoice/hooks/useCreate";
 
 import InvoicePackageModal from "./InvoicePackageModal";
 import InvoicePackageAddOnModal from "./InvoicePackageAddOnModal";
-import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
 
 type FormFields = ICreatePayload;
 
@@ -60,6 +58,7 @@ export default function PackageCreate() {
       value: each.id,
     }));
   }, [dataCustomer]);
+
 
   const methods = useForm<UiPackagePayload>({
     mode: "onChange",
@@ -89,6 +88,22 @@ export default function PackageCreate() {
       }
     }
   };
+
+  const packageTotal = fields.reduce(
+    (total, item) => total + item.price,
+    0
+  );
+
+  const addonTotal = fields.reduce((total, item) => {
+    const addons =
+      item.package_addons?.reduce(
+        (sum, addon) => sum + addon.price * addon.quantity,
+        0
+      ) ?? 0;
+
+    return total + addons;
+  }, 0);
+  const subtotal = packageTotal + addonTotal;
 
   const [openPackageModal, setOpenPackageModal] = useState<boolean>(false);
   const [openAddOnModal, setOpenAddOnModal] = useState<boolean>(false);
@@ -151,36 +166,45 @@ export default function PackageCreate() {
         />
         <div className="flex md:flex-row flex-col gap-4 items-start">
           <div className="md:w-3/5 w-full md:border-0 md:pb-0 border-b pb-4 grid md:grid-cols-3 grid-cols-2 gap-4">
+
             {loading || !dataPackage ? (
-              <Skeleton isLoading={loading} />
+              Array.from({ length: 3 }).map((_, idx) =>
+                <div
+                  key={`package-item-${idx}`}
+                  className="w-full p-2 border rounded-lg"
+                >
+                  <Skeleton isLoading={true} height="72px" />
+
+                  <Skeleton isLoading={true} height="1.2rem" width="60%" />
+                  <Skeleton isLoading={true} height="2rem" className="!rounded-lg mt-4" />
+                </div>
+              )
             ) : (
-              dataPackage.map((item, idx) => {
-                return (
-                  <div
-                    key={`package-item-${idx}`}
-                    className="w-full p-2 border rounded-lg"
+              dataPackage.map((item, idx) => (
+                <div
+                  key={`package-item-${idx}`}
+                  className="w-full p-2 border rounded-lg"
+                >
+                  <div className="aspect-16/9 w-full bg-black rounded-md mb-2"></div>
+
+                  <h3 className="text-sm font-semibold">{item.name}</h3>
+                  <span className="text-xs font-medium">
+                    {formattedCurrency(item.price_final)}
+                  </span>
+
+                  <Button
+                    className="w-full p-0 mt-4 text-xs cursor-pointer bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:bg-gradient-to-bl focus:ring-cyan-300 dark:focus:ring-cyan-800"
+                    size="sm"
+                    onClick={() => {
+                      setOpenPackageModal(true);
+                      setSelectedPackage(item);
+                    }}
                   >
-                    <div className="aspect-16/9 w-full bg-black rounded-md mb-2"></div>
-
-                    <h3 className="text-sm font-semibold">{item.name}</h3>
-                    <span className="text-xs font-medium">
-                      {formattedCurrency(item.price_final)}
-                    </span>
-
-                    <Button
-                      className="w-full p-0 mt-4 text-xs cursor-pointer bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:bg-gradient-to-bl focus:ring-cyan-300 dark:focus:ring-cyan-800"
-                      size="sm"
-                      onClick={() => {
-                        setOpenPackageModal(true);
-                        setSelectedPackage(item);
-                      }}
-                    >
-                      <HiPlus className="mr-2 h-4 w-4" />
-                      Add To Cart
-                    </Button>
-                  </div>
-                );
-              })
+                    <HiPlus className="mr-2 h-4 w-4" />
+                    Add To Cart
+                  </Button>
+                </div>
+              ))
             )}
           </div>
 
@@ -202,21 +226,13 @@ export default function PackageCreate() {
                       <h3 className="text-md font-semibold my-auto">
                         {pkg.name}
                       </h3>
-                      <div className="flex gap-1.5">
-                        <Button
-                          size="xs"
-                          className="cursor-pointer bg-transparent dark:bg-transparent hover:bg-transparent hover:dark:bg-transparent outline outline-black dark:outline-white text-black dark:text-white p-1.5 h-auto rounded-md"
-                        >
-                          <HiPencil size={12} />
-                        </Button>
-                        <Button
-                          size="xs"
-                          className="cursor-pointer bg-transparent dark:bg-transparent hover:bg-transparent hover:dark:bg-transparent outline outline-black dark:outline-white text-black dark:text-white p-1.5 h-auto rounded-md"
-                          onClick={() => remove(idx)}
-                        >
-                          <HiOutlineTrash size={12} />
-                        </Button>
-                      </div>
+                      <Button
+                        size="xs"
+                        className="cursor-pointer bg-red-500 text-white p-1.5 h-auto rounded-md"
+                        onClick={() => remove(idx)}
+                      >
+                        <HiOutlineTrash size={12} />
+                      </Button>
                     </div>
 
                     <div className="mb-2 whitespace-nowrap text-xs">
@@ -288,7 +304,7 @@ export default function PackageCreate() {
                 <h4 className="text-md font-medium">Subtotal</h4>
 
                 <span className="text-md font-medium my-auto">
-                  {formattedCurrency(0)}
+                  {formattedCurrency(subtotal)}
                 </span>
               </div>
 
@@ -300,19 +316,6 @@ export default function PackageCreate() {
                   isRequired
                   selectTwoOptions={customerOptions}
                   onInputChange={setNameCustomer}
-                />
-                <Select
-                  label="Transaction Status"
-                  name="transaction_status"
-                  isRequired
-                  selectOptions={[
-                    {
-                      label: "Paid",
-                      value: "paid",
-                    },
-                    { label: "Down Payment (DP)", value: "down_payment" },
-                    { label: "Unpaid", value: "unpaid" },
-                  ]}
                 />
 
                 <TextInputComponent

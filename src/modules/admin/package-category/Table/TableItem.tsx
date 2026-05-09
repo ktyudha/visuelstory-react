@@ -45,7 +45,7 @@ export default function TableItem({ item, expandedId, setExpandedId }: Props) {
         )}
       </TableCell>
 
-      <TableCell className="flex gap-2 max-w-md">
+      <TableCell className="flex flex-col gap-1 max-w-md">
         {!isEmpty(item.packages) ? (
           item.packages.map((pkg) => (
             <Badge className="justify-center" size="sm" color="indigo">
