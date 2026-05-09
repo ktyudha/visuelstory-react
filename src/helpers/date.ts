@@ -1,5 +1,9 @@
 import dayjs from "dayjs";
 import "dayjs/locale/id";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+
+dayjs.extend(customParseFormat);
+dayjs.locale("id");
 
 export function formattedDateTime(date: Date) {
   return dayjs(date).format("YYYY-MM-DD HH:mm:ss");

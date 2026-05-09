@@ -57,10 +57,10 @@ export default function TableInvoice() {
               </TableHeadCell>
               <TableHeadCell>Name</TableHeadCell>
               <TableHeadCell>Number</TableHeadCell>
-              <TableHeadCell>Packages</TableHeadCell>
+              <TableHeadCell>Waktu</TableHeadCell>
               <TableHeadCell>Price</TableHeadCell>
               <TableHeadCell>Category</TableHeadCell>
-              <TableHeadCell></TableHeadCell>
+              {/* <TableHeadCell></TableHeadCell> */}
             </TableRow>
           </TableHead>
           <TableBody>
