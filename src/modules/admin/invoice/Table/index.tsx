@@ -5,7 +5,6 @@ import {
   TableHead,
   TableHeadCell,
   TableRow,
-  TableCell,
 } from "flowbite-react";
 
 import PaginationComponent from "@components/Flowbite/Pagination";
