@@ -6,7 +6,7 @@ dayjs.extend(customParseFormat);
 dayjs.locale("id");
 
 export function formattedDateTime(date: Date) {
-  return dayjs(date).format("YYYY-MM-DD HH:mm:ss");
+  return dayjs(date).format("YYYY-MM-DDTHH:mm");
 }
 
 export function formattedDate(date: Date) {
