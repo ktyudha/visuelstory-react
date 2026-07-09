@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 
@@ -7,6 +8,16 @@ import LandingFooter from "./LandingFooter";
 import Metadata from "@components/Metadata";
 
 export default function LandingLayout() {
+  useEffect(() => {
+    const html = document.documentElement;
+    const wasDark = html.classList.contains("dark");
+    html.classList.remove("dark");
+
+    return () => {
+      if (wasDark) html.classList.add("dark");
+    };
+  }, []);
+
   return (
     <HelmetProvider>
       <Metadata />
