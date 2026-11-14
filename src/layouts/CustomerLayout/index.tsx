@@ -7,6 +7,8 @@ import Logo from "@/assets/logo/logo-mark.png";
 import useLogout from "@modules/auth/services/hooks/useLogout";
 import useGlobalStore from "@store/useStore";
 import Metadata from "@components/Metadata";
+import { useEffect } from "react";
+import { useTheme } from "../../theme/useTheme";
 import ThemeToggle from "../../theme/ThemeToggle";
 import InstallApp from "../../theme/InstallApp";
 
@@ -33,6 +35,15 @@ export default function CustomerLayout() {
   const { handleLogout } = useLogout();
   const { title, detail } = screenInfo(pathname);
 
+  // Latar <html> disamakan dengan warna tab bar: bila ada lajur di bawah bar (area aman/tinggi viewport PWA), tampak menyatu.
+  const { dark } = useTheme();
+  useEffect(() => {
+    const root = document.documentElement;
+    const prev = root.style.backgroundColor;
+    root.style.backgroundColor = dark ? "#171717" : "#ffffff";
+    return () => { root.style.backgroundColor = prev; };
+  }, [dark]);
+
   const onLogout = async () => {
     await handleLogout("customer");
     toast.success("Anda telah keluar.");
@@ -42,7 +53,7 @@ export default function CustomerLayout() {
   return (
     <HelmetProvider>
       <Metadata />
-      <div className="flex min-h-svh flex-col overscroll-none bg-neutral-50 text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100">
+      <div className="flex min-h-svh min-h-dvh flex-col bg-neutral-50 text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100">
         {/* App bar */}
         <header className="sticky top-0 z-40 border-b border-neutral-800 bg-neutral-900 pt-[env(safe-area-inset-top)] text-white dark:bg-neutral-950">
           <div className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-3 px-4">
@@ -79,7 +90,7 @@ export default function CustomerLayout() {
           </div>
         </header>
 
-        <main className={clsx("mx-auto w-full max-w-5xl flex-1 px-4 py-5 md:py-8", !detail && "pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:pb-8")}>
+        <main className={clsx("mx-auto w-full max-w-5xl flex-1 px-4 py-5 md:py-8", !detail && "pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-8")}>
           {!detail && <InstallApp variant="banner" />}
           <Outlet />
           {!detail && <InstallApp variant="sheet" />}
@@ -87,12 +98,12 @@ export default function CustomerLayout() {
 
         {/* Tab bar bawah (mobile, halaman utama saja) */}
         {!detail && (
-          <nav aria-label="Navigasi utama" className="fixed inset-x-0 bottom-0 z-40 border-t border-neutral-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur dark:border-neutral-800 dark:bg-neutral-900/95 md:hidden">
-            <ul className="mx-auto grid max-w-md grid-cols-3">
+          <nav aria-label="Navigasi utama" className="fixed inset-x-0 bottom-0 z-40 h-[calc(4rem+env(safe-area-inset-bottom))] border-t border-neutral-200 bg-white pb-[env(safe-area-inset-bottom)] dark:border-neutral-800 dark:bg-neutral-900 md:hidden">
+            <ul className="mx-auto grid h-16 max-w-md grid-cols-3">
               {TABS.map(({ to, label, icon: Icon, end }) => (
                 <li key={to}>
                   <NavLink to={to} end={end}
-                    className={({ isActive }) => clsx("flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-medium transition active:scale-95",
+                    className={({ isActive }) => clsx("flex h-full flex-col items-center justify-center gap-0.5 text-[11px] font-medium transition active:scale-95",
                       isActive ? "text-neutral-900 dark:text-white" : "text-neutral-400 dark:text-neutral-500")}>
                     {({ isActive }) => (<><Icon className={clsx("size-6", isActive && "stroke-[2.4]")} />{label}</>)}
                   </NavLink>

@@ -976,3 +976,20 @@ span.flatpickr-weekday,
 .dark .slot-cal span.flatpickr-weekday { color: #e5e5e5; fill: #e5e5e5; }
 .dark .slot-cal .flatpickr-months .flatpickr-prev-month svg,
 .dark .slot-cal .flatpickr-months .flatpickr-next-month svg { fill: #e5e5e5; }
+
+
+/* ===== Perilaku ala aplikasi (PWA) ===== */
+html, body {
+  overscroll-behavior-y: none; /* matikan tarik-memantul yang menggeser tampilan & memperlihatkan celah di bawah bar */
+}
+html {
+  min-height: 100%;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+}
+body, #root {
+  min-height: 100%;
+}
+button, a, [role="button"] {
+  touch-action: manipulation; /* tanpa jeda ketuk ganda & zoom tidak sengaja */
+}
