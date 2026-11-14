@@ -74,7 +74,7 @@ export default function PackageDetail() {
       )}
 
       {/* Bar aksi menempel */}
-      <div className="glass fixed inset-x-3 bottom-[calc(0.75rem+env(safe-area-inset-bottom))] z-30 rounded-2xl md:static md:mt-6 md:rounded-none md:border-0 md:bg-transparent md:shadow-none md:backdrop-blur-none dark:md:bg-transparent">
+      <div className="glass fixed inset-x-3 bottom-[var(--tab-bottom)] z-30 rounded-2xl md:static md:mt-6 md:rounded-none md:border-0 md:bg-transparent md:shadow-none md:backdrop-blur-none dark:md:bg-transparent">
         <div className="mx-auto flex max-w-xl items-center gap-3 px-4 py-3 md:px-0">
           <div className="min-w-0 flex-1">
             <div className="text-xs text-neutral-500 dark:text-neutral-400">Total</div>

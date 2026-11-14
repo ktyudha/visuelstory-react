@@ -5,7 +5,7 @@ import dayjs from "dayjs";
 import "dayjs/locale/id";
 import { initTheme } from "./theme/theme";
 import GetBrowserRoutes from "./routes/index.routes";
-import { ToastContainer } from "react-toastify";
+import { Slide, ToastContainer } from "react-toastify";
 import "./styles/index.css";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -28,7 +28,7 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <StrictMode>
-    <ToastContainer position="top-center" />
+    <ToastContainer position="top-center" transition={Slide} autoClose={3000} hideProgressBar limit={3} closeButton={false} />
     <RouterProvider router={router} />
   </StrictMode>
 );

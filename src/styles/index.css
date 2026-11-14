@@ -1046,3 +1046,37 @@ button, a, [role="button"] {
     box-shadow: 0 20px 50px rgb(0 0 0 / 0.6), inset 0 1px 0 rgb(255 255 255 / 0.18);
   }
 }
+
+/* Jarak tab bar melayang dari dasar layar: sebagian kecil safe area saja, agar tidak ada celah besar di iPhone */
+:root { --tab-bottom: calc(env(safe-area-inset-bottom) * 0.35 + 0.5rem); }
+
+/* ===== Toast di mobile: ringkas, kapsul di bawah area aman atas ===== */
+@media (max-width: 767px) {
+  section.Toastify .Toastify__toast-container {
+    width: calc(100vw - 2rem);
+    max-width: 24rem;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    top: calc(env(safe-area-inset-top) + 0.5rem);
+    padding: 0;
+    margin: 0;
+  }
+  section.Toastify .Toastify__toast {
+    min-height: 0;
+    margin-bottom: 0.5rem;
+    padding: 10px 16px;
+    border-radius: 16px;
+    font-size: 14px;
+    line-height: 1.35;
+    box-shadow: 0 8px 24px rgb(0 0 0 / 0.18);
+    color: #171717;
+    font-weight: 500;
+  }
+  section.Toastify .Toastify__toast-body { padding: 0; margin: 0; }
+  section.Toastify .Toastify__toast-icon { width: 20px; margin-inline-end: 10px; }
+}
+
+/* Animasi toast: muncul 300 ms, hilang 200 ms */
+section.Toastify .Toastify--animate { animation-duration: 300ms; }
+section.Toastify [class*="Toastify__slide-exit"] { animation-duration: 200ms; }
