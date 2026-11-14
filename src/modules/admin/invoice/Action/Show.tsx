@@ -1,163 +1,202 @@
-import { useRef } from "react";
-import { useParams } from "react-router-dom";
+import { useRef, useState } from "react";
+import { Link, useParams } from "react-router-dom";
 import { useReactToPrint } from "react-to-print";
-import { Button, Badge } from "flowbite-react";
-import { HiPrinter } from "react-icons/hi";
+import { HiChevronLeft, HiPrinter } from "react-icons/hi";
+import dayjs from "dayjs";
+import "dayjs/locale/id";
 
-import { formatDateCustom } from "@helpers/date";
 import { formattedCurrency } from "@helpers/currency";
-import ShowDetail from "./ShowDetail";
-
 import useGet from "@services/admin/invoice/hooks/useGet";
-import LogoCirlce from "@assets/logo/logo-circle.svg";
+import Logo from "@assets/logo/logo-mark.png";
+import { METHOD_LABEL, StatusPill } from "../../shared/invoice-ui";
+import { btnPrimary } from "../../shared/ui";
+import PaymentsPanel from "./PaymentsPanel";
+import DeliveryPanel from "./DeliveryPanel";
+import { DeliveryStepper } from "../../shared/delivery-ui";
+
+/** Ukuran & warna cetak: A4, margin rapi, warna latar ikut tercetak. */
+const PRINT_STYLE = `
+  @page { size: A4; margin: 14mm; }
+  html, body { background: #fff !important; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .no-break { break-inside: avoid; page-break-inside: avoid; }
+`;
 
 export default function Show() {
-  const params = useParams();
-  const { data } = useGet(params.invoiceId as string);
+  const { invoiceId = "" } = useParams();
+  const { data, loading, error } = useGet(invoiceId);
 
-  const contentRef = useRef<HTMLDivElement>(null);
-  const reactToPrintFn = useReactToPrint({ contentRef });
+  const [tab, setTab] = useState<"pay" | "photo">("pay");
+  const printRef = useRef<HTMLDivElement>(null);
+  const print = useReactToPrint({
+    contentRef: printRef,
+    pageStyle: PRINT_STYLE,
+    documentTitle: data ? `Invoice ${data.invoice_number}` : "Invoice",
+  });
 
-  const totalPackage = data?.invoice_details?.reduce(
-    (sum, item) => sum + item.amount,
-    0
-  );
+  if (loading) return <div className="p-10 text-center text-gray-500">Memuat...</div>;
+  if (error || !data) return <div className="p-10 text-center text-gray-500">Invoice tidak ditemukan.</div>;
 
-  const totalAddon = data?.invoice_details?.reduce((sum, detail) => {
-    const addonSum = detail.invoice_detail_addons?.reduce(
-      (addonTotal, addon) => addonTotal + addon.amount,
-      0
-    );
-    return sum + addonSum;
-  }, 0);
-
-  if (!data) return;
+  const packageTotal = data.invoice_details.reduce((s, d) => s + d.amount, 0);
+  const addonTotal = data.invoice_details.reduce(
+    (s, d) => s + (d.invoice_detail_addons ?? []).reduce((a, x) => a + x.amount, 0), 0);
+  const remaining = data.total_price - data.amount_paid;
+  const paid = data.transaction_status === "paid";
 
   return (
-    <div
-      className="p-6 bg-gray-50 dark:bg-gray-800 rounded-lg print:bg-white"
-      ref={contentRef}
-    >
-      {/* Header Button */}
-      <div className="flex lg:flex-row flex-col-reverse gap-4 justify-between mb-4">
-        <div className="flex gap-2">
-          <img src={LogoCirlce} alt="" className="w-6 w-6" />
-          <span className="my-auto text-xl tracking-wide font-light font-serif italic">
-            Kisah Dalam Cerita
-          </span>
+    <div className="space-y-4">
+      {/* Bilah aksi (tidak ikut tercetak) */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <Link to="/admin/invoices" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-900 dark:hover:text-white">
+            <HiChevronLeft /> Semua invoice
+          </Link>
+          <StatusPill status={data.transaction_status} />
         </div>
-        {/* <div className="flex gap-4 order-1">
-          <Button
-            color={"alternative"}
-            className="cursor-pointer lg:w-auto w-full"
-          >
-            Download
-          </Button> */}
-        <Button
-          onClick={reactToPrintFn}
-          className="group lg:w-auto w-full cursor-pointer bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:bg-gradient-to-bl focus:ring-cyan-300 dark:focus:ring-cyan-800"
-        >
-          <HiPrinter />
-          <span className="transition-all duration-300 ease-in-out opacity-0 group-hover:ml-2 max-w-0 overflow-hidden group-hover:opacity-100 group-hover:max-w-[50px]">
-            Print
-          </span>
-        </Button>
-        {/* </div> */}
+        <button onClick={() => print()} className={btnPrimary}>
+          <HiPrinter size={16} /> Cetak / simpan PDF
+        </button>
       </div>
 
-      {/* Body */}
-      <div>
-        <div className="flex lg:flex-row flex-col justify-between border-b border-t py-3.5 mb-6">
-          <h3 className="font-semibold text-lg my-auto">
-            {data?.invoice_number}
-          </h3>
-          <p className=" dark:text-gray-400 text-gray-500">
-            {formatDateCustom(data.created_at)}
-          </p>
+      <div className="print:hidden"><DeliveryStepper delivery={data.delivery} /></div>
+
+      <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_400px]">
+        {/* ===== Dokumen invoice: selalu terang agar cetakan konsisten ===== */}
+        <div className="overflow-x-auto rounded-xl border border-gray-200 bg-gray-100 p-3 dark:border-gray-700 sm:p-6">
+          <div ref={printRef} className="relative mx-auto w-full max-w-[794px] bg-white p-6 text-[13px] leading-relaxed text-gray-900 shadow-sm sm:p-10 print:shadow-none">
+            {paid && (
+              <div aria-hidden className="pointer-events-none absolute right-10 top-28 rotate-[-12deg] rounded-md border-4 border-emerald-500/70 px-4 py-1 text-3xl font-extrabold tracking-widest text-emerald-500/70">
+                LUNAS
+              </div>
+            )}
+
+            {/* Kop */}
+            <header className="flex items-start justify-between gap-6 border-b-2 border-gray-900 pb-5">
+              <div className="flex items-center gap-3">
+                <img src={Logo} alt="Visuelstory" className="h-14 w-14 object-contain" />
+                <div>
+                  <div className="font-serif text-xl font-semibold italic">Kisah Dalam Cerita</div>
+                  <div className="text-xs uppercase tracking-[0.2em] text-gray-500">Visuelstory</div>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-2xl font-bold tracking-wide">INVOICE</div>
+                <div className="font-medium">{data.invoice_number}</div>
+                <div className="text-gray-500">{dayjs(data.created_at).format("D MMMM YYYY")}</div>
+              </div>
+            </header>
+
+            {/* Pihak */}
+            <section className="no-break mt-6 grid gap-6 sm:grid-cols-2">
+              <div>
+                <div className="mb-1 text-[11px] font-semibold uppercase tracking-widest text-gray-500">Dari</div>
+                <div className="font-semibold">Visuelstory</div>
+                <div className="text-gray-600">Sidoarjo, Jawa Timur 61275<br />+62 858 4825 0548</div>
+              </div>
+              <div className="sm:text-right">
+                <div className="mb-1 text-[11px] font-semibold uppercase tracking-widest text-gray-500">Ditagihkan kepada</div>
+                <div className="font-semibold capitalize">{data.customer?.name || "-"}</div>
+                <div className="text-gray-600">
+                  {data.customer?.whatsapp}
+                  {data.customer?.address && <><br />{data.customer.address}</>}
+                </div>
+              </div>
+            </section>
+
+            {/* Rincian */}
+            <section className="mt-7">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="border-y border-gray-300 bg-gray-50 text-left text-[11px] uppercase tracking-wider text-gray-600">
+                    <th className="px-3 py-2 font-semibold">Deskripsi</th>
+                    <th className="w-14 px-3 py-2 text-center font-semibold">Qty</th>
+                    <th className="w-36 px-3 py-2 text-right font-semibold">Jumlah</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.invoice_details.map((d, i) => (
+                    <tr key={i} className="no-break border-b border-gray-200 align-top">
+                      <td className="px-3 py-3">
+                        <div className="text-[11px] uppercase tracking-wide text-gray-500">{d.package?.category}</div>
+                        <div className="font-semibold">{d.package?.name}</div>
+                        {d.events?.map((e) => (
+                          <div key={e.id} className="mt-1.5 text-xs text-gray-600">
+                            <div>📅 {dayjs(e.date).format("dddd, D MMMM YYYY • HH:mm")} WIB</div>
+                            <div>📍 {e.location}</div>
+                            {e.note && e.note !== "-" && <div className="italic text-gray-500">“{e.note}”</div>}
+                          </div>
+                        ))}
+                        {d.invoice_detail_addons?.map((a, ai) => (
+                          <div key={ai} className="mt-1.5 flex justify-between gap-3 border-t border-dashed border-gray-200 pt-1.5 text-xs text-gray-600">
+                            <span>+ {a.package_addon?.name ?? "Add-on"} × {a.quantity}</span>
+                            <span>{formattedCurrency(a.amount)}</span>
+                          </div>
+                        ))}
+                      </td>
+                      <td className="px-3 py-3 text-center">{d.quantity}</td>
+                      <td className="px-3 py-3 text-right font-medium">{formattedCurrency(d.amount)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </section>
+
+            {/* Ringkasan */}
+            <section className="no-break mt-6 ml-auto max-w-[300px] space-y-1.5">
+              <Line l="Paket" r={formattedCurrency(packageTotal)} />
+              {addonTotal > 0 && <Line l="Add-on" r={formattedCurrency(addonTotal)} />}
+              <Line l="Total" r={formattedCurrency(data.total_price)} strong />
+              <Line l="Sudah dibayar" r={`− ${formattedCurrency(data.amount_paid)}`} />
+              <div className={`mt-1 flex items-center justify-between rounded-md px-3 py-2.5 text-base font-bold ${paid ? "bg-emerald-50 text-emerald-700" : "bg-gray-900 text-white"}`}>
+                <span>{paid ? "Lunas" : "Sisa tagihan"}</span>
+                <span>{formattedCurrency(Math.max(0, remaining))}</span>
+              </div>
+            </section>
+
+            {/* Riwayat pembayaran */}
+            {!!data.payments?.length && (
+              <section className="no-break mt-8">
+                <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-widest text-gray-500">Riwayat pembayaran</div>
+                <table className="w-full border-collapse text-xs">
+                  <tbody>
+                    {data.payments.map((p, i) => (
+                      <tr key={p.id} className="border-b border-gray-200">
+                        <td className="py-1.5 pr-3 text-gray-500">{dayjs(p.paid_at).format("D MMM YYYY")}</td>
+                        <td className="py-1.5 pr-3">{p.note || (i === 0 ? "Pembayaran pertama" : `Pembayaran ke-${i + 1}`)}</td>
+                        <td className="py-1.5 pr-3 text-gray-500">{METHOD_LABEL[p.method] ?? p.method}</td>
+                        <td className="py-1.5 text-right font-medium">{formattedCurrency(p.amount)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </section>
+            )}
+
+            <footer className="mt-10 border-t border-gray-200 pt-4 text-center text-xs text-gray-500">
+              Terima kasih telah mempercayakan momen Anda kepada Visuelstory.
+            </footer>
+          </div>
         </div>
 
-        <div className="flex lg:flex-row flex-col lg:gap-0 gap-4 justify-between mb-12">
-          <div>
-            <h3 className="text-lg lg:mb-4 mb-1">Billed by</h3>
-            <div className="w-full italic">
-              <span className="uppercase">Visuelstory</span>
-              <br />
-              <span className="dark:text-gray-400 text-gray-500">
-                Sidoarjo, Jawa Timur <br /> Kode Pos 61275
-              </span>
-              <br />
-              <span className="italic">+62 858 4825 0548</span>
-            </div>
+        {/* ===== Panel kerja admin (tidak ikut tercetak) ===== */}
+        <div className="space-y-4 xl:sticky xl:top-20 print:hidden">
+          <div role="tablist" className="grid grid-cols-2 gap-1 rounded-xl bg-gray-100 p-1 dark:bg-gray-700/50">
+            {([["pay", "Pembayaran"], ["photo", "Pengiriman hasil"]] as const).map(([k, label]) => (
+              <button key={k} role="tab" aria-selected={tab === k} onClick={() => setTab(k)}
+                className={`cursor-pointer rounded-lg px-3 py-2 text-sm font-medium transition ${tab === k ? "bg-white shadow-sm dark:bg-gray-800" : "text-gray-500 hover:text-gray-900 dark:hover:text-white"}`}>
+                {label}
+              </button>
+            ))}
           </div>
-          <div>
-            <h3 className="text-lg lg:mb-4 mb-1">Invoice for</h3>
-            <div className="lg:max-w-64 w-full italic">
-              <span className="capitalize">{data?.customer.name}</span>
-              <br />
-              <span className="dark:text-gray-400 text-gray-500">
-                {data?.customer.address}
-              </span>
-            </div>
-            <span className="italic">{data?.customer?.email ?? "-"}</span>
-            <br />
-            <span className="italic">{data?.customer?.whatsapp ?? "-"}</span>
-          </div>
-        </div>
-
-        {/* Invoice Detail */}
-        <ShowDetail items={data.invoice_details} />
-
-        <div className="max-w-sm ml-auto mt-10">
-          <div className="flex justify-between">
-            <h5 className="font-medium text-md text-left mb-2">
-              Order Summary
-            </h5>
-            <Badge
-              className="justify-center capitalize"
-              size="sm"
-              color={
-                data?.transaction_status == "paid"
-                  ? "success"
-                  : data?.transaction_status == "unpaid"
-                  ? "red"
-                  : "purple"
-              }
-            >
-              {data?.transaction_status === "down_payment"
-                ? "down payment"
-                : data?.transaction_status}
-            </Badge>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <div className="dark:text-gray-400 text-gray-500">Package</div>
-            <div className="text-end">
-              {formattedCurrency(Number(totalPackage))}
-            </div>
-            <div className="dark:text-gray-400 text-gray-500">Add On</div>
-            <div className="text-end">
-              {formattedCurrency(Number(totalAddon))}
-            </div>
-            <div className="font-medium text-md text-left">Order Total</div>
-            <div className="text-end">
-              {formattedCurrency(data?.total_price ?? 0)}
-            </div>
-          </div>
-          <hr className="my-4" />
-          <div className="grid grid-cols-2 gap-2">
-            <div className="dark:text-gray-400 text-gray-500">Down Payment</div>
-            <div className="text-end">
-              {formattedCurrency(Number(data?.amount_paid))}
-            </div>
-
-            <div className="font-medium text-md text-left">
-              Remaining Balance
-            </div>
-            <div className="text-end font-bold text-2xl text-purple-500">
-              {formattedCurrency(Number(data?.total_price - data?.amount_paid))}
-            </div>
-          </div>
+          {tab === "pay" ? <PaymentsPanel invoice={data} /> : <DeliveryPanel invoiceId={invoiceId} invoiceNumber={data.invoice_number} customerName={data.customer?.name} customerWhatsapp={data.customer?.whatsapp} />}
         </div>
       </div>
     </div>
   );
 }
+
+const Line = ({ l, r, strong }: { l: string; r: string; strong?: boolean }) => (
+  <div className={`flex justify-between ${strong ? "border-t border-gray-300 pt-1.5 font-semibold" : "text-gray-600"}`}>
+    <span>{l}</span><span>{r}</span>
+  </div>
+);

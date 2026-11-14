@@ -25,11 +25,11 @@ export default function useUpdate(customerId: string) {
 
       return { response: res, error: null };
     } catch (error: any) {
-      if (error.status >= 500) {
+      if ((error.response?.status ?? 500) >= 500) {
         return { response: null, error: "Server error" };
       }
 
-      return { response: null, error: error.data.message };
+      return { response: null, error: error.response?.data?.message ?? "Terjadi kesalahan" };
     }
   };
 

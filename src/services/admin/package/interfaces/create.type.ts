@@ -4,4 +4,5 @@ export interface ICreatePayload {
   description: string;
   price: string;
   discount: number;
+  includes_video?: boolean;
 }

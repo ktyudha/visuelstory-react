@@ -22,6 +22,7 @@ export interface Event {
 interface Customer {
   id: string;
   name: string;
+  whatsapp?: string;
 }
 
 interface Package {
@@ -34,6 +35,9 @@ interface Package {
 interface Invoice {
   id: string;
   number: string;
+  status: "unpaid" | "down_payment" | "paid";
+  total_price: number;
+  remaining: number;
 }
 
 interface InvoiceDetail {

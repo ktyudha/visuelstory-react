@@ -6,7 +6,7 @@ export default function useUpdate(packageId: string) {
   const revalidateMutationsByKey = useRevalidateMutation();
 
   const updateData = async (payload: ICreatePayload) => {
-    const { package_category_id, name, description, price, discount } = payload;
+    const { package_category_id, name, description, price, discount, includes_video } = payload;
     try {
       const res = await axiosInstance({
         withToken: true,
@@ -17,6 +17,7 @@ export default function useUpdate(packageId: string) {
         description,
         price,
         discount,
+        includes_video: !!includes_video,
         _method: "PUT",
       });
 
@@ -26,11 +27,11 @@ export default function useUpdate(packageId: string) {
 
       return { response: res, error: null };
     } catch (error: any) {
-      if (error.status >= 500) {
+      if ((error.response?.status ?? 500) >= 500) {
         return { response: null, error: "Server error" };
       }
 
-      return { response: null, error: error.data.message };
+      return { response: null, error: error.response?.data?.message ?? "Terjadi kesalahan" };
     }
   };
 

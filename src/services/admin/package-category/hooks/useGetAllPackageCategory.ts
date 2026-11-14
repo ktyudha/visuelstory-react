@@ -8,7 +8,7 @@ import querystring from "query-string";
 export default function useGetAllAdminPackageCategory() {
   const [name, setName] = useState("");
   const [pageNum, setPageNum] = useState(1);
-  const [pageLimit, setPageLimit] = useState(10);
+  const [pageLimit, setPageLimit] = useState(100);
 
   const fetcher: Fetcher<IGetAllPackageCategory, string> = (url) =>
     axiosInstance({ withToken: true, tokenType: "admin" })

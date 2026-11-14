@@ -1,3 +1,4 @@
+import { isAxiosError } from "axios";
 import axiosInstance from "@/lib/axios-instance";
 import useRevalidateMutation from "@/lib/swr/useRevalidateMutation";
 
@@ -16,11 +17,12 @@ export default function useDelete() {
       }
 
       return { response: res, error: null };
-    } catch (error: any) {
-      if (error.status >= 500) {
+    } catch (error) {
+      const status = isAxiosError(error) ? error.response?.status : undefined;
+      if (!status || status >= 500) {
         return { response: null, error: "Server error" };
       }
-      return { response: null, error: error.data.message };
+      return { response: null, error: "Gagal menghapus data" };
     }
   };
 

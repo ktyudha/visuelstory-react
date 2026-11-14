@@ -3,6 +3,9 @@ import LandingLayout from "@layouts/LandingLayout";
 import CustomLayout from "@layouts/CustomLayout";
 import * as Landing from "@pages/user";
 
+import CustomerLayout from "@layouts/CustomerLayout";
+import * as Customer from "@pages/customer";
+import AuthMiddleware from "./middlewares/AuthMiddleware";
 import ErrorPage from "@pages/ErrorPage";
 
 const LinkPage = lazy(() => import("@pages/user/LinkPage"));
@@ -21,6 +24,22 @@ export default [
       { path: "about", element: <Landing.AboutPage /> },
       { path: "investment", element: <Landing.InvestmentPage /> },
       { path: "contact", element: <Landing.ContactPage /> },
+    ],
+  },
+  // Area customer (wajib login): booking, pesanan, galeri & seleksi foto
+  {
+    element: (
+      <AuthMiddleware>
+        <CustomerLayout />
+      </AuthMiddleware>
+    ),
+    children: [
+      { path: "booking", element: <Customer.BookingPage /> },
+      { path: "account", element: <Customer.OrdersPage /> },
+      { path: "account/profile", element: <Customer.ProfilePage /> },
+      { path: "account/orders/:orderId", element: <Customer.OrderDetailPage /> },
+      { path: "account/orders/:orderId/gallery", element: <Customer.GalleryPage /> },
+      { path: "account/orders/:orderId/edited", element: <Customer.EditedGalleryPage /> },
     ],
   },
   {

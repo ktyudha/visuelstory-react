@@ -1,6 +1,5 @@
 import { useState } from "react";
 import {
-  Checkbox,
   Table,
   TableBody,
   TableHead,
@@ -26,9 +25,6 @@ export default function TablePackageCategory() {
         <Table hoverable>
           <TableHead>
             <TableRow>
-              <TableHeadCell className="p-4">
-                <Checkbox />
-              </TableHeadCell>
               <TableHeadCell>Name</TableHeadCell>
               <TableHeadCell>Description</TableHeadCell>
               <TableHeadCell className="text-center">Package</TableHeadCell>
@@ -38,7 +34,7 @@ export default function TablePackageCategory() {
           <TableBody>
             {loading || !data ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-center">
+                <TableCell colSpan={3} className="text-center">
                   Loading
                 </TableCell>
               </TableRow>

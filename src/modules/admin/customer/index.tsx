@@ -1,9 +1,12 @@
+import PageCard from "../shared/PageCard";
 import Table from "./Table";
+import CustomerFormModal from "./Action/FormModal";
 
 export default function AdminCustomer() {
   return (
-    <div className="p-6 bg-gray-50 dark:bg-gray-800 rounded-lg">
+    <PageCard>
       <Table />
-    </div>
+      <CustomerFormModal />
+    </PageCard>
   );
 }

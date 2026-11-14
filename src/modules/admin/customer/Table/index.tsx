@@ -1,5 +1,4 @@
 import {
-  Checkbox,
   Table,
   TableBody,
   TableHead,
@@ -23,9 +22,6 @@ export default function TableCustomer() {
         <Table hoverable>
           <TableHead>
             <TableRow>
-              <TableHeadCell className="p-4">
-                <Checkbox />
-              </TableHeadCell>
               <TableHeadCell>Name</TableHeadCell>
               <TableHeadCell>Whatsapp</TableHeadCell>
               <TableHeadCell>Email</TableHeadCell>
@@ -36,7 +32,7 @@ export default function TableCustomer() {
           <TableBody>
             {loading || !data ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-center">
+                <TableCell colSpan={3} className="text-center">
                   Loading
                 </TableCell>
               </TableRow>

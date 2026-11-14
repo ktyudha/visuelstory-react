@@ -1,7 +1,8 @@
+import ThemeToggle from "../../../../theme/ThemeToggle";
 import { useState } from "react";
 import clsx from "clsx";
 import { toast } from "react-toastify";
-import { GalleryVerticalEnd } from "lucide-react";
+import AuthHeader from "@modules/auth/views/AuthHeader";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 import Button from "@components/Button";
@@ -33,13 +34,11 @@ export default function AdminVerifyOtp() {
       setSubmitLoading(true);
       await handleLogin(whatsapp, otp);
 
-      toast.success("Verifikasi akun berhasil!", {
-        onClose: () => navigate("/admin/dashboard"),
-      });
-
-      setSubmitLoading(false);
-    } catch (error) {
+      toast.success("Verifikasi berhasil!");
+      navigate("/admin/dashboard", { replace: true });
+    } catch {
       toast.error("Kode verifikasi tidak valid!");
+    } finally {
       setSubmitLoading(false);
     }
   };
@@ -47,24 +46,11 @@ export default function AdminVerifyOtp() {
 
   return (
     <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-background p-6 md:p-10">
+      <div className="fixed right-3 top-[calc(0.75rem+env(safe-area-inset-top))]"><ThemeToggle className="!text-neutral-500 hover:!bg-neutral-200 dark:!text-neutral-400 dark:hover:!bg-neutral-800" /></div>
       <div className="w-full max-w-sm">
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-6">
-            <div className="flex flex-col items-center gap-2">
-              <a
-                href="#"
-                className="flex flex-col items-center gap-2 font-medium"
-              >
-                <div className="flex h-8 w-8 items-center justify-center rounded-md">
-                  <GalleryVerticalEnd className="size-6" />
-                </div>
-                <span className="sr-only">Acme Inc.</span>
-              </a>
-              <h1 className="text-xl font-bold">Welcome to Visuelstory.</h1>
-              <div className="text-center text-sm">
-                Send an WhatsApp to get an OTP
-              </div>
-            </div>
+            <AuthHeader title="Verifikasi kode OTP" subtitle="Masukkan 6 digit kode yang dikirim ke WhatsApp Anda." admin />
             <div className="space-y-6">
               <OtpInput
                 numOfInputs={otpLength}
@@ -82,11 +68,12 @@ export default function AdminVerifyOtp() {
               <Button
                 className={clsx([
                   "block w-full py-2 rounded-xl font-semibold mb-2 ",
-                  otpCode?.length !== otpLength || submitLoading
-                    ? "bg-neutral-900 hover:bg-neutral-700 text-white dark:bg-white dark:text-gray-800 cursor-pointer"
-                    : "bg-neutral-200 text-neutral-400 dark:text-white dark:bg-gray-800 cursor-not-allowed",
+                  otpCode?.length === otpLength && !submitLoading
+                    ? "bg-neutral-900 hover:bg-neutral-700 text-white cursor-pointer"
+                    : "bg-neutral-200 text-neutral-400 cursor-not-allowed",
                 ])}
                 disabled={otpCode?.length !== otpLength || submitLoading}
+                onClick={() => otpCode && onSubmit(otpCode)}
               >
                 {!submitLoading ? "Verifikasi" : <Spinner />}
               </Button>

@@ -1,9 +1,140 @@
+import { Link } from "react-router-dom";
+import useSWR from "swr";
+import dayjs from "dayjs";
+import "dayjs/locale/id";
+import { HiOutlineCalendar, HiOutlineCash, HiOutlineClock, HiOutlinePhotograph } from "react-icons/hi";
+import axiosInstance from "@lib/axios-instance";
+import { formattedCurrency } from "@helpers/currency";
+import { panel, StatusPill } from "../shared/invoice-ui";
+import type { TransactionStatus } from "@services/admin/invoice/interfaces/get-all.type";
+
+interface Stats {
+  revenue_month: number;
+  outstanding: number;
+  unpaid_count: number;
+  upcoming_count: number;
+  selection_pending: number;
+  customers: number;
+  upcoming: { id: string; date: string; location: string; customer: string | null; package: string | null; invoice_id: string | null; invoice_number: string | null }[];
+  delivery_queue: { id: string; invoice_number: string; customer: string | null; tasks: string[]; selection_count: number }[];
+  delivery_counts: { upload_jpeg: number; kirim_editan: number; kirim_video: number; tanpa_pilihan: number };
+  needs_attention: { id: string; invoice_number: string; customer: string | null; remaining: number; status: TransactionStatus }[];
+}
+
 export default function AdminDashboard() {
+  const { data, error, isLoading } = useSWR<Stats>("/admin/dashboard", (u: string) =>
+    axiosInstance({ withToken: true, tokenType: "admin" }).get(u).then((r) => r.data.data)
+  );
+
+  if (isLoading) return <div className="p-10 text-center text-gray-500">Memuat...</div>;
+  if (error || !data) return <div className="p-10 text-center text-gray-500">Dashboard gagal dimuat.</div>;
+
+  const TASK: Record<string, { label: string; cls: string }> = {
+    upload_jpeg: { label: "Upload JPEG", cls: "bg-amber-100 text-amber-800 dark:bg-amber-950/50 dark:text-amber-300" },
+    kirim_editan: { label: "Kirim editan", cls: "bg-blue-100 text-blue-800 dark:bg-blue-950/50 dark:text-blue-300" },
+    tanpa_pilihan: { label: "Tidak memilih", cls: "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200" },
+    kirim_video: { label: "Kirim video", cls: "bg-purple-100 text-purple-800 dark:bg-purple-950/50 dark:text-purple-300" },
+  };
+  const todo = data.delivery_counts.upload_jpeg + data.delivery_counts.kirim_editan + data.delivery_counts.kirim_video + data.delivery_counts.tanpa_pilihan;
+
+  const cards = [
+    { label: "Pemasukan bulan ini", value: formattedCurrency(data.revenue_month), icon: HiOutlineCash, to: "/admin/invoices" },
+    { label: "Belum tertagih", value: formattedCurrency(data.outstanding), sub: `${data.unpaid_count} invoice`, icon: HiOutlineClock, to: "/admin/invoices" },
+    { label: "Acara 7 hari ke depan", value: String(data.upcoming_count), icon: HiOutlineCalendar, to: "/admin/events" },
+    { label: "Seleksi foto masuk", value: String(data.selection_pending), icon: HiOutlinePhotograph, to: "/admin/invoices" },
+  ];
+
   return (
-    <>
-      <div className="p-6 bg-gray-50 dark:bg-gray-800 rounded-lg">
-        <h1>Halo, Selamat datang!</h1>
+    <div className="space-y-6">
+      <p className="text-sm text-gray-500">{dayjs().format("dddd, D MMMM YYYY")}</p>
+
+      <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
+        {cards.map((c) => (
+          <Link key={c.label} to={c.to} className={`${panel} transition hover:shadow-md`}>
+            <c.icon className="mb-3 text-gray-400" size={22} />
+            <div className="text-xl font-semibold sm:text-2xl">{c.value}</div>
+            <div className="text-sm text-gray-500">{c.label}</div>
+            {c.sub && <div className="text-xs text-gray-400">{c.sub}</div>}
+          </Link>
+        ))}
       </div>
-    </>
+
+      <section className={panel}>
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+          <h2 className="font-semibold">Antrian pengiriman hasil {todo > 0 && <span className="ml-1 rounded-full bg-red-500 px-2 py-0.5 text-xs font-bold text-white">{todo}</span>}</h2>
+          <div className="flex flex-wrap gap-1.5 text-xs">
+            {Object.entries(TASK).map(([k, t]) => (
+              <span key={k} className={`rounded-full px-2.5 py-1 font-semibold ${t.cls}`}>{t.label}: {data.delivery_counts[k as keyof typeof data.delivery_counts]}</span>
+            ))}
+          </div>
+        </div>
+        {data.delivery_queue.length === 0 ? <p className="py-6 text-center text-sm text-gray-500">Semua hasil sudah terkirim 🎉</p> : (
+          <ul className="divide-y divide-gray-100 dark:divide-gray-700">
+            {data.delivery_queue.map((q) => (
+              <li key={q.id}>
+                <Link to={`/admin/invoices/show/${q.id}`} className="flex flex-wrap items-center justify-between gap-2 py-3 hover:opacity-80">
+                  <div className="min-w-0">
+                    <div className="truncate text-sm font-medium capitalize">{q.customer || "-"}</div>
+                    <div className="text-xs text-gray-500">{q.invoice_number}{q.tasks.includes("kirim_editan") ? ` • ${q.selection_count} foto dipilih` : ""}</div>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {q.tasks.map((t) => <span key={t} className={`rounded-full px-2.5 py-1 text-xs font-semibold ${TASK[t]?.cls}`}>{TASK[t]?.label}</span>)}
+                  </div>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <div className="grid gap-5 lg:grid-cols-2">
+        <section className={panel}>
+          <h2 className="mb-3 font-semibold">Acara mendatang</h2>
+          {data.upcoming.length === 0 ? <p className="py-6 text-center text-sm text-gray-500">Tidak ada acara terjadwal.</p> : (
+            <ul className="divide-y divide-gray-100 dark:divide-gray-700">
+              {data.upcoming.map((e) => (
+                <li key={e.id}>
+                  <Link to={e.invoice_id ? `/admin/invoices/show/${e.invoice_id}` : "/admin/events"} className="flex items-center gap-3 py-3 hover:opacity-80">
+                    <div className="w-12 shrink-0 rounded-lg bg-gray-100 py-1 text-center dark:bg-gray-700">
+                      <div className="text-lg font-semibold leading-tight">{dayjs(e.date).format("D")}</div>
+                      <div className="text-xs uppercase text-gray-500">{dayjs(e.date).format("MMM")}</div>
+                    </div>
+                    <div className="min-w-0">
+                      <div className="truncate text-sm font-medium capitalize">{e.customer || "-"} <span className="font-normal text-gray-500">• {e.package}</span></div>
+                      <div className="truncate text-xs text-gray-500">{dayjs(e.date).format("HH:mm")} • {e.location}</div>
+                    </div>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
+        <section className={panel}>
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="font-semibold">Perlu ditagih</h2>
+            <Link to="/admin/invoices" className="text-sm text-blue-600 hover:underline">Lihat semua</Link>
+          </div>
+          {data.needs_attention.length === 0 ? <p className="py-6 text-center text-sm text-gray-500">Semua invoice sudah lunas 🎉</p> : (
+            <ul className="divide-y divide-gray-100 dark:divide-gray-700">
+              {data.needs_attention.map((i) => (
+                <li key={i.id}>
+                  <Link to={`/admin/invoices/show/${i.id}`} className="flex items-center justify-between gap-3 py-3 hover:opacity-80">
+                    <div className="min-w-0">
+                      <div className="truncate text-sm font-medium capitalize">{i.customer || "-"}</div>
+                      <div className="text-xs text-gray-500">{i.invoice_number}</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-sm font-semibold text-red-600">{formattedCurrency(i.remaining)}</div>
+                      <StatusPill status={i.status} />
+                    </div>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      </div>
+    </div>
   );
 }

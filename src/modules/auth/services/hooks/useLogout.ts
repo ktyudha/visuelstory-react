@@ -1,41 +1,34 @@
 import axiosInstance from "@lib/axios-instance";
 import Cookies from "js-cookie";
 import { Role } from "@modules/auth/services/role.def";
+import useGlobalStore from "@store/useStore";
+
+const TOKEN_KEYS = { admin: "token", customer: "token-customer" } as const;
+const LOGOUT_URLS = { admin: "/auth/admin/logout", customer: "/auth/customer/logout" } as const;
 
 export default function useLogout() {
+  /**
+   * Keluar selalu berhasil di sisi pengguna: token lokal dihapus walau server
+   * tidak terjangkau atau token sudah kedaluwarsa (401). Pencabutan token di server
+   * dicoba sebisanya.
+   */
   const handleLogout = async (role: Role) => {
-    const tokenKeys = {
-      admin: "token",
-      customer: "token-customer",
-    } as const;
+    const token = Cookies.get(TOKEN_KEYS[role]);
+    let message: string | null = "Berhasil keluar";
 
-    const logoutUrls = {
-      admin: "/admin/auth/logout",
-      customer: "/customer/auth/logout",
-    } as const;
-
-    const token = Cookies.get(tokenKeys[role]) ?? "";
-
-    if (!token) {
-      return { data: null, status: 401 };
-    }
-
-    try {
-      const { data } = await axiosInstance({
-        withToken: true,
-        tokenType: role,
-      }).post(logoutUrls[role]);
-
-      // Hapus token di cookie
-      Cookies.remove(tokenKeys[role], { path: "/" });
-
-      return { data: data.message, error: null };
-    } catch (error: any) {
-      if (!error) {
-        return { data: null, status: 500 };
+    if (token) {
+      try {
+        const { data } = await axiosInstance({ withToken: true, tokenType: role }).post(LOGOUT_URLS[role]);
+        message = data?.message ?? message;
+      } catch {
+        // abaikan: token lokal tetap dihapus di bawah
       }
-      return { data: error.message, status: error.status };
     }
+
+    Cookies.remove(TOKEN_KEYS[role], { path: "/" });
+    useGlobalStore.setState({ me: undefined, isLoggedIn: false });
+
+    return { data: message, error: null };
   };
 
   return { handleLogout };

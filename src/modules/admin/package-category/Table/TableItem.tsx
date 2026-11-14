@@ -1,4 +1,4 @@
-import { Checkbox, TableRow, TableCell, Badge } from "flowbite-react";
+import { TableRow, TableCell, Badge } from "flowbite-react";
 import { PackageCategory } from "@services/admin/package-category/interfaces/get-all-package-category.type";
 
 import TableItemMenu from "./TableItemMenu";
@@ -18,22 +18,12 @@ export default function TableItem({ item, expandedId, setExpandedId }: Props) {
 
   return (
     <TableRow className="bg-white dark:border-gray-700 dark:bg-gray-800">
-      <TableCell className="px-4">
-        <Checkbox />
-      </TableCell>
 
       <TableCell className="whitespace-nowrap capitalize font-medium text-gray-900 dark:text-white my-auto">
         {item.name}
       </TableCell>
       <TableCell className="prose dark:prose-invert">
-        <div
-          dangerouslySetInnerHTML={{
-            __html: displayText
-              .split("\n")
-              .map((line) => `${line}<br/>`)
-              .join(""),
-          }}
-        />
+        <div className="whitespace-pre-line">{displayText}</div>
         {item.description.length > 100 && (
           <button
             type="button"

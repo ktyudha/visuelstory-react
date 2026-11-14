@@ -1,9 +1,12 @@
+import PageCard from "../shared/PageCard";
 import Table from "./Table";
+import PackageFormModal from "./Action/FormModal";
 
 export default function AdminPackage() {
   return (
-    <div className="p-6 bg-gray-50 dark:bg-gray-800 rounded-lg">
+    <PageCard>
       <Table />
-    </div>
+      <PackageFormModal />
+    </PageCard>
   );
 }

@@ -1,5 +1,6 @@
+import ThemeToggle from "../../../../theme/ThemeToggle";
+import AuthHeader from "@modules/auth/views/AuthHeader";
 import Button from "@components/Button";
-import { GalleryVerticalEnd } from "lucide-react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import FormInput from "@components/Form/FormInput";
 import Form from "@components/Form/Form";
@@ -42,31 +43,19 @@ export default function AdminSendOtp() {
   };
   return (
     <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-background p-6 md:p-10">
+      <div className="fixed right-3 top-[calc(0.75rem+env(safe-area-inset-top))]"><ThemeToggle className="!text-neutral-500 hover:!bg-neutral-200 dark:!text-neutral-400 dark:hover:!bg-neutral-800" /></div>
       <div className="w-full max-w-sm">
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-6">
-            <div className="flex flex-col items-center gap-2">
-              <a
-                href="#"
-                className="flex flex-col items-center gap-2 font-medium"
-              >
-                <div className="flex h-8 w-8 items-center justify-center rounded-md">
-                  <GalleryVerticalEnd className="size-6" />
-                </div>
-              </a>
-              <h1 className="text-xl font-bold">Welcome to Visuelstory.</h1>
-              <div className="text-center text-sm">
-                Send an WhatsApp to get an OTP
-              </div>
-            </div>
-            <Form {...methods} onSubmit={onSubmit}>
+            <AuthHeader title="Masuk Admin" subtitle="Masukkan nomor WhatsApp admin untuk menerima OTP." admin />
+<Form {...methods} onSubmit={onSubmit}>
               <div className="flex flex-col gap-6">
                 <div className="grid gap-2">
                   <FormInput
-                    label="WhatsApp"
+                    label="Nomor WhatsApp"
                     name="whatsapp"
                     type="tel"
-                    placeholder="62 xxxx xxxx xxx"
+                    placeholder="62812xxxxxxx"
                     isRequired
                   />
                 </div>
@@ -80,7 +69,7 @@ export default function AdminSendOtp() {
                   ])}
                   disabled={isSubmitting || !isValid}
                 >
-                  <span>{isSubmitting ? "Loading..." : "Login"}</span>
+                  <span>{isSubmitting ? "Memproses..." : "Masuk"}</span>
                 </Button>
               </div>
             </Form>

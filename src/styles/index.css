@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@plugin "flowbite-react/plugin/tailwindcss";
+@import "flowbite-react/plugin/tailwindcss";
 @source "../../.flowbite-react/class-list.json";
 
 @plugin "tailwindcss-animate";
@@ -912,3 +912,67 @@ span.flatpickr-weekday,
 .simplebar-scrollbar.simplebar-visible:before {
   @apply opacity-100;
 }
+
+/* ===== SlotPicker: kalender inline (booking customer) ===== */
+.slot-cal .flatpickr-calendar.inline {
+  width: 100% !important;
+  max-width: 340px;
+  margin: 0 auto !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.slot-cal .flatpickr-innerContainer,
+.slot-cal .flatpickr-rContainer,
+.slot-cal .flatpickr-days,
+.slot-cal .dayContainer {
+  width: 100% !important;
+  min-width: 100% !important;
+  max-width: 100% !important;
+}
+.slot-cal .flatpickr-day {
+  max-width: none;
+  height: 2.5rem;
+  line-height: 2.5rem;
+  border-radius: 0.75rem;
+  color: #171717;
+}
+.slot-cal .flatpickr-day.today:not(.selected) { border-color: #a3a3a3; }
+.slot-cal .flatpickr-day.selected,
+.slot-cal .flatpickr-day.selected:hover,
+.slot-cal .flatpickr-day.selected:focus {
+  background: #171717 !important;
+  border-color: #171717 !important;
+  color: #fff !important;
+}
+.slot-cal .flatpickr-day.flatpickr-disabled,
+.slot-cal .flatpickr-day.flatpickr-disabled:hover {
+  color: #a3a3a3;
+  text-decoration: line-through;
+  cursor: not-allowed;
+  background: transparent;
+}
+.slot-cal .flatpickr-day.prevMonthDay,
+.slot-cal .flatpickr-day.nextMonthDay { color: #d4d4d4; }
+.slot-cal .flatpickr-months .flatpickr-month,
+.slot-cal .flatpickr-current-month,
+.slot-cal .flatpickr-monthDropdown-months,
+.slot-cal span.flatpickr-weekday { color: #171717; fill: #171717; background: transparent; }
+.slot-cal .flatpickr-months .flatpickr-prev-month svg,
+.slot-cal .flatpickr-months .flatpickr-next-month svg { fill: #171717; stroke: none; }
+.dark .slot-cal .flatpickr-day { color: #e5e5e5; }
+.dark .slot-cal .flatpickr-day:hover { background: #262626; border-color: #262626; }
+.dark .slot-cal .flatpickr-day.selected,
+.dark .slot-cal .flatpickr-day.selected:hover,
+.dark .slot-cal .flatpickr-day.selected:focus { background: #fff !important; border-color: #fff !important; color: #171717 !important; }
+.dark .slot-cal .flatpickr-day.flatpickr-disabled,
+.dark .slot-cal .flatpickr-day.flatpickr-disabled:hover { color: #525252; }
+.dark .slot-cal .flatpickr-day.prevMonthDay,
+.dark .slot-cal .flatpickr-day.nextMonthDay { color: #404040; }
+.dark .slot-cal .flatpickr-months .flatpickr-month,
+.dark .slot-cal .flatpickr-current-month,
+.dark .slot-cal .flatpickr-monthDropdown-months,
+.dark .slot-cal span.flatpickr-weekday { color: #e5e5e5; fill: #e5e5e5; }
+.dark .slot-cal .flatpickr-months .flatpickr-prev-month svg,
+.dark .slot-cal .flatpickr-months .flatpickr-next-month svg { fill: #e5e5e5; }

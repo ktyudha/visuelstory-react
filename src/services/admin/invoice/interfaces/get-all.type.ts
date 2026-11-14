@@ -1,4 +1,5 @@
 import { Pagination } from "@services/global/pagination/interfaces/pagination.type";
+import type { Delivery } from "@modules/admin/shared/delivery-ui";
 
 export interface IGetAll {
   data: Invoice[];
@@ -13,13 +14,28 @@ export interface Invoice {
   id: string;
   invoice_number: string;
   invoice_url: string;
-  transaction_status: string;
+  transaction_status: TransactionStatus;
   total_price: number;
   amount_paid: number;
   proof: string;
   customer: Customer;
+  remaining_paid: number;
   invoice_details: InvoiceDetail[];
+  payments?: Payment[];
+  delivery?: Delivery;
+  edited_ready?: boolean;
+  video_url?: string | null;
   created_at: Date;
+}
+
+export type PaymentMethod = "transfer" | "cash" | "qris" | "other";
+
+export interface Payment {
+  id: string;
+  amount: number;
+  paid_at: string;
+  method: PaymentMethod;
+  note: string | null;
 }
 
 interface Customer {
@@ -40,8 +56,8 @@ export interface InvoiceDetail {
 }
 
 interface InvoiceDetailAddOn {
-  id: string;
-  package_addon: PackageAddOn;
+  id?: string;
+  package_addon: PackageAddOn | null;
   quantity: number;
   amount: number;
 }
@@ -65,3 +81,5 @@ interface PackageAddOn {
   name: string;
   price: number;
 }
+
+export type TransactionStatus = "unpaid" | "down_payment" | "paid";

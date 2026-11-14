@@ -1,13 +1,26 @@
 import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { initThemeMode } from "flowbite-react";
+import dayjs from "dayjs";
+import "dayjs/locale/id";
+import { initTheme } from "./theme/theme";
 import GetBrowserRoutes from "./routes/index.routes";
 import { ToastContainer } from "react-toastify";
 import "./styles/index.css";
 import "react-toastify/dist/ReactToastify.css";
 
-initThemeMode();
+dayjs.locale("id"); // nama hari & bulan berbahasa Indonesia di seluruh aplikasi
+initTheme();
+
+// PWA: simpan event pasang aplikasi lebih awal, daftarkan service worker (production saja)
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  (window as unknown as { __installPrompt?: Event }).__installPrompt = e;
+  window.dispatchEvent(new Event("install-available"));
+});
+if ("serviceWorker" in navigator && import.meta.env.PROD) {
+  window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(() => {}));
+}
 
 const router = createBrowserRouter(GetBrowserRoutes());
 const root = ReactDOM.createRoot(

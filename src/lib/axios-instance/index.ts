@@ -36,8 +36,14 @@ export default function axiosInstance(
   instance.interceptors.response.use(
     (resp) => resp,
     (err) => {
-      if (err.response.status === 401 && token && param?.tokenType) {
-        Cookies.remove(mapToken.get(param?.tokenType) as string);
+      if (err.response?.status === 401 && token && param?.tokenType) {
+        const cookieName = mapToken.get(param?.tokenType === "auto" ? role : param.tokenType) as string;
+        Cookies.remove(cookieName, { path: "/" });
+        if (role === "customer" && !window.location.pathname.includes("login")) {
+          window.location.assign(
+            `/login?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`
+          );
+        }
       }
 
       return Promise.reject(err);

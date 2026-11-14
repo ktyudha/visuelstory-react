@@ -1,7 +1,6 @@
-import { Button } from "flowbite-react";
-import { HiPencil, HiTrash } from "react-icons/hi";
+import RowActions from "../../shared/RowActions";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useModalParams } from "../../shared/useModalParams";
 
 import EventDelete from "../Action/Delete";
 interface Props {
@@ -10,7 +9,7 @@ interface Props {
 }
 
 export default function TableItemMenu({ id, name }: Props) {
-  const navigate = useNavigate();
+  const { openEdit } = useModalParams();
   const [openDeleteModal, setOpenDeleteModal] = useState<boolean>(false);
 
   return (
@@ -21,24 +20,10 @@ export default function TableItemMenu({ id, name }: Props) {
         onOpen={openDeleteModal}
         onClose={() => setOpenDeleteModal(false)}
       />
-      <div className="flex gap-2">
-        {/* <Button className="cursor-pointer px-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:bg-gradient-to-bl focus:ring-cyan-300 dark:focus:ring-cyan-800">
-          <HiOutlineEye />
-        </Button> */}
-        <Button size="xs"
-          onClick={() => navigate(`edit/${id}`)}
-          className="cursor-pointer px-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:bg-gradient-to-bl focus:ring-cyan-300 dark:focus:ring-cyan-800"
-        >
-          <HiPencil />
-        </Button>
-        <Button size="xs"
-          // onClick={onDelete}
-          onClick={() => setOpenDeleteModal(true)}
-          className="cursor-pointer px-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:bg-gradient-to-bl focus:ring-cyan-300 dark:focus:ring-cyan-800"
-        >
-          <HiTrash />
-        </Button>
-      </div>
+      <RowActions
+        onEdit={() => openEdit(id)}
+        onDelete={() => setOpenDeleteModal(true)}
+      />
     </>
   );
 }
