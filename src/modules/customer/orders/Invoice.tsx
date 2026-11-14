@@ -1,10 +1,11 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useReactToPrint } from "react-to-print";
 import { ArrowLeft, Download } from "lucide-react";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
 import Metadata from "@components/Metadata";
+import ConfirmSheet from "@components/ConfirmSheet";
 import Logo from "@assets/logo/logo-mark.png";
 import { formattedCurrency } from "@helpers/currency";
 import { useOrder } from "@services/customer/api";
@@ -24,6 +25,7 @@ export default function Invoice() {
   const { orderId } = useParams();
   const { order, error, loading, retry } = useOrder(orderId);
   const printRef = useRef<HTMLDivElement>(null);
+  const [confirmDownload, setConfirmDownload] = useState(false);
   const print = useReactToPrint({
     contentRef: printRef,
     pageStyle: PRINT_STYLE,
@@ -46,7 +48,7 @@ export default function Invoice() {
 
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <StatusBadge status={order.transaction_status} />
-        <button onClick={() => print()} className={`${btnPrimary} max-sm:w-full`}><Download className="size-4" /> Unduh / simpan PDF</button>
+        <button onClick={() => setConfirmDownload(true)} className={`${btnPrimary} max-sm:w-full`}><Download className="size-4" /> Unduh / simpan PDF</button>
       </div>
 
       {/* Dokumen invoice: selalu terang agar cetakan konsisten */}
@@ -158,6 +160,17 @@ export default function Invoice() {
           </footer>
         </div>
       </div>
+
+      {confirmDownload && (
+        <ConfirmSheet
+          title="Unduh invoice?"
+          message={`Invoice ${order.invoice_number} akan dibuka di jendela cetak. Pilih "Simpan sebagai PDF" untuk menyimpannya.`}
+          confirmLabel="Ya, unduh"
+          cancelLabel="Batal"
+          onConfirm={() => { setConfirmDownload(false); setTimeout(() => print(), 250); }}
+          onClose={() => setConfirmDownload(false)}
+        />
+      )}
     </>
   );
 }
