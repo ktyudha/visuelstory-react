@@ -151,7 +151,7 @@ export default function Booking() {
     : { label: submitting ? "Mengirim..." : "Kirim booking", disabled: submitting, onClick: () => attempt(submit, "all") };
 
   return (
-    <div className={clsx(cart.length > 0 || step > 1 ? "pb-24 lg:pb-0" : "")}>
+    <div className={clsx(cart.length > 0 || step > 1 ? "pb-20 lg:pb-0" : "")}>
       <Metadata title="Booking" />
       <h1 className="hidden text-2xl font-bold md:block">Booking Sesi Foto</h1>
       <p className="mb-5 hidden text-neutral-500 dark:text-neutral-400 md:mb-8 md:block">Pilih paket, isi jadwal &amp; lokasi, lalu kirim. Harga final dihitung otomatis.</p>
@@ -319,8 +319,8 @@ export default function Booking() {
 
       {/* ===== Bar aksi menempel (mobile): ringkasan terpilih + lanjut ===== */}
       {catalog && (cart.length > 0 || step > 1) && (
-        <div className="fixed inset-x-0 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-30 px-3 lg:hidden">
-          <div className="mx-auto flex max-w-md items-center gap-2 rounded-2xl border border-neutral-200 bg-white/95 p-2 pl-3 shadow-2xl backdrop-blur dark:border-neutral-700 dark:bg-neutral-900/95">
+        <div className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-30 border-t border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900 lg:hidden">
+          <div className="mx-auto flex max-w-md items-center gap-3 px-4 py-2.5">
             <button onClick={() => setSheet(true)} disabled={cart.length === 0} className="min-w-0 flex-1 cursor-pointer text-left" aria-label="Lihat ringkasan pilihan">
               <div className="flex items-center gap-1 text-xs text-neutral-500 dark:text-neutral-400">
                 <span className="grid min-w-5 place-items-center rounded-full bg-neutral-900 px-1.5 text-[11px] font-bold text-white dark:bg-white dark:text-neutral-900">{count}</span>
