@@ -35,11 +35,11 @@ export default [
     ),
     children: [
       { path: "booking", element: <Customer.BookingPage /> },
+      { path: "booking/package/:packageId", element: <Customer.PackageDetailPage /> },
       { path: "account", element: <Customer.OrdersPage /> },
       { path: "account/profile", element: <Customer.ProfilePage /> },
       { path: "account/orders/:orderId", element: <Customer.OrderDetailPage /> },
-      { path: "account/orders/:orderId/gallery", element: <Customer.GalleryPage /> },
-      { path: "account/orders/:orderId/edited", element: <Customer.EditedGalleryPage /> },
+      { path: "account/orders/:orderId/invoice", element: <Customer.InvoicePage /> },
     ],
   },
   {

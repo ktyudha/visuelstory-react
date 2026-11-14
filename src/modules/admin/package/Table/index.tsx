@@ -1,11 +1,10 @@
-// import { useState } from "react";
+import { EmptyRow, LoadingRows } from "../../shared/TableState";
 import {
   Table,
   TableBody,
   TableHead,
   TableHeadCell,
   TableRow,
-  TableCell,
 } from "flowbite-react";
 
 import PaginationComponent from "@components/Flowbite/Pagination";
@@ -14,12 +13,16 @@ import TableHeader from "./TableHeader";
 import useGetAll from "@services/admin/package/hooks/useGetAll";
 
 export default function TablePackage() {
-  const { data, pagination, setPageNum, loading, setName } = useGetAll();
+  const { data, pagination, setPageNum, loading, setName, packageCategory, setPackageCategory } = useGetAll();
   // const [expandedId, setExpandedId] = useState<string | null>(null);
 
   return (
     <div>
-      <TableHeader setSearchCallback={(e) => setName(e)} />
+      <TableHeader
+        setSearchCallback={(e) => { setName(e); setPageNum(1); }}
+        category={packageCategory}
+        setCategoryCallback={(id) => { setPackageCategory(id); setPageNum(1); }}
+      />
       <div className="overflow-x-auto border rounded-lg">
         <Table hoverable>
           <TableHead>
@@ -32,11 +35,9 @@ export default function TablePackage() {
           </TableHead>
           <TableBody>
             {loading || !data ? (
-              <TableRow>
-                <TableCell colSpan={3} className="text-center">
-                  Loading
-                </TableCell>
-              </TableRow>
+              <LoadingRows cols={4} />
+            ) : data.length === 0 ? (
+              <EmptyRow cols={4} text="Paket tidak ditemukan." />
             ) : (
               data.map((item, idx) => {
                 return (

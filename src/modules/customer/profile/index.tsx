@@ -1,14 +1,15 @@
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { LogOut, MessageCircle } from "lucide-react";
+import { ChevronRight, Globe, LogOut, MessageCircle } from "lucide-react";
 import { toast } from "react-toastify";
 import Metadata from "@components/Metadata";
+import ConfirmSheet from "@components/ConfirmSheet";
 import useGlobalStore from "@store/useStore";
 import useLogout from "@modules/auth/services/hooks/useLogout";
 import ThemeToggle from "../../../theme/ThemeToggle";
 import { useInstallPrompt } from "../../../theme/useInstallPrompt";
 import InstallApp from "../../../theme/InstallApp";
-import { ADMIN_WHATSAPP, btnGhost, Card } from "../shared/ui";
+import { ADMIN_WHATSAPP, Card } from "../shared/ui";
 
 /** Panel diagnostik tersembunyi (buka /account/profile?debug=1): membaca ukuran viewport di perangkat. */
 function ViewportDebug() {
@@ -57,17 +58,23 @@ export default function Profile() {
   // Kartu hanya tampil bila tombolnya memang ada (bisa dipasang otomatis, atau HP dengan panduan manual)
   const canInstall = !standalone && (available || /android|iphone|ipad|ipod/i.test(navigator.userAgent));
 
+  const [confirmLogout, setConfirmLogout] = useState(false);
   const onLogout = async () => {
     await handleLogout("customer");
     toast.success("Anda telah keluar.");
     navigate("/login", { replace: true });
   };
 
+  const row = "flex w-full cursor-pointer items-center gap-3 px-4 py-3.5 text-left text-[15px]";
+  const chevron = <ChevronRight className="size-4 text-neutral-300 dark:text-neutral-600" />;
+
   return (
-    <div className="mx-auto flex max-w-lg flex-col gap-4 min-h-[calc(100dvh-3.5rem-5rem-env(safe-area-inset-top)-env(safe-area-inset-bottom)-1.25rem)] md:min-h-0">
+    <div className="mx-auto flex max-w-lg flex-col gap-6 md:min-h-0">
       <Metadata title="Akun" />
+
+      {/* Profil */}
       <Card className="flex items-center gap-4 p-5">
-        <span className="grid size-14 shrink-0 place-items-center rounded-full bg-neutral-900 text-xl font-semibold uppercase text-white dark:bg-white dark:text-neutral-900">
+        <span className="grid size-14 shrink-0 place-items-center rounded-full bg-neutral-950 text-xl font-semibold uppercase text-gold-300 dark:bg-white dark:text-neutral-900">
           {(me?.name || me?.whatsapp || "?").trim().charAt(0)}
         </span>
         <div className="min-w-0">
@@ -77,26 +84,39 @@ export default function Profile() {
         </div>
       </Card>
 
-      <Card className="p-5">
-        <h2 className="mb-1 font-semibold">Tampilan</h2>
-        <p className="mb-3 text-sm text-neutral-500 dark:text-neutral-400">Pilih tema terang, gelap, atau ikuti pengaturan perangkat.</p>
-        <ThemeToggle variant="segmented" />
-      </Card>
-
-      {canInstall && (
-        <Card className="p-5">
-          <h2 className="mb-1 font-semibold">Pasang aplikasi</h2>
-          <p className="mb-3 text-sm text-neutral-500 dark:text-neutral-400">Tambahkan ke layar utama agar terbuka seperti aplikasi.</p>
-          <InstallApp variant="button" className="w-full" />
+      {/* Preferensi */}
+      <section>
+        <h2 className={sectionTitle}>Preferensi</h2>
+        <Card className="divide-y divide-neutral-100 overflow-hidden dark:divide-neutral-800">
+          <div className="px-4 py-3.5">
+            <div className="mb-2.5 text-[15px]">Mode tampilan</div>
+            <ThemeToggle variant="segmented" />
+          </div>
+          {canInstall && <InstallApp variant="row" />}
         </Card>
-      )}
+      </section>
 
       {params.get("debug") === "1" && <ViewportDebug />}
 
-      <div className="mt-auto grid gap-3 pt-2 sm:grid-cols-2">
-        <a href={`https://wa.me/${ADMIN_WHATSAPP}`} target="_blank" rel="noreferrer" className={btnGhost}><MessageCircle className="size-4" /> Hubungi kami</a>
-        <button onClick={onLogout} className={`${btnGhost} text-red-600 dark:text-red-400`}><LogOut className="size-4" /> Keluar</button>
-      </div>
+      {/* Lainnya */}
+      <section>
+        <h2 className={sectionTitle}>Lainnya</h2>
+        <Card className="divide-y divide-neutral-100 overflow-hidden dark:divide-neutral-800">
+          <Link to="/?web=1" className={row}><Globe className="size-5 text-neutral-500 dark:text-neutral-400" /><span className="flex-1">Website Visuelstory</span>{chevron}</Link>
+          <a href={`https://wa.me/${ADMIN_WHATSAPP}`} target="_blank" rel="noreferrer" className={row}><MessageCircle className="size-5 text-neutral-500 dark:text-neutral-400" /><span className="flex-1">Hubungi kami</span>{chevron}</a>
+        </Card>
+      </section>
+
+      <Card className="overflow-hidden">
+        <button onClick={() => setConfirmLogout(true)} className={`${row} justify-center font-semibold text-red-600 dark:text-red-400`}><LogOut className="size-5" /> Keluar</button>
+      </Card>
+
+      {confirmLogout && (
+        <ConfirmSheet title="Keluar dari akun?" message="Anda perlu masuk lagi dengan OTP WhatsApp untuk melihat pesanan." confirmLabel="Ya, keluar" danger
+          onConfirm={onLogout} onClose={() => setConfirmLogout(false)} />
+      )}
     </div>
   );
 }
+
+const sectionTitle = "mb-2 px-1 text-xs font-medium uppercase tracking-wider text-neutral-500 dark:text-neutral-400";

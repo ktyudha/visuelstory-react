@@ -1,56 +1,28 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { dummyPortfolio } from "@constants/dummy";
 import Metadata from "@components/Metadata";
-
-import Image from "@components/Image";
+import PageHero from "../shared/PageHero";
+import { img } from "../shared/images";
 
 export default function Portfolio() {
-  const navigate = useNavigate();
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    setTimeout(() => {
-      setIsVisible(true);
-    }, 200);
-  }, []);
   return (
     <>
       <Metadata title="Portofolio" />
-      <section id="portfolio" className="relative">
-        <Image
-          className="h-[78vh] w-full object-cover object-bottom z-50 brightness-75 "
-          name="portfolio"
-        />
+      <PageHero image="portfolio" eyebrow="Portofolio" title="Momen yang kami abadikan" />
 
-        <div className="max-w-4xl mx-auto mt-8">
-          <div className="grid md:grid-cols-3 grid-cols-1 gap-8 mx-auto justify-center">
-            {dummyPortfolio.map((_portfolio, idx) => (
-              <div
-                key={idx}
-                className={`relative max-w-xs w-full aspect-square mx-auto cursor-pointer group transition-transform duration-700 ease-in ${
-                  isVisible
-                    ? "scale-100 opacity-100"
-                    : "md:scale-75 scale-95 opacity-95"
-                }`}
-                onClick={() => navigate(`${_portfolio.slug}`)}
-              >
-                <Image
-                  name={_portfolio.image}
-                  className="w-full h-full object-cover brightness-90 group-hover:brightness-75 transition duration-300"
-                />
-
-                <div className="absolute inset-0 flex flex-col items-center justify-center transition-transform duration-300 transform group-hover:-translate-y-4">
-                  <h3 className="text-white text-2xl mb-4 capitalize">
-                    {_portfolio.category}
-                  </h3>
-                  <p className="text-white text-md font-thin uppercase">
-                    {_portfolio.client}
-                  </p>
-                </div>
+      <section className="mx-auto max-w-6xl px-6 py-20 md:py-28">
+        <div className="grid grid-cols-2 gap-x-4 gap-y-12 md:grid-cols-3 md:gap-x-8 md:gap-y-16">
+          {dummyPortfolio.map((p) => (
+            <Link key={p.slug} to={p.slug} className="group block">
+              <div className="aspect-[3/4] overflow-hidden bg-neutral-200">
+                <img src={img(p.image)} alt={`${p.category} ${p.client}`} loading="lazy" className="h-full w-full object-cover transition duration-700 group-hover:opacity-85" />
               </div>
-            ))}
-          </div>
+              <div className="mt-4">
+                <div className="text-[10px] uppercase tracking-[0.3em] text-neutral-400">{p.category}</div>
+                <div className="mt-1 text-base">{p.client}</div>
+              </div>
+            </Link>
+          ))}
         </div>
       </section>
     </>

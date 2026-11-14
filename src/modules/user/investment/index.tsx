@@ -1,102 +1,61 @@
-import { useEffect, useState } from "react";
-import { NavLink } from "react-router-dom";
-import Image from "@components/Image";
+import { Link } from "react-router-dom";
 import Metadata from "@components/Metadata";
+import PageHero from "../shared/PageHero";
+import { img } from "../shared/images";
+import { btnSolid, linkText } from "../shared/ui";
 
 export default function Investment() {
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    setTimeout(() => {
-      setIsVisible(true);
-    }, 200);
-  }, []);
-
   const dummyPricelist = [
     {
       image: "pricelist-1",
       category: "Pricelist",
       client: "Short Event",
-      url: "whatsapp://send?phone=6285848250548&text=Halo Visuelstory, Saya Mau Pricelist Short Event.",
+      url: "whatsapp://send?phone=6285144920131&text=Halo Visuelstory, Saya Mau Pricelist Short Event.",
     },
     {
       image: "pricelist-1",
       category: "Pricelist",
       client: "Unduh Mantu",
-      url: "whatsapp://send?phone=6285848250548&text=Halo Visuelstory, Saya Mau Pricelist Unduh Mantu.",
+      url: "whatsapp://send?phone=6285144920131&text=Halo Visuelstory, Saya Mau Pricelist Unduh Mantu.",
     },
     {
       image: "pricelist-1",
       category: "Pricelist",
       client: "Wedding",
-      url: "whatsapp://send?phone=6285848250548&text=Halo Visuelstory, Saya Mau Pricelist Wedding.",
+      url: "whatsapp://send?phone=6285144920131&text=Halo Visuelstory, Saya Mau Pricelist Wedding.",
     },
   ];
+  const openWhatsApp = (url: string) => {
+    const width = 800;
+    const height = 600;
+    const left = (window.screen.width - width) / 2;
+    const top = (window.screen.height - height) / 2;
+    window.open(url, "_blank", `width=${width},height=${height},top=${top},left=${left},resizable=yes,scrollbars=yes`);
+  };
+
   return (
     <>
       <Metadata title="Investment" />
-      <section id="investment" className="relative">
-        <div className="relative h-[78vh] w-full mb-8">
-          <Image
-            className="h-full w-full object-cover object-center z-50 brightness-75"
-            name="investment"
-          />
-          <div className="absolute text-center top-1/2 left-1/2 mt-10 -translate-x-1/2 -translate-y-1/2 text-white text-3xl font-bold">
-            <h2 className="uppercase md:text-5xl text-4xl tracking-widest mb-4">
-              INVESTMENT
-            </h2>
-            <p className="text-base md:tracking-[0.22em] tracking-[0.36em]  uppercase">
-              Preserve Your Best Memories
-            </p>
-          </div>
+      <PageHero image="investment" eyebrow="Investment" title="Preserve your best memories" subtitle="Pilih jenis acara, lalu minta pricelist langsung lewat WhatsApp." />
+
+      <section className="mx-auto max-w-6xl px-6 py-20 md:py-28">
+        <div className="grid gap-12 md:grid-cols-3 md:gap-8">
+          {dummyPricelist.map((p) => (
+            <article key={p.client} className="group">
+              <div className="aspect-[4/3] overflow-hidden bg-neutral-200">
+                <img src={img(p.image)} alt={p.client} loading="lazy" className="h-full w-full object-cover transition duration-700 group-hover:opacity-85" />
+              </div>
+              <div className="mt-5 flex items-end justify-between gap-4 border-b border-neutral-300 pb-5">
+                <h3 className="text-xl">{p.client}</h3>
+                <button onClick={() => openWhatsApp(p.url)} className={`${linkText} cursor-pointer whitespace-nowrap`}>Minta pricelist</button>
+              </div>
+            </article>
+          ))}
         </div>
 
-        <div className="max-w-4xl mx-auto">
-          <div className="grid md:grid-cols-3 grid-cols-1 gap-8 mx-auto justify-center">
-            {dummyPricelist.map((_portfolio, idx) => (
-              <NavLink
-                key={idx}
-                to={_portfolio.url}
-                target="_blank"
-                className={`relative max-w-xs w-full aspect-square mx-auto cursor-pointer group transition-transform duration-700 ease-in ${
-                  isVisible
-                    ? "scale-100 opacity-100"
-                    : "md:scale-75 scale-95 opacity-95"
-                }`}
-                onClick={(e) => {
-                  e.preventDefault();
-
-                  // Ukuran window baru
-                  const width = 800;
-                  const height = 600;
-
-                  // Hitung posisi supaya muncul di tengah
-                  const left = (window.screen.width - width) / 2;
-                  const top = (window.screen.height - height) / 2;
-
-                  window.open(
-                    _portfolio.url,
-                    "_blank",
-                    `width=${width},height=${height},top=${top},left=${left},resizable=yes,scrollbars=yes`
-                  );
-                }}
-              >
-                <Image
-                  name={_portfolio.image}
-                  className="w-full h-full object-cover brightness-90 group-hover:brightness-75 transition duration-300"
-                />
-
-                <div className="absolute inset-0 flex flex-col items-center justify-center transition-transform duration-300 transform group-hover:-translate-y-4">
-                  <h3 className="text-white text-2xl mb-4 capitalize">
-                    {_portfolio.category}
-                  </h3>
-                  <p className="text-white text-md font-thin uppercase">
-                    {_portfolio.client}
-                  </p>
-                </div>
-              </NavLink>
-            ))}
-          </div>
+        <div className="mt-24 text-center">
+          <h2 className="text-3xl font-light md:text-4xl">Sudah tahu paket yang Anda mau?</h2>
+          <Link to="/booking" className={`${btnSolid} mt-10`}>Booking online</Link>
         </div>
       </section>
     </>

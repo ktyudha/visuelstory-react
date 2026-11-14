@@ -49,6 +49,15 @@
   --color-brand-200: #c2d6ff;
   --color-brand-300: #9cb9ff;
   --color-brand-400: #7592ff;
+  --color-gold-50: #fbf7ec;
+  --color-gold-100: #f3e8c9;
+  --color-gold-300: #e3c777;
+  --color-gold-400: #d4b05a;
+  --color-gold-500: #c9a24a;
+  --color-gold-600: #a98432;
+  --color-gold-700: #85671f;
+  --color-gold-950: #2a1f08;
+
   --color-brand-500: #465fff;
   --color-brand-600: #3641f5;
   --color-brand-700: #2a31d8;
@@ -992,4 +1001,48 @@ body, #root {
 }
 button, a, [role="button"] {
   touch-action: manipulation; /* tanpa jeda ketuk ganda & zoom tidak sengaja */
+}
+
+/* ===== Tampilan ala iOS (area pelanggan, mobile) ===== */
+.ios-app {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+@media (max-width: 767px) {
+  /* 16px mencegah iOS memperbesar layar saat mengetuk kolom isian */
+  .ios-app input, .ios-app select, .ios-app textarea { font-size: 16px; }
+  /* sorotan ketuk: meredup sebentar seperti kontrol native */
+  .ios-app :is(button, a, [role="button"]):not(:disabled):active { opacity: .6; transition: opacity 60ms; }
+  .ios-app :is(button, a, [role="button"]) { transition: opacity 200ms; }
+}
+
+/* ===== Landing (website publik) ===== */
+.landing-root { font-family: "Tenor Sans", system-ui, sans-serif; background: #faf8f4; color: #171717; }
+.font-display { font-family: inherit; letter-spacing: -0.01em; }
+
+/* ===== Efek kaca ala Liquid Glass (pendekatan CSS) ===== */
+@utility glass {
+  background-color: rgb(255 255 255 / 0.55);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgb(255 255 255 / 0.65);
+  box-shadow: 0 10px 30px rgb(0 0 0 / 0.12), inset 0 1px 0 rgb(255 255 255 / 0.85), inset 0 -1px 0 rgb(255 255 255 / 0.2);
+  &:is(.dark *) {
+    background-color: rgb(30 30 32 / 0.55);
+    border-color: rgb(255 255 255 / 0.14);
+    box-shadow: 0 10px 30px rgb(0 0 0 / 0.5), inset 0 1px 0 rgb(255 255 255 / 0.2), inset 0 -1px 0 rgb(255 255 255 / 0.04);
+  }
+}
+/* Varian lebih pekat untuk sheet (teks panjang tetap terbaca) */
+@utility glass-strong {
+  background-color: rgb(255 255 255 / 0.82);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  backdrop-filter: blur(30px) saturate(180%);
+  border: 1px solid rgb(255 255 255 / 0.7);
+  box-shadow: 0 20px 50px rgb(0 0 0 / 0.25), inset 0 1px 0 rgb(255 255 255 / 0.9);
+  &:is(.dark *) {
+    background-color: rgb(30 30 32 / 0.78);
+    border-color: rgb(255 255 255 / 0.14);
+    box-shadow: 0 20px 50px rgb(0 0 0 / 0.6), inset 0 1px 0 rgb(255 255 255 / 0.18);
+  }
 }

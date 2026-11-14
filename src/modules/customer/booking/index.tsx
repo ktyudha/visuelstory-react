@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
-import { CalendarDays, Check, CheckCircle2, ChevronLeft, ChevronRight, ChevronUp, MapPin, Minus, Plus, Search, Trash2 } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { CalendarDays, Check, CheckCircle2, ChevronLeft, ChevronRight, ChevronUp, MapPin, Plus, Search, Trash2 } from "lucide-react";
 import { toast } from "react-toastify";
 import clsx from "clsx";
 import dayjs from "dayjs";
@@ -8,38 +8,32 @@ import "dayjs/locale/id";
 import Metadata from "@components/Metadata";
 import BottomSheet from "@components/BottomSheet";
 import SlotPicker from "../shared/SlotPicker";
+import useCart, { type CartItem } from "./cart";
+import { Addons, Field, PackageSheet, Stepper } from "./parts";
+import ConfirmSheet from "@components/ConfirmSheet";
 import { formattedCurrency } from "@helpers/currency";
 import useGlobalStore from "@store/useStore";
 import { createBooking, getApiError, useCatalog } from "@services/customer/api";
 import type { CatalogAddon, CatalogPackage, Order } from "@services/customer/types";
-import { ADMIN_WHATSAPP, btnGhost, btnPrimary, Card, ErrorState, inputCls, Spinner } from "../shared/ui";
-
-interface CartItem {
-  pkg: CatalogPackage;
-  quantity: number;
-  date: string;
-  location: string;
-  note: string;
-  addons: Record<string, number>; // addonId -> qty
-}
-
-type Step = 1 | 2 | 3;
-const STEPS: { n: Step; label: string }[] = [
-  { n: 1, label: "Pilih paket" },
-  { n: 2, label: "Jadwal & detail" },
-  { n: 3, label: "Tinjau & kirim" },
-];
+import { CatalogSkeleton } from "../shared/skeletons";
+import { ADMIN_WHATSAPP, btnGhost, btnPrimary, Card, ErrorState, inputCls } from "../shared/ui";
 
 export default function Booking() {
   const { catalog, error, loading, retry } = useCatalog();
   const me = useGlobalStore((s) => s.me);
 
-  const [cart, setCart] = useState<CartItem[]>([]);
+  const cart = useCart((s) => s.items);
+  const patch = useCart((s) => s.patch);
+  const remove = useCart((s) => s.remove);
+  const clear = useCart((s) => s.clear);
+  const upsert = useCart((s) => s.upsert);
+  const navigate = useNavigate();
+  const [toRemove, setToRemove] = useState<string | null>(null); // id paket yang menunggu konfirmasi hapus
+  const [detail, setDetail] = useState<CatalogPackage | null>(null); // paket yang rinciannya sedang dibuka
   const [category, setCategory] = useState("all");
   const [query, setQuery] = useState("");
-  const [step, setStep] = useState<Step>(1);
+  const [stage, setStage] = useState<"pick" | "checkout">("pick"); // 1. pilih paket & add-on, 2. checkout
   const [sheet, setSheet] = useState(false);
-  const [detail, setDetail] = useState<CatalogPackage | null>(null); // paket yang detailnya sedang dibuka
   const [profile, setProfile] = useState({ name: "", email: "", address: "" });
   const [tried, setTried] = useState(false); // sudah menekan lanjut dengan isian belum lengkap
   const [submitting, setSubmitting] = useState(false);
@@ -65,10 +59,6 @@ export default function Booking() {
   const count = cart.reduce((s, i) => s + i.quantity, 0);
 
   const find = (id: string) => cart.find((i) => i.pkg.id === id);
-  const patch = (id: string, p: Partial<CartItem>) => setCart((c) => c.map((i) => (i.pkg.id === id ? { ...i, ...p } : i)));
-  const add = (pkg: CatalogPackage) => setCart((c) => [...c, { pkg, quantity: 1, date: "", location: "", note: "", addons: {} }]);
-  const remove = (id: string) => setCart((c) => c.filter((i) => i.pkg.id !== id));
-
   const itemErrors = (i: CartItem) => ({
     date: !i.date ? "Pilih tanggal & jam acara." : !dayjs(i.date).isAfter(dayjs()) ? "Waktu acara harus di masa depan." : "",
     location: i.location.trim().length < 3 ? "Isi lokasi acara (minimal 3 huruf)." : "",
@@ -77,7 +67,13 @@ export default function Booking() {
   const profileOk = name.trim().length > 1;
   const valid = detailsOk && profileOk;
 
-  const go = (s: Step) => { setStep(s); setTried(false); setSheet(false); window.scrollTo({ top: 0, behavior: "smooth" }); };
+  // Tanpa paket tidak ada yang bisa di-checkout
+  const checkout = stage === "checkout" && cart.length > 0;
+  const goTo = (s: "pick" | "checkout") => {
+    setStage(s); setTried(false); setSheet(false);
+    window.scrollTo({ top: 0 });
+    document.querySelector("main")?.scrollTo({ top: 0 });
+  };
 
   /** Validasi dulu: kalau belum lengkap, tandai isian yang kurang & gulir ke sana. */
   const attempt = (action: () => void, needs: "details" | "all") => {
@@ -111,7 +107,9 @@ export default function Booking() {
         })),
       });
       setDone(order);
+      clear();
       window.scrollTo({ top: 0 });
+      document.querySelector("main")?.scrollTo({ top: 0 });
     } catch (err) {
       toast.error(getApiError(err));
     } finally {
@@ -144,103 +142,93 @@ export default function Booking() {
     );
   }
 
-  // Tombol aksi bar bawah (mobile) sesuai langkah
-  const next =
-    step === 1 ? { label: "Lanjut isi jadwal", disabled: cart.length === 0, onClick: () => go(2) }
-    : step === 2 ? { label: "Lanjut tinjau", disabled: false, onClick: () => attempt(() => go(3), "details") }
-    : { label: submitting ? "Mengirim..." : "Kirim booking", disabled: submitting, onClick: () => attempt(submit, "all") };
+  // Tombol aksi bar bawah (mobile)
+  const next = checkout
+    ? { label: submitting ? "Mengirim..." : "Kirim booking", disabled: submitting, onClick: () => attempt(submit, "all") }
+    : { label: "Checkout", disabled: cart.length === 0, onClick: () => goTo("checkout") };
 
   return (
-    <div className={clsx(cart.length > 0 || step > 1 ? "pb-20 lg:pb-0" : "")}>
+    <div className={clsx(cart.length > 0 ? "pb-20 lg:pb-0" : "")}>
       <Metadata title="Booking" />
       <h1 className="hidden text-2xl font-bold md:block">Booking Sesi Foto</h1>
-      <p className="mb-5 hidden text-neutral-500 dark:text-neutral-400 md:mb-8 md:block">Pilih paket, isi jadwal &amp; lokasi, lalu kirim. Harga final dihitung otomatis.</p>
+      <p className="mb-5 hidden text-neutral-500 dark:text-neutral-400 md:mb-8 md:block">Pilih paket &amp; add-on, lalu checkout untuk isi jadwal &amp; data pemesan. Harga final dihitung otomatis.</p>
 
-      {/* Progres langkah (mobile) */}
-      <nav aria-label="Langkah booking" className="mb-5 lg:hidden">
-        <div className="mb-2 flex items-center justify-between text-sm">
-          {step > 1 ? (
-            <button onClick={() => go((step - 1) as Step)} className="inline-flex cursor-pointer items-center gap-1 text-neutral-500 dark:text-neutral-400">
-              <ChevronLeft className="size-4" /> Kembali
-            </button>
-          ) : <span />}
-          <span className="font-medium">Langkah {step} dari 3 · {STEPS[step - 1].label}</span>
-        </div>
-        <div className="grid grid-cols-3 gap-1.5" aria-hidden>
-          {STEPS.map((s) => <div key={s.n} className={clsx("h-1.5 rounded-full transition-colors", s.n <= step ? "bg-neutral-900 dark:bg-white" : "bg-neutral-200 dark:bg-neutral-800")} />)}
-        </div>
-      </nav>
-
-      {loading && <Spinner />}
+      {loading && <CatalogSkeleton />}
       {error && <ErrorState message="Katalog paket gagal dimuat." onRetry={() => retry()} />}
 
       {catalog && (
         <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-8">
           <div className="min-w-0 space-y-7">
-            {/* ===== 1. Pilih paket ===== */}
-            <section className={clsx(step !== 1 && "hidden lg:block")}>
-              <h2 className="mb-3 hidden font-semibold lg:block">1. Pilih paket</h2>
+            {/* ===== Langkah 1: pilih paket & add-on ===== */}
+            {!checkout && <section>
+              <h2 className="mb-3 font-semibold">Pilih paket</h2>
 
               <div className="relative mb-3">
                 <Search className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-neutral-400" />
                 <input type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Cari paket..." className={`${inputCls} !pl-10`} />
               </div>
-              <div className="-mx-4 mb-3 flex gap-2 overflow-x-auto px-4 pb-2 [scrollbar-width:none] md:mx-0 md:px-0 [&::-webkit-scrollbar]:hidden">
-                {[{ id: "all", name: "Semua" }, ...catalog.categories].map((c) => (
-                  <button key={c.id} type="button" onClick={() => setCategory(c.id)}
-                    className={clsx("shrink-0 cursor-pointer rounded-full border px-4 py-1.5 text-sm",
-                      category === c.id ? "border-neutral-900 bg-neutral-900 text-white dark:border-white dark:bg-white dark:text-neutral-900" : "border-neutral-300 bg-white hover:bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-900 dark:hover:bg-neutral-800")}>
-                    {c.name}
-                  </button>
-                ))}
-              </div>
-
-              {packages.length === 0 && <p className="py-8 text-center text-sm text-neutral-500 dark:text-neutral-400">Paket tidak ditemukan.</p>}
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                {packages.map((p) => {
-                  const item = find(p.id);
+              {/* Kategori: tab bergaris bawah, jumlah paket di tiap kategori */}
+              <div role="tablist" aria-label="Kategori paket" className="-mx-4 mb-4 flex gap-6 overflow-x-auto border-b border-neutral-200 px-4 [scrollbar-width:none] md:mx-0 md:px-0 dark:border-neutral-800 [&::-webkit-scrollbar]:hidden">
+                {[{ id: "all", name: "Semua" }, ...catalog.categories].map((c) => {
+                  const n = c.id === "all" ? catalog.packages.length : catalog.packages.filter((p) => p.package_category?.id === c.id).length;
+                  const active = category === c.id;
                   return (
-                    <div key={p.id} className={clsx("min-w-0 break-words rounded-2xl border bg-white p-4 transition dark:bg-neutral-900",
-                      item ? "border-neutral-900 ring-2 ring-neutral-900/10 dark:border-white" : "border-neutral-200 dark:border-neutral-800")}>
-                      <div className="mb-1 text-xs text-neutral-500 dark:text-neutral-400">{p.package_category?.name}</div>
-                      <div className="font-semibold">{p.name}</div>
-                      <p className="mt-1 line-clamp-2 whitespace-pre-line text-sm text-neutral-500 dark:text-neutral-400">{p.description}</p>
-                      <button type="button" onClick={() => setDetail(p)} className="mt-1 inline-flex cursor-pointer items-center gap-0.5 text-sm font-medium text-neutral-900 underline underline-offset-4 dark:text-white">
-                        Lihat detail <ChevronRight className="size-4" />
-                      </button>
-                      <div className="mt-3 flex items-baseline gap-2">
-                        <span className="font-bold">{formattedCurrency(p.price_final)}</span>
-                        {p.discount > 0 && <span className="text-xs text-neutral-400 line-through dark:text-neutral-500">{formattedCurrency(p.price)}</span>}
-                      </div>
-
-                      {item ? (
-                        <div className="mt-3 flex items-center justify-between gap-2">
-                          <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 dark:text-emerald-400"><Check className="size-4" /> Dipilih</span>
-                          <div className="flex items-center gap-2">
-                            <Stepper value={item.quantity} min={1} max={20} onChange={(v) => patch(p.id, { quantity: v })} />
-                            <button type="button" aria-label="Hapus" onClick={() => remove(p.id)} className="cursor-pointer rounded-lg p-2 text-neutral-400 hover:text-red-600"><Trash2 className="size-4" /></button>
-                          </div>
-                        </div>
-                      ) : (
-                        <button type="button" onClick={() => add(p)} className={`${btnPrimary} mt-3 w-full`}><Plus className="size-4" /> Pilih paket</button>
-                      )}
-                    </div>
+                    <button key={c.id} role="tab" aria-selected={active} type="button" onClick={() => setCategory(c.id)}
+                      className={clsx("relative shrink-0 cursor-pointer whitespace-nowrap pb-3 pt-1 text-sm transition-colors",
+                        active ? "font-semibold text-neutral-900 dark:text-white" : "text-neutral-500 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-200")}>
+                      {c.name} <span className={clsx("ml-0.5 text-xs", active ? "text-gold-700 dark:text-gold-400" : "text-neutral-400")}>{n}</span>
+                      {active && <span className="absolute inset-x-0 -bottom-px h-0.5 rounded-full bg-gold-500" />}
+                    </button>
                   );
                 })}
               </div>
-            </section>
 
-            {/* ===== 2. Detail acara ===== */}
-            {cart.length > 0 && (
-              <section className={clsx("space-y-4", step !== 2 && "hidden lg:block lg:space-y-4")}>
-                <h2 className="hidden font-semibold lg:block">2. Detail acara</h2>
+              {packages.length === 0 && <p className="py-8 text-center text-sm text-neutral-500 dark:text-neutral-400">Paket tidak ditemukan.</p>}
+              <div className="grid grid-cols-1 items-start gap-3 sm:grid-cols-2">
+                {packages.map((p) => {
+                  const item = find(p.id);
+                  return (
+                    <button key={p.id} type="button" onClick={() => setDetail(p)}
+                      className={clsx("block w-full min-w-0 cursor-pointer break-words rounded-2xl border bg-white p-4 text-left transition active:scale-[0.99] dark:bg-neutral-900",
+                        item ? "border-gold-500 ring-2 ring-gold-500/20" : "border-neutral-200 dark:border-neutral-800")}>
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <div className="mb-1 text-xs text-neutral-500 dark:text-neutral-400">{p.package_category?.name}</div>
+                          <div className="font-semibold">{p.name}</div>
+                        </div>
+                        {item && <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-gold-500/15 px-2 py-0.5 text-xs font-semibold text-gold-700 dark:text-gold-400"><Check className="size-3.5" /> × {item.quantity}</span>}
+                      </div>
+                      <p className="mt-1 line-clamp-2 whitespace-pre-line text-sm text-neutral-500 dark:text-neutral-400">{p.description}</p>
+                      <div className="mt-3 flex items-end justify-between gap-2">
+                        <div className="flex items-baseline gap-2">
+                          <span className="font-bold">{formattedCurrency(p.price_final)}</span>
+                          {p.discount > 0 && <span className="text-xs text-neutral-400 line-through dark:text-neutral-500">{formattedCurrency(p.price)}</span>}
+                        </div>
+                        <span className="inline-flex items-center gap-0.5 text-sm font-medium text-gold-700 dark:text-gold-400">Lihat detail <ChevronRight className="size-4" /></span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </section>}
+
+            {/* ===== Langkah 2: checkout ===== */}
+            {checkout && (
+              <button type="button" onClick={() => goTo("pick")} className="inline-flex cursor-pointer items-center gap-1 text-sm text-neutral-500 dark:text-neutral-400">
+                <ChevronLeft className="size-4" /> Tambah / ubah paket
+              </button>
+            )}
+
+            {checkout && (
+              <section className="space-y-4">
+                <h2 className="font-semibold">Detail acara</h2>
                 {cart.map((i) => (
                   <Card key={i.pkg.id} id={`item-${i.pkg.id}`} className={clsx("overflow-hidden scroll-mt-24", tried && (itemErrors(i).date || itemErrors(i).location) && "!border-red-400")}>
                     {/* Kepala kartu */}
                     <div className="flex items-start justify-between gap-3 border-b border-neutral-200 bg-neutral-50 px-4 py-3 dark:border-neutral-800 dark:bg-neutral-950/50 sm:px-5">
                       <div className="min-w-0">
                         <div className="truncate font-semibold">{i.pkg.name}</div>
-                        <div className="text-sm text-neutral-500 dark:text-neutral-400">{formattedCurrency(i.pkg.price_final)} / paket</div>
+                        <div className="text-sm text-neutral-500 dark:text-neutral-400">{formattedCurrency(i.pkg.price_final)} × {i.quantity}</div>
                       </div>
                       <button type="button" onClick={() => remove(i.pkg.id)} className="-mr-2 cursor-pointer rounded-lg p-2 text-neutral-400 hover:text-red-600" aria-label="Hapus paket"><Trash2 className="size-4" /></button>
                     </div>
@@ -252,9 +240,6 @@ export default function Booking() {
                       </Field>
                       <Field label="Lokasi acara" error={tried ? itemErrors(i).location : ""}>
                         <input maxLength={500} placeholder="Nama tempat / alamat lengkap" value={i.location} onChange={(e) => patch(i.pkg.id, { location: e.target.value })} className={clsx(fieldCls, tried && itemErrors(i).location && errCls)} />
-                      </Field>
-                      <Field label="Jumlah paket">
-                        <QuantityField value={i.quantity} min={1} max={20} onChange={(v) => patch(i.pkg.id, { quantity: v })} />
                       </Field>
                       <Field label="Catatan" optional>
                         <textarea rows={2} maxLength={1000} placeholder="Konsep, request khusus, dll." value={i.note} onChange={(e) => patch(i.pkg.id, { note: e.target.value })} className={inputCls} />
@@ -272,10 +257,10 @@ export default function Booking() {
               </section>
             )}
 
-            {/* ===== 3. Tinjau (mobile) ===== */}
-            {step === 3 && (
+            {/* ===== Tinjau (mobile) ===== */}
+            {checkout && (
               <section className="space-y-4 lg:hidden">
-                <ReviewList cart={cart} addonMap={addonMap} lineTotal={lineTotal} />
+                <ReviewList cart={cart} addonMap={addonMap} lineTotal={lineTotal} onRemove={setToRemove} />
                 <div className="flex justify-between rounded-2xl bg-neutral-900 p-4 text-white dark:bg-white dark:text-neutral-900">
                   <span>Total</span><b className="text-lg">{formattedCurrency(total)}</b>
                 </div>
@@ -283,8 +268,8 @@ export default function Booking() {
             )}
 
             {/* ===== Data pemesan ===== */}
-            <section className={clsx(step !== 3 && "hidden lg:block")}>
-              <h2 className="mb-3 font-semibold"><span className="hidden lg:inline">3. </span>Data pemesan</h2>
+            {checkout && <section>
+              <h2 className="mb-3 font-semibold">Data pemesan</h2>
               <Card className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 sm:p-5">
                 <div id="field-name" className="scroll-mt-24 sm:col-span-2"><Field label="Nama lengkap" error={tried && !profileOk ? "Isi nama lengkap Anda." : ""}>
                   <input maxLength={120} value={name} onChange={(e) => setProfile({ ...profile, name: e.target.value })} className={clsx(fieldCls, tried && !profileOk && errCls)} />
@@ -299,87 +284,67 @@ export default function Booking() {
                   <input maxLength={255} value={profile.address} onChange={(e) => setProfile({ ...profile, address: e.target.value })} className={fieldCls} />
                 </Field></div>
               </Card>
-            </section>
+            </section>}
           </div>
 
           {/* ===== Ringkasan (desktop) ===== */}
           <aside className="hidden min-w-0 lg:sticky lg:top-20 lg:block">
             <Card className="p-5">
               <h2 className="mb-4 font-semibold">Ringkasan</h2>
-              {cart.length === 0 ? <p className="text-sm text-neutral-500 dark:text-neutral-400">Belum ada paket dipilih.</p> : <ReviewList cart={cart} addonMap={addonMap} lineTotal={lineTotal} compact />}
+              {cart.length === 0 ? <p className="text-sm text-neutral-500 dark:text-neutral-400">Belum ada paket dipilih.</p> : <ReviewList cart={cart} addonMap={addonMap} lineTotal={lineTotal} compact onRemove={setToRemove} />}
               <div className="mt-4 flex items-baseline justify-between border-t border-neutral-200 pt-4 dark:border-neutral-800">
                 <span className="text-sm text-neutral-500 dark:text-neutral-400">Total</span>
                 <span className="text-xl font-bold">{formattedCurrency(total)}</span>
               </div>
-              <button type="button" onClick={() => attempt(submit, "all")} disabled={submitting || cart.length === 0} className={`${btnPrimary} mt-5 w-full`}>{submitting ? "Mengirim..." : "Kirim booking"}</button>
+              <button type="button" onClick={next.onClick} disabled={next.disabled} className={`${btnPrimary} mt-5 w-full`}>{next.label}</button>
             </Card>
           </aside>
         </div>
       )}
 
       {/* ===== Bar aksi menempel (mobile): ringkasan terpilih + lanjut ===== */}
-      {catalog && (cart.length > 0 || step > 1) && (
-        <div className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-30 border-t border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900 lg:hidden">
+      {catalog && cart.length > 0 && (
+        <div className="glass fixed inset-x-4 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-30 mx-auto max-w-sm rounded-2xl lg:hidden">
           <div className="mx-auto flex max-w-md items-center gap-3 px-4 py-2.5">
             <button onClick={() => setSheet(true)} disabled={cart.length === 0} className="min-w-0 flex-1 cursor-pointer text-left" aria-label="Lihat ringkasan pilihan">
               <div className="flex items-center gap-1 text-xs text-neutral-500 dark:text-neutral-400">
-                <span className="grid min-w-5 place-items-center rounded-full bg-neutral-900 px-1.5 text-[11px] font-bold text-white dark:bg-white dark:text-neutral-900">{count}</span>
+                <span className="grid min-w-5 place-items-center rounded-full bg-gold-500 px-1.5 text-[11px] font-bold text-neutral-950">{count}</span>
                 paket dipilih <ChevronUp className="size-3.5" />
               </div>
               <div className="truncate font-bold">{formattedCurrency(total)}</div>
             </button>
-            <button onClick={next.onClick} disabled={next.disabled} className={`${btnPrimary} shrink-0 px-5 py-3`}>{next.label}</button>
+            <button onClick={next.onClick} disabled={next.disabled} className={`${btnPrimary} shrink-0`}>{next.label}</button>
           </div>
         </div>
       )}
 
-      {/* ===== Detail paket ===== */}
+      {/* ===== Konfirmasi hapus paket ===== */}
+      {toRemove && (
+        <ConfirmSheet title="Hapus paket ini?" message={`${find(toRemove)?.pkg.name ?? "Paket"} beserta add-on dan jadwalnya akan dihapus dari pesanan.`} confirmLabel="Ya, hapus" danger
+          onConfirm={() => { remove(toRemove); setToRemove(null); }} onClose={() => setToRemove(null)} />
+      )}
+
+      {/* ===== Rincian paket ===== */}
       {detail && (() => {
         const item = find(detail.id);
-        const points = detail.description.split("\n").map((l) => l.replace(/^\s*[-•*]\s*/, "").trim()).filter(Boolean);
         return (
-          <BottomSheet label={`Detail ${detail.name}`} onClose={() => setDetail(null)}>
-            <div className="text-xs text-neutral-500 dark:text-neutral-400">{detail.package_category?.name}</div>
-            <h2 className="text-xl font-bold leading-tight">{detail.name}</h2>
-            <div className="mt-2 flex flex-wrap items-baseline gap-x-2">
-              <span className="text-2xl font-bold">{formattedCurrency(detail.price_final)}</span>
-              {detail.discount > 0 && (
-                <>
-                  <span className="text-sm text-neutral-400 line-through dark:text-neutral-500">{formattedCurrency(detail.price)}</span>
-                  <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400">Hemat {detail.discount}%</span>
-                </>
-              )}
-            </div>
-
-            <h3 className="mb-2 mt-5 text-sm font-semibold">Yang Anda dapatkan</h3>
-            <ul className="space-y-2 text-sm">
-              {points.map((t, i) => (
-                <li key={i} className="flex items-start gap-2.5"><Check className="mt-0.5 size-4 shrink-0 text-emerald-600 dark:text-emerald-400" /><span className="min-w-0 break-words">{t}</span></li>
-              ))}
-              {points.length === 0 && <li className="text-neutral-500 dark:text-neutral-400">Belum ada rincian untuk paket ini.</li>}
-            </ul>
-
-            {catalog && catalog.addons.length > 0 && (
-              <p className="mt-4 rounded-xl bg-neutral-50 p-3 text-xs text-neutral-500 dark:bg-neutral-950 dark:text-neutral-400">
-                Add-on opsional (mis. {catalog.addons.slice(0, 2).map((a) => a.name).join(", ")}) bisa ditambahkan di langkah berikutnya.
-              </p>
-            )}
-
-            <div className="mt-6 space-y-2">
-              {item ? (
-                <div className="flex items-center justify-between gap-3 rounded-xl border border-neutral-900 p-3 dark:border-white">
-                  <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-700 dark:text-emerald-400"><Check className="size-4" /> Sudah dipilih</span>
-                  <div className="flex items-center gap-2">
-                    <Stepper value={item.quantity} min={1} max={20} onChange={(v) => patch(detail.id, { quantity: v })} />
-                    <button onClick={() => { remove(detail.id); setDetail(null); }} aria-label="Hapus" className="cursor-pointer p-2 text-neutral-400 hover:text-red-600"><Trash2 className="size-4" /></button>
-                  </div>
+          <PackageSheet pkg={detail} onClose={() => setDetail(null)}>
+            {item ? (
+              <>
+                <div className="flex items-center justify-between gap-3 rounded-xl border border-gold-500 p-3">
+                  <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-gold-700 dark:text-gold-400"><Check className="size-4" /> Sudah dipilih × {item.quantity}</span>
+                  <button onClick={() => { remove(detail.id); setDetail(null); }} aria-label="Hapus" className="cursor-pointer p-2 text-neutral-400 hover:text-red-600"><Trash2 className="size-4" /></button>
                 </div>
-              ) : (
-                <button onClick={() => { add(detail); setDetail(null); }} className={`${btnPrimary} w-full py-3`}><Plus className="size-4" /> Pilih paket ini</button>
-              )}
-              <button onClick={() => setDetail(null)} className={`${btnGhost} w-full py-3`}>Tutup</button>
-            </div>
-          </BottomSheet>
+                <button onClick={() => navigate(`/booking/package/${detail.id}`)} className={`${btnPrimary} w-full`}>Atur jumlah &amp; add-on</button>
+              </>
+            ) : (
+              <>
+                <button onClick={() => { upsert(detail, 1, {}); setDetail(null); }} className={`${btnPrimary} w-full`}><Plus className="size-4" /> Pilih paket ini</button>
+                <button onClick={() => navigate(`/booking/package/${detail.id}`)} className={`${btnGhost} w-full`}>Pilih &amp; atur add-on</button>
+              </>
+            )}
+            <button onClick={() => setDetail(null)} className={`${btnGhost} w-full`}>Tutup</button>
+          </PackageSheet>
         );
       })()}
 
@@ -392,10 +357,10 @@ export default function Booking() {
             {cart.map((i) => (
               <li key={i.pkg.id} className="rounded-xl border border-neutral-200 p-3 dark:border-neutral-800">
                 <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0">
-                    <div className="truncate font-medium">{i.pkg.name}</div>
-                    <div className="text-xs text-neutral-500 dark:text-neutral-400">{formattedCurrency(i.pkg.price_final)} / paket</div>
-                  </div>
+                  <button type="button" onClick={() => navigate(`/booking/package/${i.pkg.id}`)} className="min-w-0 cursor-pointer text-left" aria-label={`Atur add-on ${i.pkg.name}`}>
+                    <div className="flex items-center gap-0.5 font-medium"><span className="truncate">{i.pkg.name}</span><ChevronRight className="size-4 shrink-0 text-neutral-400" /></div>
+                    <div className="text-xs text-neutral-500 dark:text-neutral-400">{formattedCurrency(i.pkg.price_final)} / paket{Object.values(i.addons).some((q) => q > 0) ? " · + add-on" : ""}</div>
+                  </button>
                   <b className="shrink-0">{formattedCurrency(lineTotal(i))}</b>
                 </div>
                 <div className="mt-2 flex items-center justify-between">
@@ -409,8 +374,8 @@ export default function Booking() {
             <span className="text-neutral-500 dark:text-neutral-400">Total</span><b className="text-xl">{formattedCurrency(total)}</b>
           </div>
           <div className="grid gap-2">
-            {step === 1 && <button onClick={() => go(2)} className={`${btnPrimary} py-3`}>Lanjut isi jadwal</button>}
-            <button onClick={() => { setSheet(false); if (step !== 1) go(1); }} className={`${btnGhost} py-3`}><Plus className="size-4" /> Tambah / cari paket lagi</button>
+            {!checkout && <button onClick={() => goTo("checkout")} className={`${btnPrimary}`}>Checkout</button>}
+            <button onClick={() => goTo("pick")} className={`${btnGhost}`}><Plus className="size-4" /> Tambah / cari paket lagi</button>
           </div>
         </BottomSheet>
       )}
@@ -419,14 +384,17 @@ export default function Booking() {
 }
 
 /** Daftar ringkas item + jadwal + add-on (tinjau mobile & ringkasan desktop). */
-function ReviewList({ cart, addonMap, lineTotal, compact }: { cart: CartItem[]; addonMap: Map<string, CatalogAddon>; lineTotal: (i: CartItem) => number; compact?: boolean }) {
+function ReviewList({ cart, addonMap, lineTotal, compact, onRemove }: { cart: CartItem[]; addonMap: Map<string, CatalogAddon>; lineTotal: (i: CartItem) => number; compact?: boolean; onRemove?: (id: string) => void }) {
   return (
     <ul className={clsx("text-sm", compact ? "space-y-3" : "space-y-3")}>
       {cart.map((i) => (
         <li key={i.pkg.id} className={clsx(!compact && "rounded-2xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900")}>
           <div className="flex justify-between gap-2">
             <span className="font-medium">{i.pkg.name} × {i.quantity}</span>
-            <span className="font-medium">{formattedCurrency(i.pkg.price_final * i.quantity)}</span>
+            <span className="flex shrink-0 items-center gap-1">
+              <span className="font-medium">{formattedCurrency(i.pkg.price_final * i.quantity)}</span>
+              {onRemove && <button type="button" aria-label={`Hapus ${i.pkg.name}`} onClick={() => onRemove(i.pkg.id)} className="-mr-1.5 grid size-7 cursor-pointer place-items-center rounded-md text-neutral-400 hover:text-red-600"><Trash2 className="size-4" /></button>}
+            </span>
           </div>
           {Object.entries(i.addons).filter(([, q]) => q > 0).map(([id, q]) => (
             <div key={id} className="flex justify-between gap-2 pl-3 text-neutral-500 dark:text-neutral-400">
@@ -439,65 +407,6 @@ function ReviewList({ cart, addonMap, lineTotal, compact }: { cart: CartItem[]; 
         </li>
       ))}
     </ul>
-  );
-}
-
-function Addons({ addons, value, onChange }: { addons: CatalogAddon[]; value: Record<string, number>; onChange: (v: Record<string, number>) => void }) {
-  if (addons.length === 0) return null;
-  return (
-    <Field label="Add-on" optional>
-      <div className="space-y-2">
-        {addons.map((a) => {
-          const q = value[a.id] ?? 0;
-          return (
-            <div key={a.id} className={clsx("flex min-h-14 items-center justify-between gap-3 rounded-xl border px-3 py-2 transition", q > 0 ? "border-neutral-900 bg-neutral-50 dark:border-white dark:bg-neutral-950" : "border-neutral-200 dark:border-neutral-800")}>
-              <div className="min-w-0">
-                <div className="truncate text-sm font-medium">{a.name}</div>
-                <div className="text-xs text-neutral-500 dark:text-neutral-400">{formattedCurrency(a.price)}</div>
-              </div>
-              {q === 0 ? (
-                <button type="button" onClick={() => onChange({ ...value, [a.id]: 1 })} className="inline-flex h-9 shrink-0 cursor-pointer items-center gap-1 rounded-lg bg-neutral-900 px-3 text-xs font-semibold text-white dark:bg-white dark:text-neutral-900"><Plus className="size-3.5" /> Tambah</button>
-              ) : (
-                <Stepper value={q} min={0} max={20} onChange={(v) => onChange({ ...value, [a.id]: v })} />
-              )}
-            </div>
-          );
-        })}
-      </div>
-    </Field>
-  );
-}
-
-/** Stepper kompak (tinggi 36px) untuk baris padat: kartu paket, add-on, sheet ringkasan. */
-function Stepper({ value, min, max, onChange }: { value: number; min: number; max: number; onChange: (v: number) => void }) {
-  return (
-    <div className="inline-flex h-9 shrink-0 items-center rounded-lg border border-neutral-300 bg-white dark:border-neutral-700 dark:bg-neutral-900">
-      <button type="button" aria-label="Kurangi" disabled={value <= min} onClick={() => onChange(value - 1)} className="grid h-full w-9 cursor-pointer place-items-center disabled:opacity-30"><Minus className="size-4" /></button>
-      <span className="w-7 text-center text-sm font-medium tabular-nums">{value}</span>
-      <button type="button" aria-label="Tambah" disabled={value >= max} onClick={() => onChange(value + 1)} className="grid h-full w-9 cursor-pointer place-items-center disabled:opacity-30"><Plus className="size-4" /></button>
-    </div>
-  );
-}
-
-/** Kotak jumlah selebar kolom, tinggi & gaya sama dengan input lain. */
-function QuantityField({ value, min, max, onChange }: { value: number; min: number; max: number; onChange: (v: number) => void }) {
-  return (
-    <div className="grid h-11 grid-cols-[2.75rem_1fr_2.75rem] items-center overflow-hidden rounded-xl border border-neutral-300 bg-white dark:border-neutral-700 dark:bg-neutral-900">
-      <button type="button" aria-label="Kurangi" disabled={value <= min} onClick={() => onChange(value - 1)} className="grid h-full cursor-pointer place-items-center border-r border-neutral-200 hover:bg-neutral-100 disabled:opacity-30 dark:border-neutral-800 dark:hover:bg-neutral-800"><Minus className="size-4" /></button>
-      <span className="text-center text-sm font-semibold tabular-nums">{value} <span className="font-normal text-neutral-500 dark:text-neutral-400">paket</span></span>
-      <button type="button" aria-label="Tambah" disabled={value >= max} onClick={() => onChange(value + 1)} className="grid h-full cursor-pointer place-items-center border-l border-neutral-200 hover:bg-neutral-100 disabled:opacity-30 dark:border-neutral-800 dark:hover:bg-neutral-800"><Plus className="size-4" /></button>
-    </div>
-  );
-}
-
-/** Label + kontrol dengan jarak seragam. */
-function Field({ label, optional, error, children }: { label: string; optional?: boolean; error?: string; children: React.ReactNode }) {
-  return (
-    <div className="block min-w-0 text-sm">
-      <span className="mb-1.5 block font-medium">{label}{optional && <span className="font-normal text-neutral-400 dark:text-neutral-500"> (opsional)</span>}</span>
-      {children}
-      {error && <p role="alert" className="mt-1.5 text-xs font-medium text-red-600 dark:text-red-400">{error}</p>}
-    </div>
   );
 }
 

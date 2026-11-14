@@ -16,6 +16,16 @@ export function StatusPill({ status }: { status: TransactionStatus }) {
   );
 }
 
+export function CancelPill({ status }: { status?: "requested" | "approved" | "rejected" | null }) {
+  if (!status) return null;
+  const m = {
+    requested: ["Minta batal", "bg-amber-50 text-amber-700 ring-amber-200 dark:bg-amber-950 dark:text-amber-300 dark:ring-amber-900"],
+    approved: ["Dibatalkan", "bg-gray-100 text-gray-600 ring-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:ring-gray-600"],
+    rejected: ["Batal ditolak", "bg-red-50 text-red-700 ring-red-200 dark:bg-red-950 dark:text-red-300 dark:ring-red-900"],
+  }[status];
+  return <span className={clsx("inline-flex items-center whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium ring-1", m[1])}>{m[0]}</span>;
+}
+
 export function PaymentProgress({ paid, total, status }: { paid: number; total: number; status: TransactionStatus }) {
   const pct = total > 0 ? Math.min(100, Math.round((paid / total) * 100)) : 0;
   return (

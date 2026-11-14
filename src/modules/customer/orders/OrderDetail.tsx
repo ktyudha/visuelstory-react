@@ -1,19 +1,41 @@
+import { useState } from "react";
+import { toast } from "react-toastify";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, CalendarDays, Check, Clapperboard, Images, MapPin, Sparkles } from "lucide-react";
+import { ArrowLeft, CalendarDays, FileText, MapPin, MessageCircle } from "lucide-react";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
 import Metadata from "@components/Metadata";
-import { timeLeft } from "@helpers/deadline";
 import { formattedCurrency } from "@helpers/currency";
-import { useOrder } from "@services/customer/api";
-import { ADMIN_WHATSAPP, btnPrimary, Card, ErrorState, Spinner, StatusBadge } from "../shared/ui";
+import BottomSheet from "@components/BottomSheet";
+import { getApiError, requestCancel, useOrder } from "@services/customer/api";
+import { OrderDetailSkeleton } from "../shared/skeletons";
+import { ADMIN_WHATSAPP, btnDangerSoft, btnDangerSolid, btnGhost, btnPrimary, CancelBadge, Card, ErrorState, inputCls, StatusBadge } from "../shared/ui";
 
 export default function OrderDetail() {
   const { orderId } = useParams();
   const { order, error, loading, retry } = useOrder(orderId);
+  const [cancelOpen, setCancelOpen] = useState(false);
+  const [reason, setReason] = useState("");
+  const [sending, setSending] = useState(false);
 
-  if (loading) return <Spinner />;
+  if (loading) return <OrderDetailSkeleton />;
   if (error || !order) return <ErrorState message="Pesanan tidak ditemukan." onRetry={() => retry()} />;
+
+  const cancel = order.cancel;
+  const submitCancel = async () => {
+    setSending(true);
+    try {
+      await requestCancel(order.id, reason.trim());
+      await retry();
+      setCancelOpen(false);
+      setReason("");
+      toast.success("Pengajuan pembatalan terkirim. Menunggu persetujuan admin.");
+    } catch (e) {
+      toast.error(getApiError(e));
+    } finally {
+      setSending(false);
+    }
+  };
 
   const wa = `https://wa.me/${ADMIN_WHATSAPP}?text=${encodeURIComponent(`Halo Visuelstory, saya ingin menanyakan pesanan ${order.invoice_number}.`)}`;
 
@@ -28,98 +50,23 @@ export default function OrderDetail() {
           <h1 className="text-2xl font-bold">{order.invoice_number}</h1>
           <p className="text-sm text-neutral-500 dark:text-neutral-400">Dipesan {dayjs(order.created_at).format("D MMMM YYYY")}</p>
         </div>
-        <StatusBadge status={order.transaction_status} />
+        <div className="flex flex-wrap items-center gap-1.5">
+          <StatusBadge status={order.transaction_status} />
+          <CancelBadge status={cancel?.status} />
+        </div>
       </div>
 
-      {order.gallery_ready && (
-        <section className="relative mb-6 overflow-hidden rounded-2xl border border-amber-400/25 bg-neutral-950 p-5 text-white shadow-sm">
-          {/* kilau emas halus, senada logo */}
-          <div aria-hidden className="pointer-events-none absolute -right-10 -top-10 size-40 rounded-full bg-amber-400/10 blur-3xl" />
-          <div className="relative flex flex-wrap items-center justify-between gap-4">
-            <div className="flex min-w-0 items-start gap-3">
-              <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-amber-200 to-amber-600 text-neutral-950">
-                <Images className="size-5" />
-              </span>
-              <div className="min-w-0">
-                <div className="bg-gradient-to-r from-amber-200 to-amber-400 bg-clip-text text-base font-semibold text-transparent">
-                  {order.selection_submitted_at ? "Pilihan foto Anda sudah kami terima" : "Foto hasil sesi Anda sudah siap"}
-                </div>
-                <p className="mt-0.5 text-sm text-white/70">
-                  {order.selection_submitted_at
-                    ? "Tim kami akan memproses foto pilihan Anda. Foto tetap bisa dilihat dan diunduh kapan saja."
-                    : "Pilih foto favorit untuk diedit, lalu unduh hasilnya."}
-                </p>
-              </div>
-            </div>
-            <Link
-              to={`/account/orders/${order.id}/gallery`}
-              className="inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-200 to-amber-500 px-5 py-2.5 text-sm font-semibold text-neutral-950 transition hover:brightness-105 active:scale-[0.98] sm:w-auto"
-            >
-              {order.selection_submitted_at ? "Lihat galeri" : "Pilih foto"}
-            </Link>
+      {/* Status pengajuan pembatalan */}
+      {cancel?.status && (
+        <section className={`mb-6 rounded-2xl border p-4 text-sm ${cancel.status === "requested" ? "border-amber-300/60 bg-amber-50 dark:border-amber-500/30 dark:bg-amber-950/30" : cancel.status === "approved" ? "border-neutral-300 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-900" : "border-red-300/60 bg-red-50 dark:border-red-500/30 dark:bg-red-950/30"}`}>
+          <div className="font-semibold">
+            {cancel.status === "requested" && "Pengajuan pembatalan menunggu persetujuan admin"}
+            {cancel.status === "approved" && "Pesanan ini sudah dibatalkan"}
+            {cancel.status === "rejected" && "Pengajuan pembatalan ditolak"}
           </div>
-        </section>
-      )}
-
-      {/* Tahapan hasil foto */}
-      {order.delivery && (() => {
-        const d = order.delivery;
-        const steps = [
-          { label: "Foto siap", done: d.jpeg.uploaded, hint: d.jpeg.uploaded ? "Sudah tersedia" : "Menyusul setelah acara" },
-          {
-            label: "Pilih foto", done: !!d.selection.submitted_at || !!d.selection.closed,
-            hint: d.selection.submitted_at ? "Sudah dikirim"
-              : d.selection.closed ? "Tenggat berakhir"
-              : d.jpeg.uploaded ? `Giliran Anda${timeLeft(d.selection.deadline_at) ? ` • ${timeLeft(d.selection.deadline_at)!.label.toLowerCase()}` : ""}` : "Setelah foto siap",
-            turn: d.jpeg.uploaded && !d.selection.submitted_at && !d.selection.closed,
-          },
-          {
-            label: "Hasil editan", done: d.edited.delivered,
-            hint: d.edited.delivered ? "Sudah dikirim" : (d.selection.ready_to_edit ?? !!d.selection.submitted_at) ? "Sedang kami proses" : "Setelah pilihan dikirim / tenggat berakhir",
-          },
-          ...(d.video.applicable ? [{ label: "Video", done: d.video.delivered, hint: d.video.delivered ? "Sudah dikirim" : "Sedang kami siapkan" }] : []),
-        ];
-        return (
-          <Card className="mb-6 p-4">
-            <h2 className="mb-3 text-sm font-semibold">Status hasil foto</h2>
-            <ol className={`grid gap-3 ${steps.length === 4 ? "grid-cols-2 sm:grid-cols-4" : "grid-cols-3"}`}>
-              {steps.map((s, i) => (
-                <li key={s.label} className="flex flex-col items-start gap-1.5">
-                  <span className={`grid size-8 place-items-center rounded-full text-sm font-bold ${s.done ? "bg-emerald-500 text-white" : s.turn ? "bg-amber-400 text-neutral-900 ring-4 ring-amber-400/25" : "bg-neutral-200 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400"}`}>
-                    {s.done ? <Check className="size-4" /> : i + 1}
-                  </span>
-                  <div className="text-sm font-medium leading-tight">{s.label}</div>
-                  <div className={`text-xs ${s.turn ? "font-semibold text-amber-700 dark:text-amber-300" : "text-neutral-500 dark:text-neutral-400"}`}>{s.hint}</div>
-                </li>
-              ))}
-            </ol>
-          </Card>
-        );
-      })()}
-
-      {order.edited_ready && (
-        <section className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-emerald-400/30 bg-emerald-50 p-5 dark:bg-emerald-950/30">
-          <div className="flex min-w-0 items-start gap-3">
-            <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-emerald-500 text-white"><Sparkles className="size-5" /></span>
-            <div>
-              <div className="font-semibold text-emerald-800 dark:text-emerald-300">Hasil editan sudah siap</div>
-              <p className="text-sm text-emerald-900/70 dark:text-emerald-200/70">Lihat dan unduh foto yang sudah kami edit.</p>
-            </div>
-          </div>
-          <Link to={`/account/orders/${order.id}/edited`} className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 sm:w-auto">Lihat hasil editan</Link>
-        </section>
-      )}
-
-      {order.video_url && /^https?:\/\//i.test(order.video_url) && (
-        <section className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-purple-400/30 bg-purple-50 p-5 dark:bg-purple-950/30">
-          <div className="flex min-w-0 items-start gap-3">
-            <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-purple-600 text-white"><Clapperboard className="size-5" /></span>
-            <div>
-              <div className="font-semibold text-purple-800 dark:text-purple-300">Video Anda sudah siap</div>
-              <p className="text-sm text-purple-900/70 dark:text-purple-200/70">Buka untuk menonton atau mengunduh.</p>
-            </div>
-          </div>
-          <a href={order.video_url} target="_blank" rel="noopener noreferrer" className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-purple-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-purple-700 sm:w-auto">Buka video</a>
+          {cancel.reason && <p className="mt-1 text-neutral-600 dark:text-neutral-300">Alasan Anda: “{cancel.reason}”</p>}
+          {cancel.admin_note && <p className="mt-1 text-neutral-600 dark:text-neutral-300">Catatan admin: “{cancel.admin_note}”</p>}
+          {cancel.status === "approved" && <p className="mt-1 text-neutral-500 dark:text-neutral-400">Jadwal Anda sudah dibuka kembali. Hubungi admin untuk urusan pengembalian dana.</p>}
         </section>
       )}
 
@@ -150,6 +97,19 @@ export default function OrderDetail() {
         ))}
       </div>
 
+      {cancelOpen && (
+        <BottomSheet label="Ajukan pembatalan" onClose={() => (sending ? undefined : setCancelOpen(false))}>
+          <h2 className="text-lg font-bold">Ajukan pembatalan</h2>
+          <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">Pesanan baru dibatalkan setelah disetujui admin. Pembayaran yang sudah masuk diurus langsung oleh admin.</p>
+          <label className="mt-4 block text-sm font-medium">Alasan pembatalan</label>
+          <textarea rows={4} maxLength={500} value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Mis. acara ditunda / jadwal bentrok" className={`${inputCls} mt-1.5`} />
+          <div className="mt-4 grid gap-2.5">
+            <button onClick={submitCancel} disabled={sending || reason.trim().length < 5} className={btnDangerSolid}>{sending ? "Mengirim..." : "Kirim pengajuan"}</button>
+            <button onClick={() => setCancelOpen(false)} disabled={sending} className={`${btnGhost}`}>Kembali</button>
+          </div>
+        </BottomSheet>
+      )}
+
       <Card className="p-5 mt-6 max-w-sm ml-auto text-sm space-y-2">
         <Row l="Total" r={formattedCurrency(order.total_price)} />
         <Row l="Sudah dibayar" r={formattedCurrency(order.amount_paid)} />
@@ -165,10 +125,20 @@ export default function OrderDetail() {
             ))}
           </div>
         )}
-        {order.remaining_paid > 0 && (
-          <a href={wa} target="_blank" rel="noreferrer" className={`${btnPrimary} w-full mt-3`}>Tanya / konfirmasi pembayaran</a>
-        )}
       </Card>
+
+      {/* Aksi: utama (bayar) > sekunder (invoice) > berisiko (batal) */}
+      <div className="mt-4 ml-auto grid max-w-sm gap-3">
+        {order.remaining_paid > 0 && order.cancel?.status !== "approved" && (
+          <a href={wa} target="_blank" rel="noreferrer" className={`${btnPrimary} w-full`}><MessageCircle className="size-4" /> Konfirmasi pembayaran</a>
+        )}
+        <Link to={`/account/orders/${order.id}/invoice`} className={`${btnGhost} w-full`}><FileText className="size-4" /> Lihat &amp; unduh invoice</Link>
+        {cancel?.can_request && (
+          <button onClick={() => setCancelOpen(true)} className={`${btnDangerSoft} w-full`}>
+            Ajukan pembatalan
+          </button>
+        )}
+      </div>
     </>
   );
 }

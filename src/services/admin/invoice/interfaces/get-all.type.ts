@@ -1,5 +1,4 @@
 import { Pagination } from "@services/global/pagination/interfaces/pagination.type";
-import type { Delivery } from "@modules/admin/shared/delivery-ui";
 
 export interface IGetAll {
   data: Invoice[];
@@ -22,10 +21,14 @@ export interface Invoice {
   remaining_paid: number;
   invoice_details: InvoiceDetail[];
   payments?: Payment[];
-  delivery?: Delivery;
-  edited_ready?: boolean;
-  video_url?: string | null;
   created_at: Date;
+  cancel?: {
+    status: "requested" | "approved" | "rejected" | null;
+    reason: string | null;
+    requested_at: string | null;
+    reviewed_at: string | null;
+    admin_note: string | null;
+  };
 }
 
 export type PaymentMethod = "transfer" | "cash" | "qris" | "other";

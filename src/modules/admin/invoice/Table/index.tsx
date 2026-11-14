@@ -9,9 +9,9 @@ import PaginationComponent from "@components/Flowbite/Pagination";
 import { formattedCurrency } from "@helpers/currency";
 import useGetAll from "@services/admin/invoice/hooks/useGetAll";
 import type { Invoice } from "@services/admin/invoice/interfaces/get-all.type";
-import { PaymentProgress, StatusPill } from "../../shared/invoice-ui";
+import { EmptyRow, LoadingRows } from "../../shared/TableState";
+import { CancelPill, PaymentProgress, StatusPill } from "../../shared/invoice-ui";
 import Delete from "../Action/Delete";
-import { DeliveryChips } from "../../shared/delivery-ui";
 
 const TABS = [
   { value: "", label: "Semua" },
@@ -77,17 +77,12 @@ export default function TableInvoice() {
               <th className="px-4 py-3 font-medium">Acara</th>
               <th className="px-4 py-3 font-medium min-w-48">Pembayaran</th>
               <th className="px-4 py-3 font-medium">Status</th>
-              <th className="px-4 py-3 font-medium min-w-44">Pengiriman hasil</th>
               <th className="px-4 py-3" />
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
-            {loading && (
-              <tr><td colSpan={7} className="py-16 text-center text-gray-500">Memuat...</td></tr>
-            )}
-            {!loading && (!data || data.length === 0) && (
-              <tr><td colSpan={7} className="py-16 text-center text-gray-500">Tidak ada invoice.</td></tr>
-            )}
+            {loading && <LoadingRows cols={6} />}
+            {!loading && (!data || data.length === 0) && <EmptyRow cols={6} text="Tidak ada invoice." />}
             {data?.map((inv) => {
               const events = inv.invoice_details.flatMap((d) => d.events ?? []);
               const next = [...events].sort((a, b) => +new Date(a.date) - +new Date(b.date))[0];
@@ -116,8 +111,7 @@ export default function TableInvoice() {
                       <div className="mt-1 text-xs text-red-600">Sisa {formattedCurrency(inv.remaining_paid)}</div>
                     )}
                   </td>
-                  <td className="px-4 py-3"><StatusPill status={inv.transaction_status} /></td>
-                  <td className="px-4 py-3"><DeliveryChips delivery={inv.delivery} /></td>
+                  <td className="px-4 py-3"><div className="flex flex-col items-start gap-1"><StatusPill status={inv.transaction_status} /><CancelPill status={inv.cancel?.status} /></div></td>
                   <td className="px-4 py-3 text-right">
                     <button
                       onClick={(e) => { e.stopPropagation(); setToDelete(inv); }}

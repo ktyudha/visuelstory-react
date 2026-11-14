@@ -12,7 +12,7 @@ import { Field, inputCls } from "../../shared/ui";
 import { useAdminItem } from "../../shared/useAdminItem";
 import { useModalParams } from "../../shared/useModalParams";
 
-const empty: ICreatePayload = { package_category_id: "", name: "", description: "", price: "", discount: 0, includes_video: false };
+const empty: ICreatePayload = { package_category_id: "", name: "", description: "", price: "", discount: 0 };
 
 export default function PackageFormModal() {
   const { open, editId, close } = useModalParams();
@@ -26,7 +26,7 @@ export default function PackageFormModal() {
   useEffect(() => {
     if (!open) return;
     reset(editId && item
-      ? { package_category_id: item.package_category?.id ?? "", name: item.name, description: item.description ?? "", price: String(item.price), discount: item.discount ?? 0, includes_video: !!item.includes_video }
+      ? { package_category_id: item.package_category?.id ?? "", name: item.name, description: item.description ?? "", price: String(item.price), discount: item.discount ?? 0 }
       : empty);
   }, [open, editId, item, reset, categories]);
 
@@ -56,13 +56,6 @@ export default function PackageFormModal() {
           <input type="number" min={0} max={100} {...register("discount", { min: 0, max: 100 })} className={inputCls} />
         </Field>
       </div>
-      <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-gray-200 p-3 text-sm hover:border-blue-400 dark:border-gray-600">
-        <input type="checkbox" {...register("includes_video")} className="mt-0.5 size-4 rounded border-gray-300" />
-        <span>
-          <span className="block font-medium">Paket ini termasuk video</span>
-          <span className="block text-xs text-gray-500">Jika dicentang, invoice dengan paket ini akan punya tahap "Video" (link) di pengiriman hasil.</span>
-        </span>
-      </label>
       <Field label="Deskripsi" hint="Satu baris per poin: durasi, jumlah foto, hasil, dll.">
         <textarea rows={5} {...register("description", { required: true })} className={inputCls} />
       </Field>

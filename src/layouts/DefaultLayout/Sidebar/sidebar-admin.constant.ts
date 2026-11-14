@@ -6,6 +6,7 @@ import {
   HiOutlineUserGroup,
   HiOutlineMenu,
   HiOutlineDocumentText,
+  HiOutlineChartBar,
 } from "react-icons/hi";
 
 export const sidebarOrganizer = [
@@ -38,6 +39,12 @@ export const sidebarOrganizer = [
     label: "Invoice",
     icon: HiOutlineDocumentText,
     route: "/admin/invoices",
+    hasChild: false,
+  },
+  {
+    label: "Rekap omzet",
+    icon: HiOutlineChartBar,
+    route: "/admin/revenue",
     hasChild: false,
   },
   {

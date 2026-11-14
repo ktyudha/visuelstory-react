@@ -141,7 +141,7 @@ export default function SlotPicker({ value, onChange, others = [], className = "
             )}
           </div>
 
-          <button onClick={confirm} disabled={!date || !time} className={`${btnPrimary} mt-5 w-full py-3`}>
+          <button onClick={confirm} disabled={!date || !time} className={`${btnPrimary} mt-5 w-full`}>
             {date && time ? `Pilih ${dayjs(`${date}T${time}`).locale("id").format("D MMM, HH:mm")}` : "Pilih jam dulu"}
           </button>
         </BottomSheet>

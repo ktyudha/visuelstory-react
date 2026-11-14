@@ -1,13 +1,9 @@
 import useSWR from "swr";
 import { isAxiosError } from "axios";
 import axiosInstance from "@lib/axios-instance";
-import config from "@constants/config";
-import Cookies from "js-cookie";
 import type {
   BookingPayload,
   Catalog,
-  EditedGallery,
-  Gallery,
   Order,
 } from "./types";
 
@@ -54,47 +50,8 @@ export function useOrder(id?: string) {
   return { order: data, error, loading: isLoading, retry: mutate };
 }
 
-export function useGallery(id?: string) {
-  const { data, error, isLoading, isValidating, mutate } = useSWR<Gallery>(
-    id ? `/customer/invoices/${id}/photos` : null,
-    (url: string) => http().get(url).then((r) => r.data.data),
-    {
-      revalidateOnMount: true, // selalu ambil yang terbaru saat halaman dibuka
-      revalidateOnFocus: false,
-      dedupingInterval: 0,
-      shouldRetryOnError: false,
-      refreshInterval: 150 * 60 * 1000, // perbarui link foto sebelum kedaluwarsa (3-4 jam)
-    }
-  );
-  return { gallery: data, error, loading: isLoading, validating: isValidating, retry: mutate, mutate };
-}
-
-export function useEditedGallery(id?: string) {
-  const { data, error, isLoading, mutate } = useSWR<EditedGallery>(
-    id ? `/customer/invoices/${id}/edited-photos` : null,
-    (url: string) => http().get(url).then((r) => r.data.data),
-    { revalidateOnFocus: false, shouldRetryOnError: false }
-  );
-  return { gallery: data, error, loading: isLoading, retry: mutate };
-}
+export const requestCancel = (id: string, reason: string) =>
+  http().post(`/customer/invoices/${id}/cancel`, { reason }).then((r) => r.data.data as Order);
 
 export const createBooking = (payload: BookingPayload) =>
   http().post("/customer/bookings", payload).then((r) => r.data.data as Order);
-
-export const saveSelection = (id: string, fileIds: string[], note: string) =>
-  http().put(`/customer/invoices/${id}/selection`, { file_ids: fileIds, note });
-
-/** Simpan saat halaman ditutup: fetch keepalive tetap berjalan walau tab sudah hilang. */
-export function saveSelectionKeepalive(id: string, fileIds: string[], note: string) {
-  try {
-    void fetch(`${config.BASE_API_URL}/customer/invoices/${id}/selection`, {
-      method: "PUT",
-      keepalive: true,
-      headers: { "Content-Type": "application/json", Accept: "application/json", Authorization: `Bearer ${Cookies.get("token-customer") ?? ""}` },
-      body: JSON.stringify({ file_ids: fileIds, note }),
-    });
-  } catch { /* abaikan */ }
-}
-
-export const submitSelection = (id: string) =>
-  http().post(`/customer/invoices/${id}/selection/submit`);

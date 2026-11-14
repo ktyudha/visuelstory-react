@@ -1,81 +1,45 @@
-import { useEffect } from "react";
-import { useNavigate, NavLink } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
 import Metadata from "@components/Metadata";
+import Logo from "@assets/logo/logo-mark.png";
+import { INSTAGRAM, WHATSAPP } from "../shared/images";
 
-import Image from "@components/Image";
-import Logo from "@assets/logo/logo-circle.svg";
+type Item = { label: string; to?: string; href?: string };
 
-export default function Link() {
-  const navigate = useNavigate();
-  useEffect(() => {
-    setTimeout(() => {
-      window.scrollTo({
-        top: document.documentElement.scrollHeight,
-        behavior: "smooth",
-      });
-    }, 100);
-  }, []);
+const ITEMS: Item[] = [
+  { label: "Booking", to: "/booking" },
+  { label: "WhatsApp", href: `https://wa.me/${WHATSAPP}?text=${encodeURIComponent("Halo Visuelstory, saya ingin booking.")}` },
+  { label: "Pricelist", to: "/investment" },
+  { label: "Website", to: "/?web=1" },
+  { label: "Instagram", href: INSTAGRAM },
+];
 
-  const dummyLink = [
-    {
-      url: "whatsapp://send?phone=6285848250548&text=Halo Visuelstory, Saya ingin booking.",
-      label: "WhatsApp [Yudha]",
-    },
-    {
-      url: "https://visuelstory.vercel.app/contact",
-      label: "Pricelist",
-    },
-    {
-      url: "https://visuelstory.vercel.app/",
-      label: "Website",
-    },
-    {
-      url: "https://m.instagram.com/visuelstory/",
-      label: "Instagram",
-    },
-    {
-      url: "https://www.tiktok.com/@yudhxnolife/",
-      label: "Tiktok",
-    },
-  ];
+const row = "flex items-center justify-between border-b border-white/15 py-5 text-[13px] uppercase tracking-[0.3em] transition-opacity hover:opacity-60";
+
+export default function Links() {
   return (
     <>
       <Metadata title="Bio Links" />
-      <section id="links" className="relative flex flex-col items-center pb-14">
-        <Image
-          className="md:h-[44vh] h-[18vh] w-full object-cover object-center z-10 brightness-75"
-          name="links"
-        />
+      <main className="min-h-dvh bg-neutral-950 text-white">
+        <div className="mx-auto flex min-h-dvh max-w-sm flex-col px-8 pb-10 pt-[max(4rem,env(safe-area-inset-top))]">
+          <header className="text-center">
+            <RouterLink to="/?web=1" aria-label="Beranda Visuelstory"><img src={Logo} alt="Visuelstory" className="mx-auto size-20" /></RouterLink>
+            <h1 className="mt-6 text-lg tracking-[0.3em] uppercase">Visuelstory</h1>
+            <p className="mt-2 text-[11px] uppercase tracking-[0.35em] text-white/50">Photography &amp; Videography</p>
+          </header>
 
-        <div className="text-center flex flex-col items-center mb-8">
-          <img
-            src={Logo}
-            alt="logo-visuel-storyteller"
-            className="border-3 rounded-full border-white w-40 h-40 mx-auto z-50 -mt-20 mb-6 cursor-pointer"
-            onClick={() => navigate("/")}
-          />
+          <ul className="mt-14 border-t border-white/15">
+            {ITEMS.map((it) => (
+              <li key={it.label}>
+                {it.to
+                  ? <RouterLink to={it.to} className={row}><span>{it.label}</span><span aria-hidden>→</span></RouterLink>
+                  : <a href={it.href} target="_blank" rel="noopener noreferrer" className={row}><span>{it.label}</span><span aria-hidden>→</span></a>}
+              </li>
+            ))}
+          </ul>
 
-          <h3 className="text-2xl text-gray-600 tracking-wide mb-2.5">
-            Visuelstory
-          </h3>
-          <p className="text-md text-gray-500">Photography & Videography</p>
+          <footer className="mt-auto pt-14 text-center text-[10px] uppercase tracking-[0.3em] text-white/30">Sidoarjo, Jawa Timur</footer>
         </div>
-
-        <ul className="md:w-xl w-full px-8 text-center text-white flex flex-col gap-4">
-          {dummyLink.map((_link, idx) => (
-            <NavLink
-              key={idx}
-              to={_link.url}
-              target="_blank"
-              className={
-                "bg-[#B9AA96] hover:bg-[#928763] cursor-pointer uppercase py-3 px-6 rounded-lg tracking-wider"
-              }
-            >
-              {_link.label}
-            </NavLink>
-          ))}
-        </ul>
-      </section>
+      </main>
     </>
   );
 }

@@ -42,6 +42,9 @@ export default [
       { path: "package-addons/create", element: <ModalRedirect to="/admin/package-addons" /> },
       { path: "package-addons/edit/:id", element: <ModalRedirect to="/admin/package-addons" param="id" /> },
 
+      // Rekap omzet
+      { path: "revenue", element: <Admin.RevenuePage /> },
+
       // Event
       { path: "events", element: <Admin.EventPage /> },
 

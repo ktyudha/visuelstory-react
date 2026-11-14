@@ -10,7 +10,7 @@ import LandingFooter from "./LandingFooter";
 import Metadata from "@components/Metadata";
 
 export default function LandingLayout() {
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   useEffect(() => {
     const html = document.documentElement;
     html.dataset.forceLight = "1";
@@ -23,14 +23,15 @@ export default function LandingLayout() {
   }, []);
 
   // Dibuka sebagai aplikasi (PWA): langsung ke area customer, bukan halaman promosi.
-  if (pathname === "/" && isStandalone()) return <Navigate to="/account" replace />;
+  // (kecuali dibuka sengaja dari menu Akun lewat ?web=1)
+  if (pathname === "/" && isStandalone() && !search.includes("web=1")) return <Navigate to="/account" replace />;
 
   return (
     <HelmetProvider>
       <Metadata />
       <LandingHelmet />
 
-      <div className="w-full">
+      <div className="landing-root w-full">
         <LandingNavbar />
 
         <main>
