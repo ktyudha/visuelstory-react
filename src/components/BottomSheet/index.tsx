@@ -20,7 +20,7 @@ export default function BottomSheet({ onClose, label = "Dialog", children }: Pro
 
   return (
     <div className="fixed inset-0 z-[80]">
-      <div className="absolute inset-0 bg-black/40 duration-200 animate-in fade-in" onClick={onClose} />
+      <div className="absolute inset-0 bg-[#000000]/40 duration-200 animate-in fade-in" onClick={onClose} />
       <div
         role="dialog" aria-modal="true" aria-label={label}
         style={{ transform: `translateY(${dy}px)`, transition: startY.current === null ? "transform .2s" : "none" }}

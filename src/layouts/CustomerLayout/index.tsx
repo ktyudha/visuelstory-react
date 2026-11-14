@@ -37,6 +37,25 @@ export default function CustomerLayout() {
   const { title, detail } = screenInfo(pathname);
   // Indeks tab aktif (urutan sama dengan TABS)
   const activeTab = pathname.startsWith("/account/profile") ? 2 : pathname.startsWith("/booking") ? 1 : 0;
+  // PWA iOS: tinggi viewport bisa lebih pendek dari layar (muncul pita di bawah). Pakai tinggi layar bila selisihnya wajar.
+  useEffect(() => {
+    const standalone = window.matchMedia("(display-mode: standalone)").matches || (navigator as unknown as { standalone?: boolean }).standalone === true;
+    if (!standalone) return;
+    const root = document.documentElement;
+    const set = () => {
+      const portrait = window.innerHeight >= window.innerWidth;
+      const sh = portrait ? Math.max(screen.width, screen.height) : Math.min(screen.width, screen.height);
+      const gap = sh - window.innerHeight;
+      // selisih besar = keyboard terbuka, jangan dipaksa
+      if (portrait && gap > 0 && gap < 120) root.style.setProperty("--screen-h", `${sh}px`);
+      else root.style.removeProperty("--screen-h");
+    };
+    set();
+    window.addEventListener("resize", set);
+    window.addEventListener("orientationchange", set);
+    return () => { window.removeEventListener("resize", set); window.removeEventListener("orientationchange", set); root.style.removeProperty("--screen-h"); };
+  }, []);
+
   const [confirmLogout, setConfirmLogout] = useState(false);
   const initial = (me?.name || me?.whatsapp || "?").trim().charAt(0);
 
@@ -61,11 +80,11 @@ export default function CustomerLayout() {
   return (
     <HelmetProvider>
       <Metadata />
-      <div className="ios-app flex min-h-dvh max-md:fixed max-md:inset-0 max-md:min-h-0 max-md:overflow-hidden flex-col bg-neutral-50 text-neutral-900 max-md:bg-[#f2f2f7] dark:bg-neutral-950 dark:text-neutral-100 dark:max-md:bg-black">
+      <div className="ios-app flex min-h-dvh max-md:fixed max-md:inset-x-0 max-md:top-0 max-md:min-h-0 max-md:h-[max(100lvh,100dvh,var(--screen-h,0px))] max-md:overflow-hidden flex-col bg-neutral-50 text-neutral-900 max-md:bg-[#f2f2f7] dark:bg-neutral-950 dark:text-neutral-100 dark:max-md:bg-[#000000]">
         {/* App bar */}
         <header className="sticky top-0 z-40 border-b border-gold-500/20 bg-neutral-950 pt-[env(safe-area-inset-top)] text-white max-md:pointer-events-none max-md:absolute max-md:inset-x-0 max-md:border-0 max-md:bg-transparent max-md:text-neutral-900 dark:max-md:text-white">
           {/* Mobile: pudar halus di bawah Dynamic Island / status bar; konten ber-scroll di bawahnya */}
-          <div aria-hidden className="absolute inset-0 -z-10 bg-[#f2f2f7]/75 backdrop-blur-xl [mask-image:linear-gradient(to_bottom,#000_60%,transparent)] md:hidden dark:bg-black/65" />
+          <div aria-hidden className="absolute inset-0 -z-10 bg-[#f2f2f7]/75 backdrop-blur-xl [mask-image:linear-gradient(to_bottom,#000_60%,transparent)] md:hidden dark:bg-[#000000]/65" />
           <div className="relative mx-auto flex h-14 max-w-5xl items-center justify-between gap-3 px-4 max-md:h-[3.25rem]">
             {/* Mobile: tombol kembali di halaman detail */}
             <div className="flex min-w-0 items-center md:hidden">
@@ -116,7 +135,7 @@ export default function CustomerLayout() {
             {/* Penanda tab aktif: satu kapsul yang bergeser mulus antar tab */}
             <div aria-hidden className="pointer-events-none absolute inset-1.5">
               <span
-                className="absolute inset-y-0 left-0 w-[calc((100%-0.5rem)/3)] rounded-full bg-white/70 shadow-sm transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] dark:bg-white/10"
+                className="absolute inset-y-0 left-0 w-[calc((100%-0.5rem)/3)] rounded-full bg-black/[0.07] transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] dark:bg-white/[0.14]"
                 style={{ transform: `translateX(calc(${activeTab} * (100% + 0.25rem)))` }}
               />
             </div>
@@ -125,7 +144,7 @@ export default function CustomerLayout() {
                 <li key={to}>
                   <NavLink to={to} end={end}
                     className={({ isActive }) => clsx("flex h-full flex-col items-center justify-center gap-0.5 rounded-full text-[10px] font-medium transition-colors duration-300 active:scale-95",
-                      isActive ? "text-gold-700 dark:text-gold-400" : "text-neutral-500 dark:text-neutral-400")}>
+                      isActive ? "text-neutral-950 dark:text-white" : "text-neutral-600 dark:text-white/70")}>
                     {({ isActive }) => (<><Icon className={clsx("size-[22px] transition-transform duration-300", isActive && "scale-110 stroke-[2.3]")} />{label}</>)}
                   </NavLink>
                 </li>
