@@ -53,7 +53,7 @@ export default function CustomerLayout() {
   return (
     <HelmetProvider>
       <Metadata />
-      <div className="flex min-h-svh min-h-dvh flex-col bg-neutral-50 text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100">
+      <div className="flex min-h-svh min-h-dvh max-md:min-h-[calc(100svh+1px)] max-md:min-h-[calc(100dvh+1px)] flex-col bg-neutral-50 text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100">
         {/* App bar */}
         <header className="sticky top-0 z-40 border-b border-neutral-800 bg-neutral-900 pt-[env(safe-area-inset-top)] text-white dark:bg-neutral-950">
           <div className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-3 px-4">
