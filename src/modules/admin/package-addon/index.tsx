@@ -1,9 +1,12 @@
+import PageCard from "../shared/PageCard";
 import TablePackageAddOn from "./Table";
+import PackageAddOnFormModal from "./Action/FormModal";
 
 export default function AdminPackageCategory() {
   return (
-    <div className="p-6 bg-gray-50 dark:bg-gray-800 rounded-lg">
+    <PageCard>
       <TablePackageAddOn />
-    </div>
+      <PackageAddOnFormModal />
+    </PageCard>
   );
 }

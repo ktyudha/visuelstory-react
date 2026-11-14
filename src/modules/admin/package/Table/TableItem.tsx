@@ -1,4 +1,4 @@
-import { Checkbox, TableRow, TableCell, Badge } from "flowbite-react";
+import { TableRow, TableCell, Badge } from "flowbite-react";
 import { Package } from "@services/admin/package/interfaces/get-all.type";
 import { formattedCurrency } from "@helpers/currency";
 
@@ -18,9 +18,6 @@ export default function TableItem({ item }: Props) {
 
   return (
     <TableRow className="bg-white dark:border-gray-700 dark:bg-gray-800">
-      <TableCell className="px-4">
-        <Checkbox />
-      </TableCell>
 
       <TableCell className="whitespace-nowrap capitalize font-medium text-gray-900 dark:text-white my-auto">
         {item.name}
@@ -34,27 +31,15 @@ export default function TableItem({ item }: Props) {
             Not Yet
           </Badge>
         )}
+        {item.includes_video && (
+          <Badge className="mt-1 w-fit justify-center" size="sm" color="purple">🎬 Termasuk video</Badge>
+        )}
       </TableCell>
       <TableCell className="prose dark:prose-invert whitespace-nowrap">
-        <div
-          className="text-sm"
-          dangerouslySetInnerHTML={{
-            __html: item.description
-              .split("\n")
-              .map((line) => `${line}<br/>`)
-              .join(""),
-          }}
-        />
+        <div className="text-sm whitespace-pre-line">{item.description}</div>
       </TableCell>
       {/* <TableCell className="prose dark:prose-invert">
-        <div
-          dangerouslySetInnerHTML={{
-            __html: displayText
-              .split("\n")
-              .map((line) => `${line}<br/>`)
-              .join(""),
-          }}
-        />
+        <div className="whitespace-pre-line">{displayText}</div>
         {item.description.length > 150 && (
           <button
             type="button"

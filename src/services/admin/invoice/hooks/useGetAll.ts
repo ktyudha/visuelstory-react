@@ -7,6 +7,7 @@ import querystring from "query-string";
 
 export default function useGetAll() {
   const [name, setName] = useState("");
+  const [status, setStatus] = useState("");
   const [pageNum, setPageNum] = useState(1);
   const [pageLimit, setPageLimit] = useState(10);
 
@@ -18,13 +19,16 @@ export default function useGetAll() {
   const qs = querystring.stringify(
     {
       name,
+      transaction_status: status,
       page_limit: pageLimit,
       page: pageNum,
     },
     { skipEmptyString: true, skipNull: true }
   );
 
-  const { data, error } = useSWR(`/admin/invoices?${qs}`, fetcher);
+  const { data, error, mutate } = useSWR(`/admin/invoices?${qs}`, fetcher, {
+    keepPreviousData: true,
+  });
 
   const onSetName = useCallback((name: string) => {
     setName(name);
@@ -32,8 +36,14 @@ export default function useGetAll() {
 
   return {
     loading: !data && !error,
+    status,
+    setStatus: (v: string) => {
+      setStatus(v);
+      setPageNum(1);
+    },
     data: data?.data,
     error,
+    mutate,
     pagination: data?.pagination,
     pageNum,
     setPageNum,

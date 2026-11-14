@@ -16,6 +16,7 @@ export interface Package {
   price: number;
   discount: number;
   price_final: number;
+  includes_video?: boolean;
   package_category: PackageCategory;
 }
 

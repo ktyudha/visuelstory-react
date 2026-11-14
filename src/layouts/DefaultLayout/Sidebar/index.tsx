@@ -1,3 +1,4 @@
+import ThemeToggle from "../../../theme/ThemeToggle";
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import useLogout from "@modules/auth/services/hooks/useLogout";
@@ -8,14 +9,12 @@ import { toast } from "react-toastify";
 import clsx from "clsx";
 
 import {
-  Avatar,
   Dropdown,
   DropdownDivider,
   DropdownHeader,
   DropdownItem,
   Navbar,
   NavbarBrand,
-  DarkThemeToggle,
   createTheme,
   ThemeProvider,
   Sidebar,
@@ -91,7 +90,7 @@ export default function SidebarDefaultLayout({ children }: Props) {
         }
       } else {
         setIsLoading(false);
-        toast.error("Logout Gagal", {
+        toast.error("Gagal keluar", {
           position: "top-right",
           data: {
             text: error,
@@ -144,20 +143,18 @@ export default function SidebarDefaultLayout({ children }: Props) {
         </NavbarBrand>
 
         <div className="flex items-center gap-2">
-          <DarkThemeToggle />
+          <ThemeToggle className="!text-gray-500 hover:!bg-gray-100 hover:!text-gray-900 dark:!text-gray-400 dark:hover:!bg-gray-700 dark:hover:!text-white" />
           <Dropdown
             arrowIcon={false}
             inline
             label={
-              <Avatar
-                img="https://flowbite.com/docs/images/people/profile-picture-5.jpg"
-                alt="User"
-                rounded
-              />
+              <span className="grid size-9 place-items-center rounded-full bg-gray-900 text-sm font-semibold uppercase text-white dark:bg-white dark:text-gray-900">
+                {(me?.name || me?.whatsapp || "A").trim().charAt(0)}
+              </span>
             }
           >
             <DropdownHeader>
-              <span className="block text-sm">{me?.name}</span>
+              <span className="block text-sm font-medium">{me?.name || "Admin"}</span>
               <span className="block text-sm font-medium truncate">
                 {me?.email}
               </span>
@@ -168,7 +165,7 @@ export default function SidebarDefaultLayout({ children }: Props) {
               className="text-red-500 dark:text-red-500 font-semibold"
               icon={HiOutlineLogout}
             >
-              {isLoading ? "Loading..." : "Sign Out"}
+              {isLoading ? "Memproses..." : "Keluar"}
             </DropdownItem>
           </Dropdown>
         </div>
@@ -251,9 +248,9 @@ export default function SidebarDefaultLayout({ children }: Props) {
         <div className="rounded-lg mt-16">
           {/* Header */}
 
-          <div className="w-full py-4 mb-6 bg-gray-50 dark:bg-gray-800 rounded-lg justify-between md:flex">
-            <h1 className="text-4xl font-medium px-6">{finalActiveLabel}</h1>
-            <div className="right-0 px-6 mt-3">
+          <div className="mb-5 flex flex-col gap-1 md:flex-row md:items-center md:justify-between">
+            <h1 className="text-2xl font-semibold">{finalActiveLabel}</h1>
+            <div>
               <BreadcrumbComponent currentPath={currentPath} />
             </div>
           </div>

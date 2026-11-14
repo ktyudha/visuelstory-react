@@ -1,3 +1,4 @@
+import { isAxiosError } from "axios";
 import axiosInstance from "@/lib/axios-instance";
 import useRevalidateMutation from "@/lib/swr/useRevalidateMutation";
 import { ICreatePayload } from "../interfaces/create.type";
@@ -21,17 +22,21 @@ export default function useCreate() {
         }
       );
 
-      if (res.status === 200) {
+      if (res.status >= 200 && res.status < 300) {
         revalidateMutationsByKey(/^\/admin\/invoices/);
       }
 
       return { response: res, error: null };
-    } catch (error: any) {
-      if (error.status >= 500) {
+    } catch (error) {
+      const status = isAxiosError(error) ? error.response?.status : undefined;
+      if (!status || status >= 500) {
         return { response: null, error: "Server error" };
       }
 
-      return { response: null, error: error.data.message };
+      return {
+        response: null,
+        error: (isAxiosError(error) && error.response?.data?.message) || "Data tidak valid",
+      };
     }
   };
 

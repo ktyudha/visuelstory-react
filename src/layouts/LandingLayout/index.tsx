@@ -1,5 +1,7 @@
 import { useEffect } from "react";
-import { Outlet } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { isStandalone } from "../../theme/useInstallPrompt";
+import { applyTheme } from "../../theme/theme";
 import { HelmetProvider } from "react-helmet-async";
 
 import LandingHelmet from "./LandingHelmet";
@@ -8,15 +10,20 @@ import LandingFooter from "./LandingFooter";
 import Metadata from "@components/Metadata";
 
 export default function LandingLayout() {
+  const { pathname } = useLocation();
   useEffect(() => {
     const html = document.documentElement;
-    const wasDark = html.classList.contains("dark");
-    html.classList.remove("dark");
+    html.dataset.forceLight = "1";
+    applyTheme();
 
     return () => {
-      if (wasDark) html.classList.add("dark");
+      delete html.dataset.forceLight;
+      applyTheme();
     };
   }, []);
+
+  // Dibuka sebagai aplikasi (PWA): langsung ke area customer, bukan halaman promosi.
+  if (pathname === "/" && isStandalone()) return <Navigate to="/account" replace />;
 
   return (
     <HelmetProvider>

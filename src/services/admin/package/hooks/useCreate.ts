@@ -6,7 +6,7 @@ export default function useCreate() {
   const revalidateMutationsByKey = useRevalidateMutation();
 
   const createData = async (payload: ICreatePayload) => {
-    const { package_category_id, name, description, price, discount } = payload;
+    const { package_category_id, name, description, price, discount, includes_video } = payload;
 
     try {
       const res = await axiosInstance({
@@ -18,6 +18,7 @@ export default function useCreate() {
         description,
         price,
         discount,
+        includes_video: !!includes_video,
       });
 
       if (res.status === 200) {
@@ -26,11 +27,11 @@ export default function useCreate() {
 
       return { response: res, error: null };
     } catch (error: any) {
-      if (error.status >= 500) {
+      if ((error.response?.status ?? 500) >= 500) {
         return { response: null, error: "Server error" };
       }
 
-      return { response: null, error: error.data.message };
+      return { response: null, error: error.response?.data?.message ?? "Terjadi kesalahan" };
     }
   };
 

@@ -16,38 +16,38 @@ export const sidebarOrganizer = [
     hasChild: false,
   },
   {
-    label: "Package",
+    label: "Paket",
     icon: HiOutlineMenu,
     hasChild: true,
     children: [
       {
-        label: "Category",
+        label: "Kategori",
         route: "/admin/package-categories",
       },
       {
-        label: "Add On",
+        label: "Add-on",
         route: "/admin/package-addons",
       },
       {
-        label: "List Package",
+        label: "Daftar paket",
         route: "/admin/packages",
       },
     ],
   },
   {
-    label: "Invoices",
+    label: "Invoice",
     icon: HiOutlineDocumentText,
     route: "/admin/invoices",
     hasChild: false,
   },
   {
-    label: "Events",
+    label: "Jadwal acara",
     icon: HiOutlineCalendar,
     route: "/admin/events",
     hasChild: false,
   },
   {
-    label: "Customers",
+    label: "Customer",
     icon: HiOutlineUserGroup,
     route: "/admin/customers",
     hasChild: false,
