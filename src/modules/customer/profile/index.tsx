@@ -1,4 +1,5 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { LogOut, MessageCircle } from "lucide-react";
 import { toast } from "react-toastify";
 import Metadata from "@components/Metadata";
@@ -9,7 +10,46 @@ import { useInstallPrompt } from "../../../theme/useInstallPrompt";
 import InstallApp from "../../../theme/InstallApp";
 import { ADMIN_WHATSAPP, btnGhost, Card } from "../shared/ui";
 
+/** Panel diagnostik tersembunyi (buka /account/profile?debug=1): membaca ukuran viewport di perangkat. */
+function ViewportDebug() {
+  const [rows, setRows] = useState<[string, string][]>([]);
+  useEffect(() => {
+    const read = () => {
+      const probe = document.createElement("div");
+      probe.style.cssText = "position:fixed;left:0;top:0;visibility:hidden;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)";
+      document.body.appendChild(probe);
+      const cs = getComputedStyle(probe);
+      const nav = document.querySelector('nav[aria-label="Navigasi utama"]')?.getBoundingClientRect();
+      const vv = window.visualViewport;
+      setRows([
+        ["mode standalone", String(window.matchMedia("(display-mode: standalone)").matches || (navigator as unknown as { standalone?: boolean }).standalone === true)],
+        ["screen (w×h)", `${screen.width}×${screen.height}`],
+        ["innerHeight", String(window.innerHeight)],
+        ["outerHeight", String(window.outerHeight)],
+        ["visualViewport.height", String(Math.round(vv?.height ?? 0))],
+        ["clientHeight (html)", String(document.documentElement.clientHeight)],
+        ["scrollHeight (html)", String(document.documentElement.scrollHeight)],
+        ["safe-area atas / bawah", `${cs.paddingTop} / ${cs.paddingBottom}`],
+        ["nav top / bottom", nav ? `${Math.round(nav.top)} / ${Math.round(nav.bottom)}` : "-"],
+        ["selisih dasar layar - nav bottom", nav ? String(Math.round(screen.height - nav.bottom)) : "-"],
+        ["devicePixelRatio", String(window.devicePixelRatio)],
+      ]);
+      probe.remove();
+    };
+    read();
+    const t = setInterval(read, 1000);
+    return () => clearInterval(t);
+  }, []);
+  return (
+    <div className="rounded-xl border border-dashed border-neutral-400 p-3 text-xs dark:border-neutral-600">
+      <div className="mb-1.5 font-semibold">Diagnostik viewport</div>
+      <table className="w-full"><tbody>{rows.map(([k, v]) => <tr key={k}><td className="pr-3 text-neutral-500 dark:text-neutral-400">{k}</td><td className="text-right font-mono">{v}</td></tr>)}</tbody></table>
+    </div>
+  );
+}
+
 export default function Profile() {
+  const [params] = useSearchParams();
   const me = useGlobalStore((s) => s.me);
   const navigate = useNavigate();
   const { handleLogout } = useLogout();
@@ -50,6 +90,8 @@ export default function Profile() {
           <InstallApp variant="button" className="w-full" />
         </Card>
       )}
+
+      {params.get("debug") === "1" && <ViewportDebug />}
 
       <div className="mt-auto grid gap-3 pt-2 sm:grid-cols-2">
         <a href={`https://wa.me/${ADMIN_WHATSAPP}`} target="_blank" rel="noreferrer" className={btnGhost}><MessageCircle className="size-4" /> Hubungi kami</a>
