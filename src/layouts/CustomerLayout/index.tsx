@@ -45,8 +45,11 @@ export default function CustomerLayout() {
   useEffect(() => {
     const root = document.documentElement;
     const prev = root.style.backgroundColor;
-    root.style.backgroundColor = dark ? "#000000" : "#f2f2f7";
-    return () => { root.style.backgroundColor = prev; };
+    const prevBody = document.body.style.backgroundColor;
+    const bg = dark ? "#000000" : "#f2f2f7";
+    root.style.backgroundColor = bg;
+    document.body.style.backgroundColor = bg; // body juga, agar tidak ada pita putih bila tinggi viewport lebih pendek
+    return () => { root.style.backgroundColor = prev; document.body.style.backgroundColor = prevBody; };
   }, [dark]);
 
   const onLogout = async () => {
@@ -58,15 +61,17 @@ export default function CustomerLayout() {
   return (
     <HelmetProvider>
       <Metadata />
-      <div className="ios-app flex min-h-dvh max-md:h-dvh max-md:overflow-hidden flex-col bg-neutral-50 text-neutral-900 max-md:bg-[#f2f2f7] dark:bg-neutral-950 dark:text-neutral-100 dark:max-md:bg-black">
+      <div className="ios-app flex min-h-dvh max-md:fixed max-md:inset-0 max-md:min-h-0 max-md:overflow-hidden flex-col bg-neutral-50 text-neutral-900 max-md:bg-[#f2f2f7] dark:bg-neutral-950 dark:text-neutral-100 dark:max-md:bg-black">
         {/* App bar */}
-        <header className="sticky top-0 z-40 border-b border-gold-500/20 bg-neutral-950 pt-[env(safe-area-inset-top)] text-white max-md:border-black/10 max-md:bg-white/60 max-md:text-neutral-900 max-md:backdrop-blur-2xl max-md:backdrop-saturate-200 dark:max-md:border-white/10 dark:max-md:bg-neutral-900/60 dark:max-md:text-white">
-          <div className="relative mx-auto flex h-14 max-w-5xl items-center justify-between gap-3 px-4 max-md:h-11">
+        <header className="sticky top-0 z-40 border-b border-gold-500/20 bg-neutral-950 pt-[env(safe-area-inset-top)] text-white max-md:pointer-events-none max-md:absolute max-md:inset-x-0 max-md:border-0 max-md:bg-transparent max-md:text-neutral-900 dark:max-md:text-white">
+          {/* Mobile: pudar halus di bawah Dynamic Island / status bar; konten ber-scroll di bawahnya */}
+          <div aria-hidden className="absolute inset-0 -z-10 bg-[#f2f2f7]/75 backdrop-blur-xl [mask-image:linear-gradient(to_bottom,#000_60%,transparent)] md:hidden dark:bg-black/65" />
+          <div className="relative mx-auto flex h-14 max-w-5xl items-center justify-between gap-3 px-4 max-md:h-[3.25rem]">
             {/* Mobile: tombol kembali di halaman detail */}
             <div className="flex min-w-0 items-center md:hidden">
               {detail && (
                 <button onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/account"))} aria-label="Kembali"
-                  className="-ml-2 grid size-10 cursor-pointer place-items-center text-gold-700 dark:text-gold-400"><ChevronLeft className="size-7 stroke-[2.2]" /></button>
+                  className="glass pointer-events-auto grid size-10 cursor-pointer place-items-center rounded-full text-neutral-900 dark:text-white"><ChevronLeft className="size-6 stroke-[2.2]" /></button>
               )}
             </div>
             {/* Judul di tengah app bar */}
@@ -88,7 +93,7 @@ export default function CustomerLayout() {
                 <span className="grid size-7 place-items-center rounded-full bg-gradient-to-br from-gold-300 to-gold-600 text-xs font-bold uppercase text-neutral-950">{initial}</span>
                 <span className="max-w-32 truncate">{me?.name || me?.whatsapp}</span>
               </NavLink>
-              <ThemeToggle className="max-md:text-neutral-500 max-md:hover:bg-black/5 max-md:hover:text-neutral-900 dark:max-md:text-neutral-400 dark:max-md:hover:bg-white/10 dark:max-md:hover:text-white" />
+              <ThemeToggle className="max-md:glass max-md:pointer-events-auto max-md:size-10 max-md:rounded-full max-md:text-neutral-700 max-md:hover:bg-white/70 dark:max-md:text-neutral-200" />
               <button onClick={() => setConfirmLogout(true)} aria-label="Keluar" title="Keluar"
                 className="hidden size-9 cursor-pointer place-items-center rounded-lg text-white/80 hover:bg-white/10 hover:text-white md:grid">
                 <LogOut className="size-4" />
@@ -97,7 +102,7 @@ export default function CustomerLayout() {
           </div>
         </header>
 
-        <main className={clsx("mx-auto w-full max-w-5xl flex-1 px-4 py-5 max-md:min-h-0 max-md:overflow-y-auto max-md:overscroll-contain md:py-8", !detail && "pb-[calc(var(--tab-bottom)+5.5rem)] md:pb-8")}>
+        <main className={clsx("mx-auto w-full max-w-5xl flex-1 px-4 py-5 max-md:min-h-0 max-md:pt-[calc(env(safe-area-inset-top)+3.25rem+0.75rem)] max-md:overflow-y-auto max-md:overscroll-contain md:py-8", !detail && "pb-[calc(var(--tab-bottom)+5.5rem)] md:pb-8")}>
           {!detail && <InstallApp variant="banner" />}
           <div key={pathname} className="animate-in fade-in slide-in-from-right-3 duration-300 md:animate-none">
             <Outlet />
