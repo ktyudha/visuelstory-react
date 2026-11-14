@@ -97,7 +97,7 @@ export default function CustomerLayout() {
           </div>
         </header>
 
-        <main className={clsx("mx-auto w-full max-w-5xl flex-1 px-4 py-5 max-md:min-h-0 max-md:overflow-y-auto max-md:overscroll-contain md:py-8", !detail && "pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-8")}>
+        <main className={clsx("mx-auto w-full max-w-5xl flex-1 px-4 py-5 max-md:min-h-0 max-md:overflow-y-auto max-md:overscroll-contain md:py-8", !detail && "pb-[calc(var(--tab-bottom)+5.5rem)] md:pb-8")}>
           {!detail && <InstallApp variant="banner" />}
           <div key={pathname} className="animate-in fade-in slide-in-from-right-3 duration-300 md:animate-none">
             <Outlet />
@@ -107,7 +107,7 @@ export default function CustomerLayout() {
 
         {/* Tab bar bawah (mobile, halaman utama saja) */}
         {!detail && (
-          <nav aria-label="Navigasi utama" className="glass fixed inset-x-4 bottom-[calc(0.75rem+env(safe-area-inset-bottom))] z-40 mx-auto h-16 max-w-sm rounded-full md:hidden">
+          <nav aria-label="Navigasi utama" className="glass fixed inset-x-4 bottom-[var(--tab-bottom)] z-40 mx-auto h-16 max-w-sm rounded-full md:hidden">
             {/* Penanda tab aktif: satu kapsul yang bergeser mulus antar tab */}
             <div aria-hidden className="pointer-events-none absolute inset-1.5">
               <span

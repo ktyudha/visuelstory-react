@@ -304,7 +304,7 @@ export default function Booking() {
 
       {/* ===== Bar aksi menempel (mobile): ringkasan terpilih + lanjut ===== */}
       {catalog && cart.length > 0 && (
-        <div className="glass fixed inset-x-4 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-30 mx-auto max-w-sm rounded-2xl lg:hidden">
+        <div className="glass fixed inset-x-4 bottom-[calc(var(--tab-bottom)+4.5rem)] z-30 mx-auto max-w-sm rounded-2xl lg:hidden">
           <div className="mx-auto flex max-w-md items-center gap-3 px-4 py-2.5">
             <button onClick={() => setSheet(true)} disabled={cart.length === 0} className="min-w-0 flex-1 cursor-pointer text-left" aria-label="Lihat ringkasan pilihan">
               <div className="flex items-center gap-1 text-xs text-neutral-500 dark:text-neutral-400">
