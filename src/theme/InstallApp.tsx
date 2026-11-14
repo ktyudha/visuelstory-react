@@ -1,14 +1,15 @@
+import { btnGhost, btnPrimary } from "@modules/customer/shared/ui";
 import { useEffect, useState } from "react";
-import { BellRing, Download, Images, MoreVertical, Plus, Share, X, Zap } from "lucide-react";
+import { BellRing, Download, Images, MoreVertical, Plus, Share, X, Zap, ChevronRight } from "lucide-react";
 import BottomSheet from "../components/BottomSheet";
 import { useInstallPrompt } from "./useInstallPrompt";
 
-const KEYS = { banner: "install-banner-dismissed", sheet: "install-sheet-dismissed", button: "" } as const;
-const DAYS = { banner: 7, sheet: 1, button: 0 } as const;
+const KEYS = { banner: "install-banner-dismissed", sheet: "install-sheet-dismissed", button: "", row: "" } as const;
+const DAYS = { banner: 7, sheet: 1, button: 0, row: 0 } as const;
 type Variant = keyof typeof KEYS;
 
 const dismissedRecently = (v: Variant) => {
-  try { return v !== "button" && Date.now() - Number(localStorage.getItem(KEYS[v]) ?? 0) < DAYS[v] * 864e5; } catch { return false; }
+  try { return v !== "button" && v !== "row" && Date.now() - Number(localStorage.getItem(KEYS[v]) ?? 0) < DAYS[v] * 864e5; } catch { return false; }
 };
 const remember = (v: Variant) => { try { localStorage.setItem(KEYS[v], String(Date.now())); } catch { /* abaikan */ } };
 const isMobileUA = () => /android|iphone|ipad|ipod/i.test(navigator.userAgent);
@@ -58,7 +59,7 @@ export default function InstallApp({ variant = "banner", className = "" }: { var
   }, [variant, hidden, standalone]);
 
   if (standalone || (!available && !isMobileUA())) return null;
-  if (variant !== "button" && hidden) return null;
+  if (variant !== "button" && variant !== "row" && hidden) return null;
 
   const dismiss = () => { remember(variant); setHidden(true); setOpen(false); };
   const act = async () => { if (available) { await install(); setOpen(false); } else { setSteps(true); setOpen(true); } };
@@ -84,7 +85,7 @@ export default function InstallApp({ variant = "banner", className = "" }: { var
 
         {steps ? <Steps ios={ios} /> : (
           <ul className="space-y-3 text-sm">
-            {[[Zap, "Buka lebih cepat langsung dari layar utama"], [Images, "Pilih foto & lihat galeri layar penuh"], [BellRing, "Cek jadwal dan pembayaran dalam sekali ketuk"]].map(([Icon, t], i) => {
+            {[[Zap, "Buka lebih cepat langsung dari layar utama"], [Images, "Booking & cek invoice langsung dari layar utama"], [BellRing, "Cek jadwal dan pembayaran dalam sekali ketuk"]].map(([Icon, t], i) => {
               const I = Icon as typeof Zap;
               return <li key={i} className="flex items-center gap-3"><span className="grid size-8 place-items-center rounded-full bg-neutral-100 dark:bg-neutral-800"><I className="size-4" /></span>{t as string}</li>;
             })}
@@ -93,8 +94,8 @@ export default function InstallApp({ variant = "banner", className = "" }: { var
 
         <div className="mt-6 space-y-2">
           {!steps && (
-            <button onClick={act} className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-neutral-900 py-3.5 text-base font-semibold text-white transition active:scale-[0.98] dark:bg-white dark:text-neutral-900">
-              <Download className="size-5" /> Pasang aplikasi
+            <button onClick={act} className={`${btnPrimary} w-full`}>
+              <Download className="size-4" /> Pasang aplikasi
             </button>
           )}
           <button onClick={dismiss} className="w-full cursor-pointer rounded-xl py-3 text-sm font-medium text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white">
@@ -105,12 +106,19 @@ export default function InstallApp({ variant = "banner", className = "" }: { var
     );
   }
 
-  if (variant === "button") {
+  if (variant === "button" || variant === "row") {
     return (
       <>
-        <button onClick={act} className={`inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-neutral-300 px-4 py-2.5 text-sm font-semibold transition active:scale-95 dark:border-neutral-700 ${className}`}>
-          <Download className="size-4" /> Pasang aplikasi
-        </button>
+        {variant === "row" ? (
+          <button onClick={act} className={`flex w-full cursor-pointer items-center gap-3 px-4 py-3.5 text-left text-[15px] ${className}`}>
+            <Download className="size-5 text-neutral-500 dark:text-neutral-400" /> <span className="flex-1">Pasang aplikasi</span>
+            <ChevronRight className="size-4 text-neutral-300 dark:text-neutral-600" />
+          </button>
+        ) : (
+          <button onClick={act} className={`${btnGhost} ${className}`}>
+            <Download className="size-4" /> Pasang aplikasi
+          </button>
+        )}
         {open && (
           <BottomSheet onClose={() => { setOpen(false); setSteps(false); }}>
             <h2 className="mb-4 text-lg font-bold">Cara memasang aplikasi</h2>
@@ -129,7 +137,7 @@ export default function InstallApp({ variant = "banner", className = "" }: { var
         <img src="/icons/icon-192.png" alt="" className="size-12 shrink-0 rounded-xl" />
         <div className="min-w-0 flex-1">
           <div className="text-sm font-semibold">Pasang aplikasi Visuelstory</div>
-          <div className="text-xs text-white/70">Booking &amp; pilih foto lebih cepat, langsung dari layar utama.</div>
+          <div className="text-xs text-white/70">Booking &amp; cek pesanan lebih cepat, langsung dari layar utama.</div>
         </div>
         {primary}
         <button onClick={dismiss} aria-label="Sembunyikan" className="-mr-1 shrink-0 cursor-pointer rounded-full p-1.5 text-white/60 hover:bg-white/10 hover:text-white"><X className="size-4" /></button>

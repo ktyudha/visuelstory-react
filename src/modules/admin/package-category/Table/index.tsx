@@ -1,3 +1,4 @@
+import { EmptyRow, LoadingRows } from "../../shared/TableState";
 import { useState } from "react";
 import {
   Table,
@@ -5,7 +6,6 @@ import {
   TableHead,
   TableHeadCell,
   TableRow,
-  TableCell,
 } from "flowbite-react";
 
 import PaginationComponent from "@components/Flowbite/Pagination";
@@ -33,11 +33,9 @@ export default function TablePackageCategory() {
           </TableHead>
           <TableBody>
             {loading || !data ? (
-              <TableRow>
-                <TableCell colSpan={3} className="text-center">
-                  Loading
-                </TableCell>
-              </TableRow>
+              <LoadingRows cols={4} />
+            ) : data.length === 0 ? (
+              <EmptyRow cols={4} text="Kategori tidak ditemukan." />
             ) : (
               data.map((item, idx) => {
                 return (

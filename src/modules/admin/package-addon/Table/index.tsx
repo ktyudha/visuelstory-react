@@ -1,10 +1,10 @@
+import { EmptyRow, LoadingRows } from "../../shared/TableState";
 import {
   Table,
   TableBody,
   TableHead,
   TableHeadCell,
   TableRow,
-  TableCell,
 } from "flowbite-react";
 
 import PaginationComponent from "@components/Flowbite/Pagination";
@@ -28,11 +28,9 @@ export default function TablePackageAddOn() {
           </TableHead>
           <TableBody>
             {loading || !data ? (
-              <TableRow>
-                <TableCell colSpan={3} className="text-center">
-                  Loading
-                </TableCell>
-              </TableRow>
+              <LoadingRows cols={3} />
+            ) : data.length === 0 ? (
+              <EmptyRow cols={3} text="Add-on tidak ditemukan." />
             ) : (
               data.map((item, idx) => {
                 return (

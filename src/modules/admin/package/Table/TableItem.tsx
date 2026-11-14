@@ -31,9 +31,6 @@ export default function TableItem({ item }: Props) {
             Not Yet
           </Badge>
         )}
-        {item.includes_video && (
-          <Badge className="mt-1 w-fit justify-center" size="sm" color="purple">🎬 Termasuk video</Badge>
-        )}
       </TableCell>
       <TableCell className="prose dark:prose-invert whitespace-nowrap">
         <div className="text-sm whitespace-pre-line">{item.description}</div>

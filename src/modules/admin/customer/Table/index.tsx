@@ -1,10 +1,10 @@
+import { EmptyRow, LoadingRows } from "../../shared/TableState";
 import {
   Table,
   TableBody,
   TableHead,
   TableHeadCell,
   TableRow,
-  TableCell,
 } from "flowbite-react";
 
 import PaginationComponent from "@components/Flowbite/Pagination";
@@ -31,11 +31,9 @@ export default function TableCustomer() {
           </TableHead>
           <TableBody>
             {loading || !data ? (
-              <TableRow>
-                <TableCell colSpan={3} className="text-center">
-                  Loading
-                </TableCell>
-              </TableRow>
+              <LoadingRows cols={5} />
+            ) : data.length === 0 ? (
+              <EmptyRow cols={5} text="Customer tidak ditemukan." />
             ) : (
               data.map((item, idx) => {
                 return (

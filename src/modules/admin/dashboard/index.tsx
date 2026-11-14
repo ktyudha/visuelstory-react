@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import useSWR from "swr";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
-import { HiOutlineCalendar, HiOutlineCash, HiOutlineClock, HiOutlinePhotograph } from "react-icons/hi";
+import { HiOutlineCalendar, HiOutlineCash, HiOutlineClock } from "react-icons/hi";
 import axiosInstance from "@lib/axios-instance";
 import { formattedCurrency } from "@helpers/currency";
 import { panel, StatusPill } from "../shared/invoice-ui";
@@ -13,11 +13,9 @@ interface Stats {
   outstanding: number;
   unpaid_count: number;
   upcoming_count: number;
-  selection_pending: number;
+  cancel_pending: number;
   customers: number;
   upcoming: { id: string; date: string; location: string; customer: string | null; package: string | null; invoice_id: string | null; invoice_number: string | null }[];
-  delivery_queue: { id: string; invoice_number: string; customer: string | null; tasks: string[]; selection_count: number }[];
-  delivery_counts: { upload_jpeg: number; kirim_editan: number; kirim_video: number; tanpa_pilihan: number };
   needs_attention: { id: string; invoice_number: string; customer: string | null; remaining: number; status: TransactionStatus }[];
 }
 
@@ -29,26 +27,18 @@ export default function AdminDashboard() {
   if (isLoading) return <div className="p-10 text-center text-gray-500">Memuat...</div>;
   if (error || !data) return <div className="p-10 text-center text-gray-500">Dashboard gagal dimuat.</div>;
 
-  const TASK: Record<string, { label: string; cls: string }> = {
-    upload_jpeg: { label: "Upload JPEG", cls: "bg-amber-100 text-amber-800 dark:bg-amber-950/50 dark:text-amber-300" },
-    kirim_editan: { label: "Kirim editan", cls: "bg-blue-100 text-blue-800 dark:bg-blue-950/50 dark:text-blue-300" },
-    tanpa_pilihan: { label: "Tidak memilih", cls: "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200" },
-    kirim_video: { label: "Kirim video", cls: "bg-purple-100 text-purple-800 dark:bg-purple-950/50 dark:text-purple-300" },
-  };
-  const todo = data.delivery_counts.upload_jpeg + data.delivery_counts.kirim_editan + data.delivery_counts.kirim_video + data.delivery_counts.tanpa_pilihan;
-
   const cards = [
     { label: "Pemasukan bulan ini", value: formattedCurrency(data.revenue_month), icon: HiOutlineCash, to: "/admin/invoices" },
     { label: "Belum tertagih", value: formattedCurrency(data.outstanding), sub: `${data.unpaid_count} invoice`, icon: HiOutlineClock, to: "/admin/invoices" },
+    ...(data.cancel_pending > 0 ? [{ label: "Pengajuan batal", value: String(data.cancel_pending), icon: HiOutlineClock, to: "/admin/invoices" }] : []),
     { label: "Acara 7 hari ke depan", value: String(data.upcoming_count), icon: HiOutlineCalendar, to: "/admin/events" },
-    { label: "Seleksi foto masuk", value: String(data.selection_pending), icon: HiOutlinePhotograph, to: "/admin/invoices" },
   ];
 
   return (
     <div className="space-y-6">
       <p className="text-sm text-gray-500">{dayjs().format("dddd, D MMMM YYYY")}</p>
 
-      <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 xl:grid-cols-3">
         {cards.map((c) => (
           <Link key={c.label} to={c.to} className={`${panel} transition hover:shadow-md`}>
             <c.icon className="mb-3 text-gray-400" size={22} />
@@ -58,34 +48,6 @@ export default function AdminDashboard() {
           </Link>
         ))}
       </div>
-
-      <section className={panel}>
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <h2 className="font-semibold">Antrian pengiriman hasil {todo > 0 && <span className="ml-1 rounded-full bg-red-500 px-2 py-0.5 text-xs font-bold text-white">{todo}</span>}</h2>
-          <div className="flex flex-wrap gap-1.5 text-xs">
-            {Object.entries(TASK).map(([k, t]) => (
-              <span key={k} className={`rounded-full px-2.5 py-1 font-semibold ${t.cls}`}>{t.label}: {data.delivery_counts[k as keyof typeof data.delivery_counts]}</span>
-            ))}
-          </div>
-        </div>
-        {data.delivery_queue.length === 0 ? <p className="py-6 text-center text-sm text-gray-500">Semua hasil sudah terkirim 🎉</p> : (
-          <ul className="divide-y divide-gray-100 dark:divide-gray-700">
-            {data.delivery_queue.map((q) => (
-              <li key={q.id}>
-                <Link to={`/admin/invoices/show/${q.id}`} className="flex flex-wrap items-center justify-between gap-2 py-3 hover:opacity-80">
-                  <div className="min-w-0">
-                    <div className="truncate text-sm font-medium capitalize">{q.customer || "-"}</div>
-                    <div className="text-xs text-gray-500">{q.invoice_number}{q.tasks.includes("kirim_editan") ? ` • ${q.selection_count} foto dipilih` : ""}</div>
-                  </div>
-                  <div className="flex flex-wrap gap-1.5">
-                    {q.tasks.map((t) => <span key={t} className={`rounded-full px-2.5 py-1 text-xs font-semibold ${TASK[t]?.cls}`}>{TASK[t]?.label}</span>)}
-                  </div>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
 
       <div className="grid gap-5 lg:grid-cols-2">
         <section className={panel}>

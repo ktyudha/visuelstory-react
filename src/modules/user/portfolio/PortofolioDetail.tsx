@@ -1,34 +1,22 @@
-import Image from "@components/Image";
+import { Link } from "react-router-dom";
+import Metadata from "@components/Metadata";
+import PageHero from "../shared/PageHero";
+import { img } from "../shared/images";
+import { linkText } from "../shared/ui";
 
-import Gambar2 from "@assets/images/ex-2.png";
-import Gambar3 from "@assets/images/ex-3.png";
-import Gambar4 from "@assets/images/ex-4.png";
+const GALLERY = ["ex-2", "ex-3", "ex-4"];
 
 export default function PortfolioDetail() {
-  const dummyPortfolioDetail = [Gambar2, Gambar3, Gambar4];
-
   return (
     <>
-      <section id="portfolio" className="relative">
-        <Image
-          className="h-[78vh] w-full object-cover object-center z-50 brightness-75"
-          name="ex-1"
-        />
+      <Metadata title="Portofolio" />
+      <PageHero image="ex-1" eyebrow="Couple Session" title="Aubry - Rendi" />
 
-        <div className="max-w-2xl min-h-[22vh] flex flex-col items-center justify-center mx-auto px-8">
-          <h2 className="uppercase md:text-4xl text-2xl tracking-widest mb-4">
-            Couple Session
-          </h2>
-          <p className="text-base md:tracking-[0.22em] tracking-[0.36em]  uppercase">
-            Aubry - Rendi
-          </p>
+      <section className="mx-auto max-w-4xl px-6 py-16 md:py-24">
+        <div className="flex flex-col gap-6 md:gap-10">
+          {GALLERY.map((g, i) => <img key={g} src={img(g)} alt={`Portofolio ${i + 1}`} loading="lazy" className="w-full" />)}
         </div>
-
-        <div className="max-w-4xl px-8 mx-auto flex flex-col gap-8">
-          {dummyPortfolioDetail.map((_portfolio, idx) => (
-            <img key={idx} src={_portfolio} alt={`portofolio-${idx}`} />
-          ))}
-        </div>
+        <div className="mt-16 text-center"><Link to="/portfolio" className={linkText}>Semua portofolio</Link></div>
       </section>
     </>
   );

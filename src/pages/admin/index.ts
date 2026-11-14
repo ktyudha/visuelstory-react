@@ -7,6 +7,9 @@ export { default as PackageCategoryPage } from "@modules/admin/package-category"
 
 export { default as PackageAddonPage } from "@modules/admin/package-addon";
 
+// Revenue
+export { default as RevenuePage } from "@modules/admin/revenue";
+
 // Event
 export { default as EventPage } from "@modules/admin/event";
 

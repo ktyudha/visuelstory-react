@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useReactToPrint } from "react-to-print";
 import { HiChevronLeft, HiPrinter } from "react-icons/hi";
@@ -11,8 +11,7 @@ import Logo from "@assets/logo/logo-mark.png";
 import { METHOD_LABEL, StatusPill } from "../../shared/invoice-ui";
 import { btnPrimary } from "../../shared/ui";
 import PaymentsPanel from "./PaymentsPanel";
-import DeliveryPanel from "./DeliveryPanel";
-import { DeliveryStepper } from "../../shared/delivery-ui";
+import CancelPanel from "./CancelPanel";
 
 /** Ukuran & warna cetak: A4, margin rapi, warna latar ikut tercetak. */
 const PRINT_STYLE = `
@@ -26,7 +25,6 @@ export default function Show() {
   const { invoiceId = "" } = useParams();
   const { data, loading, error } = useGet(invoiceId);
 
-  const [tab, setTab] = useState<"pay" | "photo">("pay");
   const printRef = useRef<HTMLDivElement>(null);
   const print = useReactToPrint({
     contentRef: printRef,
@@ -57,8 +55,6 @@ export default function Show() {
           <HiPrinter size={16} /> Cetak / simpan PDF
         </button>
       </div>
-
-      <div className="print:hidden"><DeliveryStepper delivery={data.delivery} /></div>
 
       <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_400px]">
         {/* ===== Dokumen invoice: selalu terang agar cetakan konsisten ===== */}
@@ -91,7 +87,7 @@ export default function Show() {
               <div>
                 <div className="mb-1 text-[11px] font-semibold uppercase tracking-widest text-gray-500">Dari</div>
                 <div className="font-semibold">Visuelstory</div>
-                <div className="text-gray-600">Sidoarjo, Jawa Timur 61275<br />+62 858 4825 0548</div>
+                <div className="text-gray-600">Sidoarjo, Jawa Timur 61275<br />+62 851 4492 0131</div>
               </div>
               <div className="sm:text-right">
                 <div className="mb-1 text-[11px] font-semibold uppercase tracking-widest text-gray-500">Ditagihkan kepada</div>
@@ -180,15 +176,8 @@ export default function Show() {
 
         {/* ===== Panel kerja admin (tidak ikut tercetak) ===== */}
         <div className="space-y-4 xl:sticky xl:top-20 print:hidden">
-          <div role="tablist" className="grid grid-cols-2 gap-1 rounded-xl bg-gray-100 p-1 dark:bg-gray-700/50">
-            {([["pay", "Pembayaran"], ["photo", "Pengiriman hasil"]] as const).map(([k, label]) => (
-              <button key={k} role="tab" aria-selected={tab === k} onClick={() => setTab(k)}
-                className={`cursor-pointer rounded-lg px-3 py-2 text-sm font-medium transition ${tab === k ? "bg-white shadow-sm dark:bg-gray-800" : "text-gray-500 hover:text-gray-900 dark:hover:text-white"}`}>
-                {label}
-              </button>
-            ))}
-          </div>
-          {tab === "pay" ? <PaymentsPanel invoice={data} /> : <DeliveryPanel invoiceId={invoiceId} invoiceNumber={data.invoice_number} customerName={data.customer?.name} customerWhatsapp={data.customer?.whatsapp} />}
+          <CancelPanel invoice={data} />
+          <PaymentsPanel invoice={data} />
         </div>
       </div>
     </div>

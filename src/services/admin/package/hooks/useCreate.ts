@@ -6,7 +6,7 @@ export default function useCreate() {
   const revalidateMutationsByKey = useRevalidateMutation();
 
   const createData = async (payload: ICreatePayload) => {
-    const { package_category_id, name, description, price, discount, includes_video } = payload;
+    const { package_category_id, name, description, price, discount } = payload;
 
     try {
       const res = await axiosInstance({
@@ -18,7 +18,6 @@ export default function useCreate() {
         description,
         price,
         discount,
-        includes_video: !!includes_video,
       });
 
       if (res.status === 200) {

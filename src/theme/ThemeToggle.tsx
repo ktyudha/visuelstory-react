@@ -18,9 +18,9 @@ export default function ThemeToggle({ variant = "icon", className }: { variant?:
       <div role="radiogroup" aria-label="Tema tampilan" className={clsx("grid grid-cols-3 gap-1 rounded-xl bg-neutral-100 p-1 dark:bg-neutral-800", className)}>
         {OPTIONS.map(({ value, label, icon: Icon }) => (
           <button key={value} role="radio" aria-checked={mode === value} onClick={() => setMode(value)}
-            className={clsx("flex cursor-pointer flex-col items-center gap-1 rounded-lg px-2 py-2.5 text-xs font-medium transition",
+            className={clsx("flex cursor-pointer items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-[13px] font-medium transition",
               mode === value ? "bg-white text-neutral-900 shadow-sm dark:bg-neutral-700 dark:text-white" : "text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white")}>
-            <Icon className="size-5" /> {label}
+            <Icon className="size-4" /> {label}
           </button>
         ))}
       </div>

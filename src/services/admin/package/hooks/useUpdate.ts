@@ -6,7 +6,7 @@ export default function useUpdate(packageId: string) {
   const revalidateMutationsByKey = useRevalidateMutation();
 
   const updateData = async (payload: ICreatePayload) => {
-    const { package_category_id, name, description, price, discount, includes_video } = payload;
+    const { package_category_id, name, description, price, discount } = payload;
     try {
       const res = await axiosInstance({
         withToken: true,
@@ -17,7 +17,6 @@ export default function useUpdate(packageId: string) {
         description,
         price,
         discount,
-        includes_video: !!includes_video,
         _method: "PUT",
       });
 

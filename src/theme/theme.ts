@@ -26,7 +26,7 @@ export function applyTheme() {
   const dark = root.dataset.forceLight ? false : isDarkNow();
   root.classList.toggle("dark", dark);
   root.style.colorScheme = dark ? "dark" : "light";
-  document.querySelectorAll('meta[name="theme-color"]').forEach((m) => m.setAttribute("content", dark ? "#0a0a0a" : "#171717"));
+  document.querySelectorAll('meta[name="theme-color"]').forEach((m) => m.setAttribute("content", "#0a0a0a"));
   listeners.forEach((l) => l());
 }
 
