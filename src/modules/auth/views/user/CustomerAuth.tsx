@@ -13,7 +13,6 @@ import useLogin from "@modules/auth/services/hooks/useLogin";
 import { getApiError } from "@services/customer/api";
 import { safeRedirect } from "@helpers/safe-redirect";
 import ThemeToggle from "../../../../theme/ThemeToggle";
-import InstallApp from "../../../../theme/InstallApp";
 import AuthHeader from "../AuthHeader";
 import { btnPrimary, inputCls } from "../../../customer/shared/ui";
 
@@ -169,8 +168,6 @@ export default function CustomerAuth() {
             </button>
           </form>
         )}
-
-        {step === "phone" && <InstallApp variant="button" className="w-full" />}
       </div>
     </div>
     </HelmetProvider>

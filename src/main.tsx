@@ -12,14 +12,10 @@ import "react-toastify/dist/ReactToastify.css";
 dayjs.locale("id"); // nama hari & bulan berbahasa Indonesia di seluruh aplikasi
 initTheme();
 
-// PWA: simpan event pasang aplikasi lebih awal, daftarkan service worker (production saja)
-window.addEventListener("beforeinstallprompt", (e) => {
-  e.preventDefault();
-  (window as unknown as { __installPrompt?: Event }).__installPrompt = e;
-  window.dispatchEvent(new Event("install-available"));
-});
-if ("serviceWorker" in navigator && import.meta.env.PROD) {
-  window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(() => {}));
+// Bersihkan service worker & cache sisa PWA lama agar pengguna lama tidak tersangkut versi usang
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.getRegistrations().then((rs) => rs.forEach((r) => r.unregister())).catch(() => {});
+  if ("caches" in window) caches.keys().then((ks) => ks.forEach((k) => caches.delete(k))).catch(() => {});
 }
 
 const router = createBrowserRouter(GetBrowserRoutes());

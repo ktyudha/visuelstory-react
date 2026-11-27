@@ -37,6 +37,7 @@ export default [
       { path: "booking", element: <Customer.BookingPage /> },
       { path: "booking/package/:packageId", element: <Customer.PackageDetailPage /> },
       { path: "account", element: <Customer.OrdersPage /> },
+      { path: "account/studio", element: <Customer.StudioPage /> },
       { path: "account/profile", element: <Customer.ProfilePage /> },
       { path: "account/orders/:orderId", element: <Customer.OrderDetailPage /> },
       { path: "account/orders/:orderId/invoice", element: <Customer.InvoicePage /> },

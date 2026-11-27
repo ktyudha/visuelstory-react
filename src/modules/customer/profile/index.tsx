@@ -1,14 +1,12 @@
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { ChevronRight, Globe, LogOut, MessageCircle } from "lucide-react";
+import { ChevronRight, Globe, Images, LogOut, MessageCircle } from "lucide-react";
 import { toast } from "react-toastify";
 import Metadata from "@components/Metadata";
 import ConfirmSheet from "@components/ConfirmSheet";
 import useGlobalStore from "@store/useStore";
 import useLogout from "@modules/auth/services/hooks/useLogout";
 import ThemeToggle from "../../../theme/ThemeToggle";
-import { useInstallPrompt } from "../../../theme/useInstallPrompt";
-import InstallApp from "../../../theme/InstallApp";
 import { ADMIN_WHATSAPP, Card } from "../shared/ui";
 
 /** Panel diagnostik tersembunyi (buka /account/profile?debug=1): membaca ukuran viewport di perangkat. */
@@ -54,9 +52,6 @@ export default function Profile() {
   const me = useGlobalStore((s) => s.me);
   const navigate = useNavigate();
   const { handleLogout } = useLogout();
-  const { standalone, available } = useInstallPrompt();
-  // Kartu hanya tampil bila tombolnya memang ada (bisa dipasang otomatis, atau HP dengan panduan manual)
-  const canInstall = !standalone && (available || /android|iphone|ipad|ipod/i.test(navigator.userAgent));
 
   const [confirmLogout, setConfirmLogout] = useState(false);
   const onLogout = async () => {
@@ -92,7 +87,6 @@ export default function Profile() {
             <div className="mb-2.5 text-[15px]">Mode tampilan</div>
             <ThemeToggle variant="segmented" />
           </div>
-          {canInstall && <InstallApp variant="row" />}
         </Card>
       </section>
 
@@ -102,7 +96,8 @@ export default function Profile() {
       <section>
         <h2 className={sectionTitle}>Lainnya</h2>
         <Card className="divide-y divide-neutral-100 overflow-hidden dark:divide-neutral-800">
-          <Link to="/?web=1" className={row}><Globe className="size-5 text-neutral-500 dark:text-neutral-400" /><span className="flex-1">Website Visuelstory</span>{chevron}</Link>
+          <Link to="/account/studio" className={row}><Images className="size-5 text-neutral-500 dark:text-neutral-400" /><span className="flex-1">Studio Foto (GIF, video, grid)</span>{chevron}</Link>
+          <Link to="/" className={row}><Globe className="size-5 text-neutral-500 dark:text-neutral-400" /><span className="flex-1">Website Visuelstory</span>{chevron}</Link>
           <a href={`https://wa.me/${ADMIN_WHATSAPP}`} target="_blank" rel="noreferrer" className={row}><MessageCircle className="size-5 text-neutral-500 dark:text-neutral-400" /><span className="flex-1">Hubungi kami</span>{chevron}</a>
         </Card>
       </section>

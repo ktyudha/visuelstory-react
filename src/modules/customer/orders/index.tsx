@@ -6,8 +6,6 @@ import Metadata from "@components/Metadata";
 import { formattedCurrency } from "@helpers/currency";
 import { useOrders } from "@services/customer/api";
 import useGlobalStore from "@store/useStore";
-import { isStandalone } from "../../../theme/useInstallPrompt";
-import Shortcuts from "./Shortcuts";
 import { OrdersSkeleton, Skeleton } from "../shared/skeletons";
 import { btnPrimary, CancelBadge, Card, ErrorState, StatusBadge } from "../shared/ui";
 
@@ -33,8 +31,6 @@ export default function Orders() {
         <p className="relative mt-1 text-sm text-white/70">Abadikan momen berharga Anda bersama kami.</p>
         <Link to="/booking" className="mt-4 inline-flex items-center rounded-full bg-gradient-to-r from-gold-300 to-gold-500 px-5 py-2 text-sm font-semibold text-neutral-950 active:scale-95">Booking sekarang</Link>
       </section>
-
-      {orders && isStandalone() && <Shortcuts orders={orders} />}
 
       {loading && <OrdersSkeleton />}
       {error && <ErrorState message="Pesanan gagal dimuat." onRetry={() => retry()} />}

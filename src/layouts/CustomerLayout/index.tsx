@@ -11,7 +11,6 @@ import { useEffect, useState } from "react";
 import ConfirmSheet from "@components/ConfirmSheet";
 import { useTheme } from "../../theme/useTheme";
 import ThemeToggle from "../../theme/ThemeToggle";
-import InstallApp from "../../theme/InstallApp";
 
 const TABS = [
   { to: "/account", label: "Pesanan", icon: ClipboardList, end: true },
@@ -21,6 +20,7 @@ const TABS = [
 
 /** Judul app bar & apakah halaman ini "detail" (tombol kembali, tanpa tab bawah). */
 function screenInfo(path: string): { title: string; detail: boolean } {
+  if (path === "/account/studio") return { title: "Studio Foto", detail: true };
   if (path.endsWith("/invoice")) return { title: "Invoice", detail: true };
   if (path.startsWith("/account/orders/")) return { title: "Detail Pesanan", detail: true };
   if (path.startsWith("/booking/package/")) return { title: "Detail Paket", detail: true };
@@ -37,25 +37,6 @@ export default function CustomerLayout() {
   const { title, detail } = screenInfo(pathname);
   // Indeks tab aktif (urutan sama dengan TABS)
   const activeTab = pathname.startsWith("/account/profile") ? 2 : pathname.startsWith("/booking") ? 1 : 0;
-  // PWA iOS: tinggi viewport bisa lebih pendek dari layar (muncul pita di bawah). Pakai tinggi layar bila selisihnya wajar.
-  useEffect(() => {
-    const standalone = window.matchMedia("(display-mode: standalone)").matches || (navigator as unknown as { standalone?: boolean }).standalone === true;
-    if (!standalone) return;
-    const root = document.documentElement;
-    const set = () => {
-      const portrait = window.innerHeight >= window.innerWidth;
-      const sh = portrait ? Math.max(screen.width, screen.height) : Math.min(screen.width, screen.height);
-      const gap = sh - window.innerHeight;
-      // selisih besar = keyboard terbuka, jangan dipaksa
-      if (portrait && gap > 0 && gap < 120) root.style.setProperty("--screen-h", `${sh}px`);
-      else root.style.removeProperty("--screen-h");
-    };
-    set();
-    window.addEventListener("resize", set);
-    window.addEventListener("orientationchange", set);
-    return () => { window.removeEventListener("resize", set); window.removeEventListener("orientationchange", set); root.style.removeProperty("--screen-h"); };
-  }, []);
-
   const [confirmLogout, setConfirmLogout] = useState(false);
   const initial = (me?.name || me?.whatsapp || "?").trim().charAt(0);
 
@@ -122,11 +103,9 @@ export default function CustomerLayout() {
         </header>
 
         <main className={clsx("mx-auto w-full max-w-5xl flex-1 px-4 py-5 max-md:min-h-0 max-md:pt-[calc(env(safe-area-inset-top)+3.25rem+0.75rem)] max-md:overflow-y-auto max-md:overscroll-contain md:py-8", !detail && "pb-[calc(var(--tab-bottom)+5.5rem)] md:pb-8")}>
-          {!detail && <InstallApp variant="banner" />}
           <div key={pathname} className="animate-in fade-in slide-in-from-right-3 duration-300 md:animate-none">
             <Outlet />
           </div>
-          {!detail && <InstallApp variant="sheet" />}
         </main>
 
         {/* Tab bar bawah (mobile, halaman utama saja) */}
