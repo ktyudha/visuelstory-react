@@ -5,6 +5,7 @@ import { ChevronLeft, Clapperboard, Crop, Download, Film, Frame, ImagePlus, Layo
 import { toast } from "react-toastify";
 import clsx from "clsx";
 import Metadata from "@components/Metadata";
+import ConfirmSheet from "@components/ConfirmSheet";
 import {
   avgColor, DEFAULT_ADJ, disposePhoto, drawSlide, drawStill, FILTERS, filterSupported, GRID_LAYOUTS, loadPhoto, makeGif, makeVideo, overflow,
   pickVideoMime, RATIOS, renderGrid, type Adj, type CellRect, type GridLayout, type Photo, type Style,
@@ -92,6 +93,7 @@ export default function Studio() {
   const [busy, setBusy] = useState<number | null>(null);
   const [result, setResult] = useState<Result | null>(null);
   const [dragging, setDragging] = useState(false);
+  const [askDel, setAskDel] = useState<string | null>(null); // id foto yang akan dihapus (menunggu konfirmasi)
 
   const canvas = useRef<HTMLCanvasElement>(null);
   const cells = useRef<CellRect[]>([]);
@@ -148,12 +150,15 @@ export default function Studio() {
     setPhotos((p) => [...p, ...ok]);
   }, []);
 
-  const removeSel = () => {
-    if (!sel) return;
-    disposePhoto(sel);
-    setPhotos((p) => p.filter((x) => x.id !== sel.id));
-    setSelId(null);
+  const removePhoto = (id: string) => {
+    const p = photosRef.current.find((x) => x.id === id);
+    if (!p) return;
+    disposePhoto(p);
+    setPhotos((l) => l.filter((x) => x.id !== id));
+    setAdjs((a) => { const n = { ...a }; delete n[id]; return n; });
+    setSelId((s) => (s === id ? null : s));
   };
+  const removeSel = () => selId && setAskDel(selId);
   const setZoom = (z: number) => selId && setAdjs((a) => ({ ...a, [selId]: { ...(a[selId] ?? DEFAULT_ADJ), z } }));
   const resetSel = () => selId && setAdjs((a) => { const n = { ...a }; delete n[selId]; return n; });
 
@@ -203,6 +208,7 @@ export default function Studio() {
   });
   const startDrag = () => { if (drag.current) { drag.current.active = true; setDragId(drag.current.id); navigator.vibrate?.(10); } };
   const trayDown = (e: React.PointerEvent, id: string) => {
+    if ((e.target as HTMLElement).closest("button")) return; // tombol hapus
     e.currentTarget.setPointerCapture(e.pointerId);
     drag.current = { id, sx: e.clientX, sy: e.clientY, active: false };
     if (e.pointerType !== "mouse") drag.current.timer = window.setTimeout(startDrag, 250);
@@ -431,6 +437,8 @@ export default function Studio() {
                 className={clsx("relative size-[4.5rem] shrink-0 cursor-grab select-none overflow-hidden rounded-xl bg-neutral-800 transition", selId === p.id && "ring-2 ring-gold-500", dragId === p.id && "z-10 scale-110 opacity-80 shadow-xl ring-2 ring-white")}>
                 <img src={p.thumb} alt={p.name} draggable={false} className="pointer-events-none size-full object-cover" />
                 <span className="absolute left-1 top-1 grid size-4 place-items-center rounded-full bg-black/60 text-[9px] font-bold">{i + 1}</span>
+                <button aria-label={`Hapus foto ${i + 1}`} onClick={() => setAskDel(p.id)}
+                  className="absolute right-0.5 top-0.5 grid size-6 place-items-center rounded-full bg-black/70 text-white active:scale-90"><X className="size-3.5" /></button>
               </li>
             ))}
             {photos.length < MAX_PHOTOS && (
@@ -459,6 +467,11 @@ export default function Studio() {
         )}
         <div className="px-6 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-2 lg:hidden">{liquidNav}</div>
       </div>
+
+      {askDel && (
+        <ConfirmSheet title="Hapus foto ini?" message="Foto dikeluarkan dari Studio. File asli di galeri Anda tidak ikut terhapus." confirmLabel="Ya, hapus" danger
+          onConfirm={() => { removePhoto(askDel); setAskDel(null); }} onClose={() => setAskDel(null)} />
+      )}
 
       {/* Hasil */}
       {result && createPortal(
