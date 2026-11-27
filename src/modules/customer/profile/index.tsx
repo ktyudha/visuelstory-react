@@ -96,7 +96,7 @@ export default function Profile() {
       <section>
         <h2 className={sectionTitle}>Lainnya</h2>
         <Card className="divide-y divide-neutral-100 overflow-hidden dark:divide-neutral-800">
-          <Link to="/account/studio" className={row}><Images className="size-5 text-neutral-500 dark:text-neutral-400" /><span className="flex-1">Studio Foto (GIF, video, grid)</span>{chevron}</Link>
+          <Link to="/studio" className={row}><Images className="size-5 text-neutral-500 dark:text-neutral-400" /><span className="flex-1">Studio Foto (GIF, video, grid)</span>{chevron}</Link>
           <Link to="/" className={row}><Globe className="size-5 text-neutral-500 dark:text-neutral-400" /><span className="flex-1">Website Visuelstory</span>{chevron}</Link>
           <a href={`https://wa.me/${ADMIN_WHATSAPP}`} target="_blank" rel="noreferrer" className={row}><MessageCircle className="size-5 text-neutral-500 dark:text-neutral-400" /><span className="flex-1">Hubungi kami</span>{chevron}</a>
         </Card>

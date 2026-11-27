@@ -15,6 +15,7 @@ const LINKS = [
   { to: "/portfolio", label: "Portfolio" },
   { to: "/about", label: "About" },
   { to: "/investment", label: "Pricelist" },
+  { to: "/studio", label: "Studio" },
   { to: "/contact", label: "Contact" },
 ];
 

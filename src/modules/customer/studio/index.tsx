@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, Clapperboard, Crop, Download, Film, Frame, ImagePlus, LayoutGrid, Palette, Play, Plus, RectangleVertical, RotateCcw, Share2, Sparkles, Timer, Trash2, X } from "lucide-react";
+import { ChevronDown, ChevronLeft, Clapperboard, Crop, Download, Film, Frame, ImagePlus, LayoutGrid, Palette, Play, Pipette, Plus, RectangleVertical, RotateCcw, Share2, Sparkles, Timer, Trash2, X } from "lucide-react";
 import { toast } from "react-toastify";
 import clsx from "clsx";
+import { HelmetProvider } from "react-helmet-async";
 import Metadata from "@components/Metadata";
 import ConfirmSheet from "@components/ConfirmSheet";
 import {
@@ -22,22 +23,18 @@ const MODES = [
   { m: "gif" as const, t: "GIF", icon: Film },
   { m: "video" as const, t: "Video", icon: Clapperboard },
 ];
-const GRID_TOOLS = [
-  { id: "template", t: "Template", icon: LayoutGrid },
-  { id: "color", t: "Warna", icon: Palette },
-  { id: "frame", t: "Bingkai", icon: Frame },
-  { id: "filter", t: "Filter", icon: Sparkles },
-  { id: "photo", t: "Foto", icon: Crop },
-];
-const SLIDE_TOOLS = [
-  { id: "ratio", t: "Rasio", icon: RectangleVertical },
-  { id: "time", t: "Waktu", icon: Timer },
-  { id: "filter", t: "Filter", icon: Sparkles },
-  { id: "photo", t: "Foto", icon: Crop },
-];
-
 const lbl = "mb-2 block text-[11px] font-medium uppercase tracking-wider text-white/50";
 const pill = (on: boolean) => clsx("rounded-full px-3.5 py-1.5 text-sm font-medium transition active:scale-95", on ? "bg-gold-500 text-neutral-950" : "bg-white/10 text-white/80 hover:bg-white/15");
+const TOOL_META: Record<string, { t: string; title: string; icon: typeof Crop }> = {
+  photo: { t: "Foto", title: "Foto terpilih", icon: Crop },
+  template: { t: "Template", title: "Template", icon: LayoutGrid },
+  color: { t: "Warna", title: "Warna latar", icon: Palette },
+  frame: { t: "Bingkai", title: "Bingkai", icon: Frame },
+  ratio: { t: "Rasio", title: "Rasio", icon: RectangleVertical },
+  time: { t: "Waktu", title: "Waktu", icon: Timer },
+  filter: { t: "Filter", title: "Filter", icon: Sparkles },
+};
+const SNAP = [24, 40, 66]; // tinggi bottom sheet (dvh) di mobile
 const slider = "h-1.5 w-full cursor-pointer appearance-none rounded-full bg-white/20 accent-[#d4af37]";
 
 function Switch({ on, onChange, title, desc }: { on: boolean; onChange: (v: boolean) => void; title: string; desc: string }) {
@@ -51,6 +48,42 @@ function Switch({ on, onChange, title, desc }: { on: boolean; onChange: (v: bool
         <span className={clsx("absolute top-0.5 size-5 rounded-full bg-white shadow transition-all", on ? "left-[1.1rem]" : "left-0.5")} />
       </span>
     </button>
+  );
+}
+
+function useMedia(q: string) {
+  const [m, setM] = useState(() => window.matchMedia(q).matches);
+  useEffect(() => {
+    const mq = window.matchMedia(q), f = () => setM(mq.matches);
+    mq.addEventListener("change", f);
+    return () => mq.removeEventListener("change", f);
+  }, [q]);
+  return m;
+}
+
+/** Slider dengan angka yang bisa diketik langsung (seperti panel properti Figma). */
+function NumSlider({ label, value, min, max, step = 1, onChange }: { label: string; value: number; min: number; max: number; step?: number; onChange: (v: number) => void }) {
+  return (
+    <div>
+      <div className="mb-2 flex items-center justify-between">
+        <span className={clsx(lbl, "!mb-0")}>{label}</span>
+        <input type="number" value={Number(value.toFixed(2))} min={min} max={max} step={step}
+          onChange={(e) => { const v = parseFloat(e.target.value); if (!Number.isNaN(v)) onChange(Math.min(max, Math.max(min, v))); }}
+          className="w-16 rounded-md bg-white/10 px-2 py-1 text-right text-xs tabular-nums outline-none focus:ring-1 focus:ring-gold-500" />
+      </div>
+      <input type="range" min={min} max={max} step={step} value={value} onChange={(e) => onChange(+e.target.value)} className={slider} />
+    </div>
+  );
+}
+
+function Section({ title, open, onToggle, children }: { title: string; open: boolean; onToggle: () => void; children: React.ReactNode }) {
+  return (
+    <section className="border-b border-white/10">
+      <button onClick={onToggle} aria-expanded={open} className="flex w-full items-center justify-between px-4 py-3 text-xs font-semibold uppercase tracking-wider text-white/70 hover:text-white">
+        <span>{title}</span><ChevronDown className={clsx("size-4 transition", !open && "-rotate-90")} />
+      </button>
+      {open && <div className="px-4 pb-4">{children}</div>}
+    </section>
   );
 }
 
@@ -74,7 +107,7 @@ function LayoutThumb({ l, on, onClick }: { l: GridLayout; on: boolean; onClick: 
 
 export default function Studio() {
   const navigate = useNavigate();
-  const close = () => (window.history.length > 1 ? navigate(-1) : navigate("/account/profile"));
+  const close = () => (window.history.length > 1 ? navigate(-1) : navigate("/"));
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [mode, setMode] = useState<Mode>("grid");
   const [tool, setTool] = useState("template");
@@ -83,6 +116,12 @@ export default function Studio() {
   const [gap, setGap] = useState(16);
   const [round, setRound] = useState(0);
   const [bg, setBg] = useState("#ffffff");
+  const [hex, setHex] = useState("#ffffff");
+  const [recent, setRecent] = useState<string[]>([]);
+  const [openSec, setOpenSec] = useState<Record<string, boolean>>({});
+  const [sheetVh, setSheetVh] = useState(SNAP[0]);
+  const [sheetDrag, setSheetDrag] = useState(false);
+  const isDesktop = useMedia("(min-width: 1024px)");
   const [ratioId, setRatioId] = useState("9:16");
   const [seconds, setSeconds] = useState(1.5);
   const [fade, setFade] = useState(true);
@@ -108,13 +147,37 @@ export default function Studio() {
   const slideOpts = { ...style, seconds, fade: fade ? Math.min(0.5, seconds / 2) : 0, zoom: mode === "video" && kb };
   const videoOk = !!pickVideoMime();
   const fxOk = filterSupported();
-  const tools = (mode === "grid" ? GRID_TOOLS : SLIDE_TOOLS).filter((t) => t.id !== "filter" || fxOk);
-  const activeTool = tools.find((t) => t.id === tool)?.id ?? tools[0].id;
+  const toolIds = [...(selId ? ["photo"] : []), ...(mode === "grid" ? ["template", "color", "frame"] : ["ratio", "time"]), ...(fxOk ? ["filter"] : [])];
+  const activeTool = toolIds.includes(tool) ? tool : toolIds[0];
   const counts = [...new Set(GRID_LAYOUTS.map((l) => l.cells.length))].sort((a, b) => a - b);
   const shownCnt = cnt === "auto" ? (counts.includes(photos.length) ? photos.length : "all") : cnt;
   const sel = photos.find((p) => p.id === selId) ?? null;
   const selAdj = (selId && adjs[selId]) || DEFAULT_ADJ;
   const need2 = mode !== "grid" && photos.length < 2;
+
+  // Panel mengikuti pilihan (seperti Figma): pilih foto -> properti foto; lepas -> kembali ke properti karya
+  useEffect(() => {
+    if (selId) setTool("photo");
+    else setTool((t) => (t === "photo" ? (mode === "grid" ? "template" : "ratio") : t));
+  }, [selId, mode]);
+  useEffect(() => setHex(bg), [bg]);
+  const remember = (c: string) => setRecent((r) => [c, ...r.filter((x) => x !== c)].slice(0, 6));
+  const pickBg = (c: string, keep = true) => { setBg(c); if (keep) remember(c); };
+  const commitHex = (v: string) => { const c = v.startsWith("#") ? v : `#${v}`; if (/^#[0-9a-f]{6}$/i.test(c)) pickBg(c.toLowerCase()); else setHex(bg); };
+  const eyeOk = typeof window !== "undefined" && "EyeDropper" in window;
+  const eyedrop = () => {
+    const ED = (window as unknown as { EyeDropper: new () => { open: () => Promise<{ sRGBHex: string }> } }).EyeDropper;
+    new ED().open().then((r) => pickBg(r.sRGBHex)).catch(() => undefined);
+  };
+
+  /* ----- Sheet mobile: tarik gagang untuk menaikkan / menurunkan ----- */
+  const sheetRef = useRef<{ y: number; h: number } | null>(null);
+  const sheetDown = (e: React.PointerEvent) => { e.currentTarget.setPointerCapture(e.pointerId); sheetRef.current = { y: e.clientY, h: sheetVh }; setSheetDrag(true); };
+  const sheetMove = (e: React.PointerEvent) => {
+    const g = sheetRef.current;
+    if (g) setSheetVh(Math.max(15, Math.min(75, g.h + ((g.y - e.clientY) / window.innerHeight) * 100)));
+  };
+  const sheetUp = () => { sheetRef.current = null; setSheetDrag(false); setSheetVh((v) => SNAP.reduce((a, b) => (Math.abs(b - v) < Math.abs(a - v) ? b : a))); };
 
   // Foto bersifat sementara: bersihkan semuanya saat halaman ditutup
   useEffect(() => () => { photosRef.current.forEach(disposePhoto); }, []);
@@ -293,8 +356,8 @@ export default function Studio() {
   );
 
   /* ----- Panel pengaturan (di bawah pratinjau) ----- */
-  const panel = (() => {
-    switch (activeTool) {
+  const content = (id: string) => {
+    switch (id) {
       case "template": return (
         <div>
           <div className="mb-2 flex gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none]">
@@ -311,24 +374,40 @@ export default function Studio() {
         </div>
       );
       case "color": return (
-        <div>
-          <span className={lbl}>Warna latar</span>
-          <div className="flex flex-wrap items-center gap-2.5">
-            {SWATCHES.map((c) => (
-              <button key={c} aria-label={c} onClick={() => setBg(c)} style={{ background: c }}
-                className={clsx("size-9 rounded-full border border-white/20 transition active:scale-90", bg === c && "ring-2 ring-gold-500 ring-offset-2 ring-offset-neutral-900")} />
-            ))}
-            <label className="relative grid size-9 cursor-pointer place-items-center rounded-full border border-dashed border-white/40" title="Warna sendiri">
-              <Plus className="size-4" /><input type="color" value={bg} onChange={(e) => setBg(e.target.value)} className="absolute inset-0 cursor-pointer opacity-0" />
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <label className="relative size-9 shrink-0 cursor-pointer overflow-hidden rounded-lg border border-white/20" style={{ background: bg }} title="Pilih warna">
+              <input type="color" value={bg} onChange={(e) => pickBg(e.target.value, false)} onBlur={() => remember(bg)} className="absolute inset-0 cursor-pointer opacity-0" />
             </label>
-            {photos[0] && <button onClick={() => setBg(avgColor(photos[0].bmp))} className={clsx(pill(false), "!py-1.5 text-xs")}>Dari foto</button>}
+            <input value={hex} onChange={(e) => setHex(e.target.value)} onBlur={(e) => commitHex(e.target.value)} onKeyDown={(e) => e.key === "Enter" && commitHex(hex)}
+              maxLength={7} spellCheck={false} aria-label="Kode warna hex"
+              className="min-w-0 flex-1 rounded-lg bg-white/10 px-3 py-2 font-mono text-sm uppercase outline-none focus:ring-1 focus:ring-gold-500" />
+            {eyeOk && <button onClick={eyedrop} aria-label="Pipet warna dari layar" title="Pipet" className="grid size-9 shrink-0 place-items-center rounded-lg bg-white/10 active:scale-90"><Pipette className="size-4" /></button>}
+            {photos[0] && <button onClick={() => pickBg(avgColor(photos[0].bmp))} className="shrink-0 rounded-lg bg-white/10 px-2.5 py-2 text-xs active:scale-95">Dari foto</button>}
           </div>
+          <div>
+            <span className={lbl}>Warna</span>
+            <div className="flex flex-wrap gap-2">
+              {SWATCHES.map((c) => (
+                <button key={c} aria-label={c} onClick={() => pickBg(c)} style={{ background: c }}
+                  className={clsx("size-8 rounded-full border border-white/20 transition active:scale-90", bg === c && "ring-2 ring-gold-500 ring-offset-2 ring-offset-neutral-900")} />
+              ))}
+            </div>
+          </div>
+          {recent.length > 0 && (
+            <div>
+              <span className={lbl}>Terakhir dipakai</span>
+              <div className="flex flex-wrap gap-2">
+                {recent.map((c) => <button key={c} aria-label={c} onClick={() => pickBg(c)} style={{ background: c }} className="size-8 rounded-full border border-white/20 active:scale-90" />)}
+              </div>
+            </div>
+          )}
         </div>
       );
       case "frame": return (
         <div className="space-y-4">
-          <div><span className={lbl}>Jarak antar foto · {gap}</span><input type="range" min={0} max={48} value={gap} onChange={(e) => setGap(+e.target.value)} className={slider} /></div>
-          <div><span className={lbl}>Sudut membulat · {round}</span><input type="range" min={0} max={80} value={round} onChange={(e) => setRound(+e.target.value)} className={slider} /></div>
+          <NumSlider label="Jarak antar foto" value={gap} min={0} max={48} onChange={setGap} />
+          <NumSlider label="Sudut membulat" value={round} min={0} max={80} onChange={setRound} />
         </div>
       );
       case "ratio": return (
@@ -341,7 +420,7 @@ export default function Studio() {
       );
       case "time": return (
         <div className="space-y-4">
-          <div><span className={lbl}>Lama tiap foto · {seconds.toFixed(1)} detik</span><input type="range" min={0.5} max={4} step={0.1} value={seconds} onChange={(e) => setSeconds(+e.target.value)} className={slider} /></div>
+          <NumSlider label="Lama tiap foto (detik)" value={seconds} min={0.5} max={4} step={0.1} onChange={setSeconds} />
           <div className="divide-y divide-white/10 rounded-xl bg-white/5">
             <Switch on={fade} onChange={setFade} title="Transisi" desc="Perpindahan antar foto lebih mulus" />
             {mode === "video" && <Switch on={kb} onChange={setKb} title="Zoom pelan" desc="Setiap foto membesar perlahan" />}
@@ -367,7 +446,7 @@ export default function Studio() {
       );
       default: return sel ? (
         <div className="space-y-4">
-          <div><span className={lbl}>Zoom · {selAdj.z.toFixed(1)}×</span><input type="range" min={1} max={3} step={0.05} value={selAdj.z} onChange={(e) => setZoom(+e.target.value)} className={slider} /></div>
+          <NumSlider label="Zoom (×)" value={selAdj.z} min={1} max={3} step={0.05} onChange={setZoom} />
           <div className="flex gap-2">
             <button onClick={resetSel} className={clsx(pill(false), "flex items-center gap-1.5")}><RotateCcw className="size-4" />Reset</button>
             <button onClick={removeSel} className={clsx(pill(false), "flex items-center gap-1.5 !text-red-400")}><Trash2 className="size-4" />Hapus foto</button>
@@ -378,7 +457,7 @@ export default function Studio() {
         <p className="py-3 text-center text-sm text-white/60">Ketuk satu foto — di pratinjau atau di deretan bawah — lalu geser &amp; zoom untuk mengatur posisinya.</p>
       );
     }
-  })();
+  };
 
   const genBtn = (cls = "") => (
     <button onClick={generate} disabled={!photos.length || need2 || busy !== null || (mode === "video" && !videoOk)}
@@ -391,8 +470,9 @@ export default function Studio() {
   const fileInput = <input type="file" accept="image/*" multiple hidden onChange={(e) => { add(e.target.files); e.target.value = ""; }} />;
 
   return createPortal(
+    <HelmetProvider>
+    <Metadata title="Studio Foto" />
     <div className="fixed inset-0 z-[60] flex flex-col bg-neutral-950 text-white lg:grid lg:grid-cols-[minmax(0,1fr)_22rem] lg:grid-rows-1">
-      <Metadata title="Studio Foto" />
 
       {/* Kiri: pratinjau besar + deretan foto */}
       <div className="flex min-h-0 min-w-0 flex-1 flex-col lg:flex-none">
@@ -451,20 +531,32 @@ export default function Studio() {
       </div>
 
       {/* Kanan (desktop) / bawah (mobile): alat, tepat di bawah pratinjau */}
-      <div className="shrink-0 border-t border-white/10 bg-neutral-900 lg:flex lg:h-full lg:flex-col lg:overflow-y-auto lg:border-l lg:border-t-0">
-        {photos.length > 0 && (
+      <div className="shrink-0 border-t border-white/10 bg-neutral-900 lg:flex lg:h-full lg:min-h-0 lg:shrink lg:flex-col lg:border-l lg:border-t-0">
+        {photos.length > 0 && (isDesktop ? (
+          <div className="min-h-0 flex-1 overflow-y-auto">
+            {toolIds.map((id) => (
+              <Section key={id} title={TOOL_META[id].title} open={openSec[id] !== false} onToggle={() => setOpenSec((o) => ({ ...o, [id]: o[id] === false }))}>
+                {content(id)}
+              </Section>
+            ))}
+          </div>
+        ) : (
           <>
-            <div role="tablist" className="flex gap-1 overflow-x-auto px-2 pt-2 [scrollbar-width:none] lg:flex-wrap">
-              {tools.map(({ id, t, icon: Icon }) => (
+            <div onPointerDown={sheetDown} onPointerMove={sheetMove} onPointerUp={sheetUp} onPointerCancel={sheetUp} style={{ touchAction: "none" }}
+              className="grid h-5 cursor-grab place-items-center" aria-label="Tarik untuk mengubah tinggi panel" role="separator">
+              <span className="h-1 w-9 rounded-full bg-white/30" />
+            </div>
+            <div role="tablist" className="flex gap-1 overflow-x-auto px-2 [scrollbar-width:none]">
+              {toolIds.map((id) => { const { t, icon: Icon } = TOOL_META[id]; return (
                 <button key={id} role="tab" aria-selected={activeTool === id} onClick={() => setTool(id)}
                   className={clsx("flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-2 text-sm transition active:scale-95", activeTool === id ? "bg-white/15 text-gold-300" : "text-white/60 hover:text-white")}>
                   <Icon className="size-4" />{t}
                 </button>
-              ))}
+              ); })}
             </div>
-            <div className="max-h-[38dvh] overflow-y-auto px-4 py-3 lg:max-h-none lg:flex-1">{panel}</div>
+            <div style={{ height: `${sheetVh}dvh` }} className={clsx("overflow-y-auto px-4 py-3", !sheetDrag && "transition-[height] duration-300")}>{content(activeTool)}</div>
           </>
-        )}
+        ))}
         <div className="px-6 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-2 lg:hidden">{liquidNav}</div>
       </div>
 
@@ -488,7 +580,8 @@ export default function Studio() {
             <p className="text-center text-[11px] text-white/50">Hasil tidak disimpan di server. Unduh sebelum menutup.</p>
           </div>
         </div>, document.body)}
-    </div>,
+    </div>
+    </HelmetProvider>,
     document.body
   );
 }

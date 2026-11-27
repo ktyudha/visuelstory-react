@@ -20,7 +20,6 @@ const TABS = [
 
 /** Judul app bar & apakah halaman ini "detail" (tombol kembali, tanpa tab bawah). */
 function screenInfo(path: string): { title: string; detail: boolean } {
-  if (path === "/account/studio") return { title: "Studio Foto", detail: true };
   if (path.endsWith("/invoice")) return { title: "Invoice", detail: true };
   if (path.startsWith("/account/orders/")) return { title: "Detail Pesanan", detail: true };
   if (path.startsWith("/booking/package/")) return { title: "Detail Paket", detail: true };
