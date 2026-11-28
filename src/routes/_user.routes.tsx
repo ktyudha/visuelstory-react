@@ -8,6 +8,9 @@ import * as Customer from "@pages/customer";
 import AuthMiddleware from "./middlewares/AuthMiddleware";
 import ErrorPage from "@pages/ErrorPage";
 
+import Photobooth from "@modules/photobooth";
+import PhotoboothResult from "@modules/photobooth/Result";
+
 const LinkPage = lazy(() => import("@pages/user/LinkPage"));
 
 // import LinkPage from "@pages/user/LinkPage";
@@ -44,6 +47,9 @@ export default [
   },
   // Studio Foto: terbuka untuk umum (tanpa login), semua diproses di browser
   { path: "/studio", element: <Customer.StudioPage /> },
+  // Receipt Photobooth (tablet) + halaman unduh soft file dari QR (link pendek /p/KODE)
+  { path: "/photobooth", element: <Photobooth /> },
+  { path: "/p/:id", element: <PhotoboothResult /> },
   {
     path: "/links",
     element: <CustomLayout />,
